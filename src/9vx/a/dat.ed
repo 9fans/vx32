@@ -1,0 +1,54 @@
+/BIOS32ci/,/BIOS32ci;/d
+/^#define up/c
+#define up (machp[0]->externup)
+.
+v/typedef/ s!Lock;!Lock lk;!g
+/mmupdb/c
+	ulong lo;	// Plan 9 VX
+	ulong hi;	// Plan 9 VX
+	struct vxproc *vxproc;	// Plan 9 VX
+	struct vxmmap *vxmm;	// Plan 9 VX
+	void *sigstack;	// Plan 9 VX
+.
+g/mmufree/d
+g/mmuused/d
+g/lastkmap/d
+g/kmaptable/d
+g/nkmap/d
+/^struct Label/+1a
+	ulong	bp;  // Plan 9 VX
+	ulong	bx;
+	ulong	si;
+	ulong	di;
+.
+g/BIOS32ci/d
+1i
+#include <ucontext.h>
+
+.
+/	ulong\*	pbd/d
+/	Tss\*	tss/d
+/	Segdesc\*	gdt/d
+/	Proc\*	externup/d
+/	ulong	ticks/d
+/	Lock	alarmlock/d
+/	void\*	alarm/d
+/	int	inclockintr/d
+/	int	loopconst/d
+g/^	vlong	mtrr/d
+/	int	stack\[1\]/i
+	int	spl;	// Plan 9 VX
+	void	*sigstack;
+.
+/^Mach\*	machp/ s/^/extern /
+/^extern Mach	\*m/c
+extern __thread Mach	*m;	// Plan 9 VX
+extern __thread Proc	*up;	// Plan 9 VX
+.
+/^#define up/d
+$a
+
+// Plan 9 VX
+extern int traceprocs;
+extern int tracesyscalls;
+.

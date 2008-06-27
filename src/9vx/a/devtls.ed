@@ -1,0 +1,14 @@
+/^tlsgen/ s/char\*, Dirtab \*, int,/char *_, Dirtab *__, int ___,/
+/^initclearmac/ s/Hashalg \*, int, Secret \*s, uchar \*/Hashalg *h, int i, Secret *s, uchar *u/
+/^initRC4key/ s/uchar \*)/uchar *u)/
+/^initDES3key/ s/Encalg \*/Encalg *ea/
+/^initclearenc/ s/Encalg \*, Secret \*s, uchar \*, uchar \*/Encalg *ea, Secret *s, uchar *u, uchar *uu/
+/^noenc/ s/Secret \*, uchar \*/Secret *s, uchar *u/
+/^nomac/ s/uchar \*, ulong, uchar \*, ulong, uchar \*, DigestState \*/uchar *a, ulong b, uchar *c, ulong d, uchar *e, DigestState *f/
+/^static u32int	get32/d
+/^get32/-1i
+#if 0
+.
+/^}/a
+#endif
+.

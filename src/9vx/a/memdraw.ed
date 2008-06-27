@@ -1,0 +1,27 @@
+,s/allocmemimaged(Rectangle, ulong, Memdata\*)/allocmemimaged(Rectangle, ulong, Memdata*, void*)/
+/nbits\[NChan\]/a
+	void	*x;
+.
+$a
+
+extern Memimage*	_allocmemimage(Rectangle, ulong);
+extern void	_freememimage(Memimage*);
+extern void	_memfillcolor(Memimage*, ulong);
+extern int	_loadmemimage(Memimage*, Rectangle, uchar*, int);
+extern int	_cloadmemimage(Memimage*, Rectangle, uchar*, int);
+extern int	_unloadmemimage(Memimage*, Rectangle, uchar*, int);
+extern void _memimageinit(void);
+extern Memdrawparam *_memimagedrawsetup(Memimage*, Rectangle, Memimage*, Point, Memimage*, Point, int);
+extern void _memimagedraw(Memdrawparam*);
+extern ulong _rgbatoimg(Memimage*, ulong);
+extern ulong _pixelbits(Memimage*, Point);
+extern ulong _imgtorgba(Memimage*, ulong);
+
+extern ulong rgbatoimg(Memimage*, ulong);
+extern ulong pixelbits(Memimage*, Point);
+extern ulong imgtorgba(Memimage*, ulong);
+.
+/Fullmask=1<<4/c
+	Fullsrc=1<<4,
+	Fullmask=1<<5,
+.

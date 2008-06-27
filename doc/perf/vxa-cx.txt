@@ -1,0 +1,24 @@
+
+Test on Darwin 9.1.0 i386 at Sat Jan 5 23:52:10 MST 2008
+zlib	native	real	1.80	user	1.46	sys	0.05	vx32	real	1.47	user	1.16	sys	0.21	
+bz2	native	real	10.63	user	10.47	sys	0.10	vx32	real	9.81	user	9.47	sys	0.27	
+jpeg	native	real	2.28	user	1.76	sys	0.08	vx32	real	1.41	user	1.11	sys	0.26	
+jp2	native	real	15.81	user	14.34	sys	1.32	vx32	real	16.96	user	14.50	sys	2.34	
+vorbis	native	real	1.34	user	1.27	sys	0.03	vx32	real	1.70	user	1.14	sys	0.50	
+flac	native	real	1.56	user	1.29	sys	0.04	vx32	real	1.47	user	1.16	sys	0.17	
+
+Test on Darwin 9.1.0 i386 at Sun Jan 6 11:36:38 MST 2008
+zlib	native	real	1.87	user	1.54	sys	0.06	vx32	real	1.33	user	1.16	sys	0.15	
+bz2	native	real	10.45	user	10.33	sys	0.09	vx32	real	9.70	user	9.46	sys	0.21	
+jpeg	native	real	2.37	user	1.82	sys	0.09	vx32	real	1.32	user	1.10	sys	0.19	
+jp2	native	real	15.79	user	14.36	sys	1.27	vx32	real	16.75	user	14.47	sys	2.22	
+vorbis	native	real	1.78	user	1.28	sys	0.03	vx32	real	1.60	user	1.14	sys	0.43	
+flac	native	real	1.50	user	1.29	sys	0.04	vx32	real	1.28	user	1.16	sys	0.10	
+
+Test on Darwin 9.1.0 i386 at Sun Jan 6 11:37:48 MST 2008
+zlib	native	real	1.32	user	1.28	sys	0.03	vx32	real	1.31	user	1.16	sys	0.15	
+bz2	native	real	10.31	user	10.24	sys	0.05	vx32	real	9.69	user	9.50	sys	0.18	
+jpeg	native	real	1.83	user	1.75	sys	0.07	vx32	real	1.30	user	1.10	sys	0.19	
+jp2	native	real	15.59	user	14.31	sys	1.26	vx32	real	16.77	user	14.49	sys	2.27	
+vorbis	native	real	1.31	user	1.28	sys	0.03	vx32	real	1.58	user	1.14	sys	0.43	
+flac	native	real	1.28	user	1.25	sys	0.03	vx32	real	1.27	user	1.16	sys	0.10	

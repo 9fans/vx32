@@ -1,0 +1,29 @@
+/^$/a
+extern uchar _end[];	// Plan 9 VX
+
+.
+,s!(ulong)end!(ulong)_end!g
+g/CMfair/d
+g/CMunfair/d
+g/edf/d
+g/^profclock/ s/Timer \*)/Timer *t)/
+g/^procgen/ s/int,/int _,/
+g/^_proctrace/ s/Tevent/int/
+g/^[a-z]/ s/(void \*)/(void *_)/
+,s!lock(f)!lock(\&f->ref.lk)!g
+,s!lock(s)!lock(\&s->ref.lk)!g
+,s!lock(i)!lock(\&i->ref.lk)!g
+,s!ref(tc)!ref(\&tc->ref)!g
+,s!ref++!ref.ref++!g
+,s!ref(ps->image)!ref(\&ps->image->ref)!g
+/^parsetime/-1,/^	return nil/+1d
+/^	vlong time;/d
+/^	char \*e;/d
+/^	void (\*pt)/d
+/^	CMperiod,/,/^	CMevent,/d
+/^	CMperiod,/,/^	CMevent,/d
+/^	case CMperiod:/,/^	case CMevent:/+4d
+g/real time/d
+/if(s->flushme)/d
+d
+,s/MACHP(0)->ticks/msec()/g

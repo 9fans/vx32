@@ -1,0 +1,3 @@
+,s/isascii(c) && isxdigit(c)/(&)/
+,s/isascii(c) && isalnum(c)/(&)/
+,s/\*p != ':' && !delimchar(\*p)/(&)/

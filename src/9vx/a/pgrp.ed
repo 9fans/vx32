@@ -1,0 +1,10 @@
+,s!->ref =!->ref.ref =!
+,s!ref(f)!ref(\&f->ref)!g
+,s!ref(r)!ref(\&r->ref)!g
+,s!ref(p)!ref(\&p->ref)!g
+,s!ref(to)!ref(\&to->ref)!g
+,s!ref(c)!ref(\&c->ref)!g
+,s!lock(\&mountid)!lock(\&mountid.lk)!g
+,s!lock(f)!lock(\&f->ref.lk)!g
+,s!(c = f->fd\[i\])!(&)!g
+,s/panic("resrcwait")/panic("resrcwait: %s", reason)/

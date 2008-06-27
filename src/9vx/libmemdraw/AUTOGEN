@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# Most of the library files come in virtually unchanged.
+# Rather than maintain the few changes by hand, we keep a set
+# of ed scripts that we can run on the originals to produce 
+# the versions we need.
+#
+# Note that the headers are in ../a
+
+autofiles="
+/sys/src/libmemdraw/alloc.c
+/sys/src/libmemdraw/arc.c
+/sys/src/libmemdraw/arctest.c
+/sys/src/libmemdraw/cload.c
+/sys/src/libmemdraw/cmap.c
+/sys/src/libmemdraw/defont.c
+/sys/src/libmemdraw/draw.c
+/sys/src/libmemdraw/ellipse.c
+/sys/src/libmemdraw/fillpoly.c
+/sys/src/libmemdraw/line.c
+/sys/src/libmemdraw/load.c
+/sys/src/libmemdraw/poly.c
+/sys/src/libmemdraw/string.c
+/sys/src/libmemdraw/subfont.c
+/sys/src/libmemdraw/unload.c
+"
+
+case "$#" in
+0)
+	;;
+*)
+	autofiles="$*"
+esac
+
+plan9=/home/rsc/plan9/4e
+
+for f in $autofiles
+do
+	ed=`echo $f | sed 's;.*/;;; s;\.[ch]$;;; s;$;.ed;'`
+	out=`echo $f | sed 's;.*/;;;'`
+	echo $f '->' $out
+	test -f $out && chmod +w $out
+	(
+		echo ',s;"../port/;";g'
+		echo ',s;#include.*<;#include ";g'
+		echo ',s;#include.*>;&FIXINCLUDEME;g'
+		echo ',s;>FIXINCLUDEME;";g'
+		echo ',s;"libc.h";"lib.h";g'
+		echo 'g/#pragma/d'
+		test -f $ed && cat $ed
+		echo w $out
+		echo q
+	) | ed $plan9/$f 2>&1 | egrep -v '^[0-9?]+$'
+	chmod -w $out
+done

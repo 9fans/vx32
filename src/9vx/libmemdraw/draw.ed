@@ -1,0 +1,66 @@
+/#include "pool/d
+,s/(i=x\&(npack-1))/(&)/
+,s/(p=b.grey)/(&)/
+,s/(p=b.red)/(&)/
+,s/(p=b.grn)/(&)/
+,s/(p=b.blu)/(&)/
+g/imagmem/d
+,s/SET(bits)/bits=0/
+g/ptrfn/d
+g/^static.*drawbuf;/d
+/^readcmap/+4a
+	memset(&b, 0, sizeof b); // shut up gcc
+.
+/^readptr/+4a
+	memset(&b, 0, sizeof b); // shut up gcc
+.
+/^readnbit/+4a
+	memset(&b, 0, sizeof b); // shut up gcc
+.
+/^	static int n = 0;/d
+/pixel value is now in high/ s!/\*!//!
+/^static Dbuf dbuf/a
+extern int _tas(int*);
+.
+/^imgtorgba/ s/^/_/
+.-1s/static //
+/^rgbatoimg/ s/^/_/
+.-1s/static //
+/^pixelbits/ s/^/_/
+.-1s/static //
+/^memfillcolor/ s/^/_/
+,s/draw(\&par)/draw(par)/g
+/Now that we've clipped/-2i
+
+	return &par;
+}
+
+void
+_memimagedraw(Memdrawparam *par)
+{
+	if(par == nil)
+		return;
+.
+/^	Memdrawparam par/ s/Mem/static Mem/
+/^memimagedraw/ s/memimagedraw/_memimagedrawsetup/
+.-1s/void/Memdrawparam*/
+.,/return \&par/ s/return;/return nil;/
+/^static ulong imgtorgba/d
+/^static ulong rgbatoimg/d
+/^static ulong pixelbits/d
+/^memimageinit/ s/^/_/
+,s/_ifmt/__ifmt/g
+,s/ imgtorgba/ _imgtorgba/g
+,s/ rgbatoimg/ _rgbatoimg/g
+/^memsetb/-1i
+#if 0
+.
+/^}/a
+#endif
+.
+/^memsets
+,s/Replsrc|Simplesrc/Replsrc|Simplesrc|Fullsrc/g
+/par.srgba\&0xFF/i
+			if((par.srgba&0xFF) == 0xFF)
+				par.state |= Fullsrc;
+.

@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# Find the -o or -c argument.
+iscc=0
+next=0
+out=a.out
+for i
+do
+	case "$next" in
+	1)
+		out="$i"
+		next=0
+		;;
+	esac
+	case "$i" in
+	-o)
+		next=1
+		;;
+	-c)
+		iscc=1
+		;;
+	esac
+done
+
+case "$out" in
+/*)
+	;;
+*)
+	out="`pwd`/$out"
+	;;
+esac
+
+# Run regular gcc
+gcc -static "$@" || exit $?
+
+case "$iscc" in
+1)
+	exit 0
+esac
+
+# Rename output to _output
+uout="`echo $out | sed 's!.*/!&_!'`"
+mv $out $uout
+
+# Write new output file 
+cat >$out <<EOF
+#!/bin/sh
+case "\$VXNATIVE" in
+1)
+	exec "$uout" "\$@"
+	;;
+*)
+	exec vxlinux "$uout" "\$@"
+	;;
+esac
+EOF
+chmod +x $out
+exit 0

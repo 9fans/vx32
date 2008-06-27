@@ -1,0 +1,105 @@
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:30:57 EST 2008
+md5	native	real	3.85	user	2.90	sys	0.69	vx32	real	4.55	user	3.28	sys	0.73	
+sha1	native	real	7.97	user	7.34	sys	0.34	vx32	real	8.99	user	8.13	sys	0.59	
+sha2	native	real	33.93	user	33.25	sys	0.42	vx32	real	34.52	user	33.41	sys	0.67	
+ripemd	native	real	9.87	user	9.00	sys	0.56	vx32	real	10.60	user	9.70	sys	0.61	
+whirlpool	native	real	7.17	user	6.29	sys	0.57	vx32	real	7.50	user	6.57	sys	0.61	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:33:06 EST 2008
+md5	native	real	3.75	user	2.88	sys	0.58	vx32	real	4.10	user	3.32	sys	0.53	
+sha1	native	real	7.90	user	7.37	sys	0.28	vx32	real	9.30	user	8.33	sys	0.66	
+sha2	native	real	34.33	user	33.40	sys	0.47	vx32	real	34.66	user	33.51	sys	0.71	
+ripemd	native	real	9.84	user	8.92	sys	0.55	vx32	real	10.69	user	9.76	sys	0.63	
+whirlpool	native	real	7.18	user	6.32	sys	0.57	vx32	real	7.62	user	6.55	sys	0.70	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:35:15 EST 2008
+md5	native	real	3.70	user	2.91	sys	0.59	vx32	real	4.33	user	3.36	sys	0.68	
+sha1	native	real	7.92	user	7.38	sys	0.27	vx32	real	9.15	user	8.20	sys	0.66	
+sha2	native	real	34.00	user	33.27	sys	0.30	vx32	real	34.51	user	33.47	sys	0.61	
+ripemd	native	real	9.88	user	9.05	sys	0.52	vx32	real	10.74	user	9.58	sys	0.83	
+whirlpool	native	real	7.16	user	6.17	sys	0.63	vx32	real	7.44	user	6.52	sys	0.63	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:37:24 EST 2008
+md5	native	real	3.69	user	2.90	sys	0.56	vx32	real	4.29	user	3.33	sys	0.70	
+sha1	native	real	7.90	user	7.34	sys	0.30	vx32	real	9.15	user	8.24	sys	0.63	
+sha2	native	real	34.00	user	33.19	sys	0.33	vx32	real	34.61	user	33.48	sys	0.70	
+ripemd	native	real	9.91	user	8.99	sys	0.53	vx32	real	10.55	user	9.57	sys	0.62	
+whirlpool	native	real	7.19	user	6.32	sys	0.56	vx32	real	7.41	user	6.46	sys	0.64	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:39:33 EST 2008
+md5	native	real	3.70	user	2.88	sys	0.54	vx32	real	4.12	user	3.21	sys	0.60	
+sha1	native	real	7.90	user	7.36	sys	0.28	vx32	real	9.22	user	8.26	sys	0.66	
+sha2	native	real	34.14	user	33.43	sys	0.27	vx32	real	34.75	user	33.55	sys	0.69	
+ripemd	native	real	9.83	user	9.12	sys	0.44	vx32	real	10.75	user	9.76	sys	0.67	
+whirlpool	native	real	7.16	user	6.22	sys	0.59	vx32	real	7.41	user	6.37	sys	0.75	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:30:57 EST 2008
+md5	native	real	3.85	user	2.90	sys	0.69	vx32	real	4.55	user	3.28	sys	0.73	
+sha1	native	real	7.97	user	7.34	sys	0.34	vx32	real	8.99	user	8.13	sys	0.59	
+sha2	native	real	33.93	user	33.25	sys	0.42	vx32	real	34.52	user	33.41	sys	0.67	
+ripemd	native	real	9.87	user	9.00	sys	0.56	vx32	real	10.60	user	9.70	sys	0.61	
+whirlpool	native	real	7.17	user	6.29	sys	0.57	vx32	real	7.50	user	6.57	sys	0.61	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:33:06 EST 2008
+md5	native	real	3.75	user	2.88	sys	0.58	vx32	real	4.10	user	3.32	sys	0.53	
+sha1	native	real	7.90	user	7.37	sys	0.28	vx32	real	9.30	user	8.33	sys	0.66	
+sha2	native	real	34.33	user	33.40	sys	0.47	vx32	real	34.66	user	33.51	sys	0.71	
+ripemd	native	real	9.84	user	8.92	sys	0.55	vx32	real	10.69	user	9.76	sys	0.63	
+whirlpool	native	real	7.18	user	6.32	sys	0.57	vx32	real	7.62	user	6.55	sys	0.70	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:35:15 EST 2008
+md5	native	real	3.70	user	2.91	sys	0.59	vx32	real	4.33	user	3.36	sys	0.68	
+sha1	native	real	7.92	user	7.38	sys	0.27	vx32	real	9.15	user	8.20	sys	0.66	
+sha2	native	real	34.00	user	33.27	sys	0.30	vx32	real	34.51	user	33.47	sys	0.61	
+ripemd	native	real	9.88	user	9.05	sys	0.52	vx32	real	10.74	user	9.58	sys	0.83	
+whirlpool	native	real	7.16	user	6.17	sys	0.63	vx32	real	7.44	user	6.52	sys	0.63	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:37:24 EST 2008
+md5	native	real	3.69	user	2.90	sys	0.56	vx32	real	4.29	user	3.33	sys	0.70	
+sha1	native	real	7.90	user	7.34	sys	0.30	vx32	real	9.15	user	8.24	sys	0.63	
+sha2	native	real	34.00	user	33.19	sys	0.33	vx32	real	34.61	user	33.48	sys	0.70	
+ripemd	native	real	9.91	user	8.99	sys	0.53	vx32	real	10.55	user	9.57	sys	0.62	
+whirlpool	native	real	7.19	user	6.32	sys	0.56	vx32	real	7.41	user	6.46	sys	0.64	
+
+Test on Linux 2.6.20-15-386 unknown at Sat Jan 5 02:39:33 EST 2008
+md5	native	real	3.70	user	2.88	sys	0.54	vx32	real	4.12	user	3.21	sys	0.60	
+sha1	native	real	7.90	user	7.36	sys	0.28	vx32	real	9.22	user	8.26	sys	0.66	
+sha2	native	real	34.14	user	33.43	sys	0.27	vx32	real	34.75	user	33.55	sys	0.69	
+ripemd	native	real	9.83	user	9.12	sys	0.44	vx32	real	10.75	user	9.76	sys	0.67	
+whirlpool	native	real	7.16	user	6.22	sys	0.59	vx32	real	7.41	user	6.37	sys	0.75	
+
+Test on Linux 2.6.20-15-386 unknown at Sun Jan 6 22:31:06 EST 2008
+md5	native	real	3.89	user	2.98	sys	0.57	vx32	real	4.53	user	3.36	sys	0.72	
+sha1	native	real	8.27	user	7.51	sys	0.25	vx32	real	9.76	user	8.45	sys	0.72	
+sha2	native	real	34.56	user	33.55	sys	0.24	vx32	real	35.27	user	33.95	sys	0.73	
+ripemd	native	real	10.02	user	9.11	sys	0.54	vx32	real	10.90	user	9.78	sys	0.64	
+whirlpool	native	real	7.38	user	6.28	sys	0.57	vx32	real	8.03	user	6.59	sys	0.75	
+
+Test on Linux 2.6.20-15-386 unknown at Sun Jan 6 22:33:19 EST 2008
+md5	native	real	3.81	user	2.81	sys	0.62	vx32	real	4.35	user	3.26	sys	0.76	
+sha1	native	real	7.95	user	7.38	sys	0.30	vx32	real	9.34	user	8.47	sys	0.67	
+sha2	native	real	34.13	user	33.41	sys	0.26	vx32	real	35.19	user	34.07	sys	0.65	
+ripemd	native	real	9.89	user	9.08	sys	0.56	vx32	real	10.86	user	9.76	sys	0.76	
+whirlpool	native	real	7.17	user	6.24	sys	0.65	vx32	real	7.64	user	6.57	sys	0.76	
+
+Test on Linux 2.6.20-15-386 unknown at Sun Jan 6 22:35:29 EST 2008
+md5	native	real	3.76	user	3.00	sys	0.54	vx32	real	4.31	user	3.38	sys	0.66	
+sha1	native	real	7.91	user	7.39	sys	0.24	vx32	real	9.42	user	8.37	sys	0.76	
+sha2	native	real	34.04	user	33.43	sys	0.32	vx32	real	35.03	user	33.93	sys	0.76	
+ripemd	native	real	9.89	user	8.98	sys	0.67	vx32	real	10.73	user	9.70	sys	0.71	
+whirlpool	native	real	7.16	user	6.26	sys	0.61	vx32	real	7.67	user	6.62	sys	0.72	
+
+Test on Linux 2.6.20-15-386 unknown at Sun Jan 6 22:37:39 EST 2008
+md5	native	real	3.69	user	2.91	sys	0.56	vx32	real	4.33	user	3.40	sys	0.62	
+sha1	native	real	7.96	user	7.36	sys	0.28	vx32	real	9.34	user	8.48	sys	0.60	
+sha2	native	real	34.09	user	33.34	sys	0.39	vx32	real	35.06	user	33.83	sys	0.86	
+ripemd	native	real	9.83	user	9.01	sys	0.59	vx32	real	10.92	user	9.73	sys	0.75	
+whirlpool	native	real	7.36	user	6.38	sys	0.52	vx32	real	7.76	user	6.50	sys	0.77	
+
+Test on Linux 2.6.20-15-386 unknown at Sun Jan 6 22:39:50 EST 2008
+md5	native	real	3.75	user	2.95	sys	0.53	vx32	real	4.33	user	3.34	sys	0.76	
+sha1	native	real	7.95	user	7.35	sys	0.35	vx32	real	9.35	user	8.32	sys	0.73	
+sha2	native	real	34.82	user	33.75	sys	0.24	vx32	real	35.78	user	33.99	sys	0.67	
+ripemd	native	real	10.07	user	9.03	sys	0.53	vx32	real	10.88	user	9.76	sys	0.68	
+whirlpool	native	real	7.17	user	6.24	sys	0.66	vx32	real	7.67	user	6.60	sys	0.72	

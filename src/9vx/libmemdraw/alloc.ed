@@ -1,0 +1,11 @@
+/#include "pool/c
+#define poolalloc(a,b) malloc(b)
+#define poolfree(a, b) free(b)
+.
+/^allocmemimaged/ s/)/, void *X)/
+/i->data = md;/a
+	i->x = X;
+.
+/^allocmemimage(/ s/^/_/
+/^freememimage(/ s/^/_/
+,s/allocmemimaged(r, chan, md)/allocmemimaged(r, chan, md, nil)/

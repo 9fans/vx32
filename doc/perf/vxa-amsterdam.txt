@@ -1,0 +1,40 @@
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:31:24 EST 2008
+zlib	native	real	1.49	user	1.37	sys	0.10	vx32	real	1.43	user	1.35	sys	0.05	
+bz2	native	real	27.20	user	26.59	sys	0.16	vx32	real	26.57	user	26.28	sys	0.13	
+jpeg	native	real	1.86	user	1.69	sys	0.16	vx32	real	1.84	user	1.27	sys	0.50	
+jp2	native	real	18.83	user	16.85	sys	1.45	vx32	real	21.55	user	18.11	sys	3.24	
+vorbis	native	real	1.48	user	1.37	sys	0.00	vx32	real	1.41	user	1.27	sys	0.04	
+flac	native	real	1.63	user	1.44	sys	0.09	vx32	real	1.64	user	1.51	sys	0.03	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:33:11 EST 2008
+zlib	native	real	1.52	user	1.41	sys	0.07	vx32	real	1.43	user	1.37	sys	0.02	
+bz2	native	real	27.01	user	26.63	sys	0.15	vx32	real	26.55	user	26.28	sys	0.09	
+jpeg	native	real	1.83	user	1.70	sys	0.12	vx32	real	1.80	user	1.29	sys	0.45	
+jp2	native	real	17.94	user	16.72	sys	1.08	vx32	real	21.50	user	18.03	sys	3.31	
+vorbis	native	real	1.38	user	1.36	sys	0.02	vx32	real	1.35	user	1.26	sys	0.05	
+flac	native	real	1.53	user	1.48	sys	0.04	vx32	real	1.59	user	1.50	sys	0.05	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:34:56 EST 2008
+zlib	native	real	1.49	user	1.44	sys	0.04	vx32	real	2.56	user	1.33	sys	0.07	
+bz2	native	real	27.60	user	26.56	sys	0.16	vx32	real	26.54	user	26.24	sys	0.10	
+jpeg	native	real	1.83	user	1.70	sys	0.11	vx32	real	1.80	user	1.46	sys	0.30	
+jp2	native	real	17.90	user	16.96	sys	0.80	vx32	real	21.56	user	18.26	sys	3.12	
+vorbis	native	real	1.44	user	1.37	sys	0.02	vx32	real	1.36	user	1.26	sys	0.05	
+flac	native	real	1.56	user	1.46	sys	0.07	vx32	real	1.59	user	1.50	sys	0.05	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:36:44 EST 2008
+zlib	native	real	1.49	user	1.41	sys	0.07	vx32	real	1.44	user	1.33	sys	0.06	
+bz2	native	real	27.04	user	26.63	sys	0.16	vx32	real	26.63	user	26.28	sys	0.14	
+jpeg	native	real	1.85	user	1.69	sys	0.13	vx32	real	1.80	user	1.39	sys	0.37	
+jp2	native	real	18.01	user	16.87	sys	0.95	vx32	real	21.64	user	18.15	sys	3.24	
+vorbis	native	real	1.40	user	1.35	sys	0.03	vx32	real	1.34	user	1.29	sys	0.02	
+flac	native	real	1.52	user	1.49	sys	0.02	vx32	real	1.59	user	1.52	sys	0.02	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:38:30 EST 2008
+zlib	native	real	1.49	user	1.44	sys	0.04	vx32	real	1.51	user	1.36	sys	0.04	
+bz2	native	real	26.95	user	26.55	sys	0.22	vx32	real	26.58	user	26.23	sys	0.18	
+jpeg	native	real	1.84	user	1.72	sys	0.10	vx32	real	1.80	user	1.39	sys	0.36	
+jp2	native	real	18.02	user	16.98	sys	0.83	vx32	real	21.73	user	18.24	sys	3.20	
+vorbis	native	real	1.41	user	1.37	sys	0.02	vx32	real	1.37	user	1.24	sys	0.09	
+flac	native	real	1.55	user	1.44	sys	0.09	vx32	real	1.59	user	1.50	sys	0.05	

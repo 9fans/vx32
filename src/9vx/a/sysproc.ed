@@ -1,0 +1,28 @@
+g/"edf.h"/d
+,s/->ref =/->ref.ref =/g
+,s/ref(p->dot)/ref(\&p->dot->ref)/g
+,s/ref(p->fgrp)/ref(\&p->fgrp->ref)/g
+,s/ref(p->pgrp)/ref(\&p->pgrp->ref)/g
+,s/ref(p->rgrp)/ref(\&p->rgrp->ref)/g
+,s/ref(p->egrp)/ref(\&p->egrp->ref)/g
+,s/lock(img)/lock(\&img->ref.lk)/g
+,s/ref(img)/ref(\&img->ref)/g
+,s/return0(void\*)/return0(void *v)/g
+,s/(s = up->seg\[i\])/(&)/g
+/edf.*Admitted/,/else/d
+,s;MACHP(0)->ticks;msec();g
+/ESEG.*= newseg/a
+	flushmmu();	// Needed for Plan 9 VX
+.
+,s;sleep(\&phore;sleep(\&phore.rendez;g
+,s;lock(\&s->sema);lock(\&s->sema.rendez.lk);g
+,s;wakeup(p);wakeup(\&p->rendez);g
+,s;lock(up->rgrp);lock(\&up->rgrp->ref.lk);g
+,s;ref(up->rgrp);ref(\&up->rgrp->ref);g
+/sysr1/ s/(ulong\*)/(ulong *x)/
+/Admitted/,/	yield/c
+		yield();
+.
+/^	checkpagerefs/ c
+	vx32sysr1();
+.

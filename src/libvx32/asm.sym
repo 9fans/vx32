@@ -1,0 +1,50 @@
+
+#include "vx32.h"
+#include "vx32impl.h"
+
+// start the ball rolling
+expr ASDF 12345
+
+#ifndef i386
+// simple defines
+expr	FLATCODE	FLATCODE
+expr	FLATDATA	FLATDATA
+#endif
+
+// vxemu struct
+offset	VXEMU_DATASEL	vxemu	datasel
+offset	VXEMU_EMUSEL	vxemu	emusel
+offset	VXEMU_EMUPTR	vxemu	emuptr
+
+offset	VXEMU_REG	vxemu	cpu.reg
+offset	VXEMU_EAX	vxemu	cpu.reg[EAX]
+offset	VXEMU_ECX	vxemu	cpu.reg[ECX]
+offset	VXEMU_EDX	vxemu	cpu.reg[EDX]
+offset	VXEMU_EBX	vxemu	cpu.reg[EBX]
+offset	VXEMU_ESP	vxemu	cpu.reg[ESP]
+offset	VXEMU_EBP	vxemu	cpu.reg[EBP]
+offset	VXEMU_ESI	vxemu	cpu.reg[ESI]
+offset	VXEMU_EDI	vxemu	cpu.reg[EDI]
+offset	VXEMU_EIP	vxemu	cpu.eip
+offset	VXEMU_EFLAGS	vxemu	cpu.eflags
+
+offset	VXEMU_TRAPNO	vxemu	cpu_trap
+offset	VXEMU_JMPINFO	vxemu	jmpinfo
+
+offset	VXEMU_HOST_SS	vxemu	host_ss
+offset	VXEMU_HOST_DS	vxemu	host_ds
+offset	VXEMU_HOST_ES	vxemu	host_es
+offset	VXEMU_HOST_VS	vxemu	host_vs
+
+#ifdef i386
+offset	VXEMU_HOST_ESP	vxemu	host_esp
+#else
+offset	VXEMU_HOST_RSP	vxemu	host_rsp
+offset	VXEMU_RUNPTR	vxemu	runptr
+offset	VXEMU_RETPTR	vxemu	retptr
+#endif
+
+offset	VXEMU_ETABLEN	vxemu	etablen
+offset	VXEMU_ETABMASK	vxemu	etabmask
+offset	VXEMU_ETAB	vxemu	etab
+

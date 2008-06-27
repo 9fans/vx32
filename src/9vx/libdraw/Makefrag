@@ -1,0 +1,26 @@
+LIBDRAW_OBJS = \
+	$(addprefix 9vx/libdraw/, \
+		arith.o \
+		bytesperline.o \
+		chan.o \
+		computil.o \
+		defont.o \
+		drawrepl.o \
+		fmt.o \
+		icossin.o \
+		icossin2.o \
+		rectclip.o \
+		rgb.o \
+	)
+
+9vx/libdraw/%.o: 9vx/libdraw/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/libdraw/libdraw.a: $(LIBDRAW_OBJS)
+	$(AR) rs $@ $(LIBDRAW_OBJS)
+
+CLEAN_FILES += \
+	9vx/libdraw/*.d \
+	9vx/libdraw/*.o \
+	9vx/libdraw/libdraw.a \
+

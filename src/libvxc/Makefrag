@@ -1,0 +1,386 @@
+include libvxc/include/Makefrag
+
+CLIB_OBJS = \
+	$(addprefix libvxc/, \
+		abort.o \
+		assert.o \
+		atexit.o \
+		difftime.o \
+		errno.o \
+		exit.o \
+		_exit.o \
+		fenv.o \
+		malloc.o \
+		qsort.o \
+		read.o \
+		remove.o \
+		sbrk.o \
+		write.o \
+		open.o \
+		close.o \
+		errlst.o \
+		lseek.o \
+		time.o \
+		localtime.o \
+		asctime.o \
+		ctime.o \
+		strftime.o \
+		mktime.o \
+		signal.o \
+		ftime.o \
+		gettimeofday.o \
+		getpagesize.o \
+		stat.o \
+		fstat.o \
+		clock.o \
+		getcwd.o \
+		getuid.o \
+		exec.o \
+		chmod.o \
+		chdir.o \
+		dup.o \
+		fork.o \
+		isatty.o \
+		pipe.o \
+		mkdir.o \
+		link.o \
+		ioctl.o \
+		fcntl.o \
+		sleep.o \
+		kill.o \
+		select.o \
+		waitpid.o \
+		dir.o \
+		truncate.o \
+		ftruncate.o \
+		chmod.o \
+		isinf.o \
+		dtoa.o \
+		getpid.o \
+	) \
+	$(addprefix libvxc/bsdstdio/, \
+		asprintf.o \
+		clrerr.o \
+		fclose.o \
+		fdopen.o \
+		feof.o \
+		ferror.o \
+		fflush.o \
+		fgetc.o \
+		fgetln.o \
+		fgetpos.o \
+		fgets.o \
+		fileno.o \
+		findfp.o \
+		flags.o \
+		fopen.o \
+		fprintf.o \
+		fpurge.o \
+		fputc.o \
+		fputs.o \
+		fread.o \
+		freopen.o \
+		fscanf.o \
+		fseek.o \
+		fsetpos.o \
+		ftell.o \
+		funopen.o \
+		fvwrite.o \
+		fwalk.o \
+		fwrite.o \
+		getc.o \
+		getchar.o \
+		gets.o \
+		getw.o \
+		makebuf.o \
+		mktemp.o \
+		perror.o \
+		printf.o \
+		putc.o \
+		putchar.o \
+		puts.o \
+		putw.o \
+		refill.o \
+		remove.o \
+		rewind.o \
+		rget.o \
+		scanf.o \
+		setbuf.o \
+		setbuffer.o \
+		setvbuf.o \
+		snprintf.o \
+		sprintf.o \
+		sscanf.o \
+		stdio.o \
+		tmpfile.o \
+		ungetc.o \
+		vasprintf.o \
+		vfprintf.o \
+		vfscanf.o \
+		vprintf.o \
+		vscanf.o \
+		vsnprintf.o \
+		vsprintf.o \
+		vsscanf.o \
+		wbuf.o \
+		wsetup.o \
+	) \
+	$(addprefix libvxc/stdlib/, \
+		abs.o labs.o llabs.o \
+		atof.o atoi.o atol.o atoll.o \
+		strtol.o strtoll.o \
+		strtoul.o strtoull.o \
+		getenv.o setenv.o putenv.o \
+		qsort.o bsearch.o \
+		rand.o system.o \
+	) \
+	$(addprefix libvxc/string/, \
+		memccpy.o \
+		memcmp.o \
+		strcat.o \
+		strcmp.o \
+		strcasecmp.o \
+		strcpy.o \
+		strcspn.o \
+		strdup.o \
+		strerror.o \
+		strlcat.o \
+		strlcpy.o \
+		strncat.o \
+		strncmp.o \
+		strncpy.o \
+		strpbrk.o \
+		strspn.o \
+		strstr.o \
+		strtok.o \
+		wcscat.o \
+		wcschr.o \
+		wcscpy.o \
+		wcscspn.o \
+		wcslen.o \
+		wcsncat.o \
+		wcsncpy.o \
+		wcspbrk.o \
+		wcsrchr.o \
+		wcsspn.o \
+		wcsstr.o \
+		wcstok.o \
+		wmemchr.o \
+		wmemcmp.o \
+		wmemcpy.o \
+		wmemmove.o \
+		wmemset.o \
+	) \
+	$(addprefix libvxc/vx32/, \
+		ffs.o \
+		memchr.o \
+		memcpy.o \
+		memmove.o \
+		memset.o \
+		setjmp.o \
+		sigsetjmp.o \
+		strchr.o \
+		strlen.o \
+		strrchr.o \
+		flt_rounds.o \
+	) \
+	$(addprefix libvxc/msun/, \
+		e_acos.o	e_acosf.o	\
+		e_acosh.o	e_acoshf.o	\
+		e_asin.o	e_asinf.o	\
+		e_atan2.o	e_atan2f.o	\
+		e_atanh.o	e_atanhf.o	\
+		e_cosh.o	e_coshf.o	\
+		e_exp.o		e_expf.o	\
+		e_fmod.o	e_fmodf.o	\
+		e_gamma.o	e_gammaf.o	\
+		e_gammaf_r.o	e_gamma_r.o	\
+		e_hypot.o	e_hypotf.o	\
+		e_j0.o		e_j0f.o		\
+		e_j1.o		e_j1f.o		\
+		e_jn.o		e_jnf.o		\
+		e_lgamma.o	e_lgammaf.o	\
+		e_lgammaf_r.o	e_lgamma_r.o	\
+		e_log10.o	e_log10f.o	\
+		e_log.o		e_logf.o	\
+		e_pow.o		e_powf.o	\
+		e_remainder.o	e_remainderf.o	\
+		e_rem_pio2.o	e_rem_pio2f.o	\
+		e_scalb.o	e_scalbf.o	\
+		e_sinh.o	e_sinhf.o	\
+		e_sqrt.o	e_sqrtf.o	\
+		k_cos.o		k_cosf.o	\
+		k_rem_pio2.o	k_rem_pio2f.o	\
+		k_sin.o		k_sinf.o	\
+		k_tan.o		k_tanf.o	\
+		s_asinh.o	s_asinhf.o	\
+		s_atan.o	s_atanf.o	\
+		s_cbrt.o	s_cbrtf.o	\
+		s_ceil.o	s_ceilf.o	\
+		s_cimag.o	s_cimagf.o	\
+		s_conj.o	s_conjf.o	\
+		s_copysign.o	s_copysignf.o	\
+		s_cos.o		s_cosf.o	\
+		s_creal.o	s_crealf.o	\
+		s_erf.o		s_erff.o	\
+		s_expm1.o	s_expm1f.o	\
+		s_fabs.o	s_fabsf.o	\
+		s_fdim.o			\
+		s_finite.o	s_finitef.o	\
+		s_floor.o	s_floorf.o	\
+		s_fma.o		s_fmaf.o	\
+		s_fmax.o	s_fmaxf.o	\
+		s_fmin.o	s_fminf.o	\
+		s_frexp.o	s_frexpf.o	\
+		s_ilogb.o	s_ilogbf.o	\
+		s_isfinite.o			\
+		s_isnan.o			\
+		s_isnormal.o			\
+		s_ldexp.o	s_ldexpf.o	\
+		s_llrint.o	s_llrintf.o	\
+		s_llround.o	s_llroundf.o	\
+		s_log1p.o	s_log1pf.o	\
+		s_logb.o	s_logbf.o	\
+		s_lrint.o	s_lrintf.o	\
+		s_lround.o	s_lroundf.o	\
+		s_modf.o	s_modff.o	\
+		s_nearbyint.o			\
+		s_nextafter.o	s_nextafterf.o	\
+		s_rint.o	s_rintf.o	\
+		s_round.o	s_roundf.o	\
+		s_scalbln.o			\
+		s_scalbn.o	s_scalbnf.o	\
+		s_signbit.o			\
+		s_signgam.o			\
+		s_significand.o	s_significandf.o	\
+		s_sin.o		s_sinf.o	\
+		s_tan.o		s_tanf.o	\
+		s_tanh.o	s_tanhf.o	\
+		s_trunc.o	s_truncf.o	\
+		w_acos.o	w_acosf.o	\
+		w_acosh.o	w_acoshf.o	\
+		w_asin.o	w_asinf.o	\
+		w_atan2.o	w_atan2f.o	\
+		w_atanh.o	w_atanhf.o	\
+		w_cabs.o	w_cabsf.o	\
+		w_cosh.o	w_coshf.o	\
+		w_drem.o	w_dremf.o	\
+		w_exp.o		w_expf.o	\
+		w_fmod.o	w_fmodf.o	\
+		w_gamma.o	w_gammaf.o	\
+		w_gammaf_r.o	w_gamma_r.o	\
+		w_hypot.o	w_hypotf.o	\
+		w_j0.o		w_j0f.o		\
+		w_j1.o		w_j1f.o		\
+		w_jn.o		w_jnf.o		\
+		w_lgamma.o	w_lgammaf.o	\
+		w_lgammaf_r.o	w_lgamma_r.o	\
+		w_log10.o	w_log10f.o	\
+		w_log.o		w_logf.o	\
+		w_pow.o		w_powf.o	\
+		w_remainder.o	w_remainderf.o	\
+		w_scalb.o	w_scalbf.o	\
+		w_sinh.o	w_sinhf.o	\
+		w_sqrt.o	w_sqrtf.o	\
+		w_y0.o		w_y0f.o		\
+		w_y1.o		w_y1f.o		\
+		w_yn.o		w_ynf.o		\
+	)
+
+# Use these optimized transcendental math library functions
+# only if we are generating x87 and not pure SSE code.
+ifdef HAVE_X87
+X87_OBJS =  \
+	e_exp.o \
+	e_fmod.o \
+	e_log.o		e_logf.o \
+	e_log10.o	e_log10f.o \
+	e_remainder.o	e_remainderf.o \
+	e_scalb.o	e_scalbf.o \
+	e_sqrt.o	e_sqrtf.o \
+	s_ceil.o	s_ceilf.o \
+	s_copysign.o	s_copysignf.o \
+	s_sin.o		s_cos.o		s_tan.o \
+	s_atan.o	e_atan2f.o \
+	s_finite.o \
+	s_floor.o	s_floorf.o \
+	s_logb.o	s_logbf.o \
+	s_lrint.o	s_llrint.o \
+	s_rint.o	s_rintf.o \
+	s_scalbn.o	s_scalbnf.o \
+	s_significand.o	s_significandf.o
+
+CLIB_OBJS := $(filter-out $(addprefix libvxc/msun/,$(X87_OBJS)),$(CLIB_OBJS)) \
+		$(addprefix libvxc/msun/x87/,$(X87_OBJS))
+endif
+
+
+CLIB_DEPS := libvxc/libc.a libvxc/vx32/crt0.o
+CLIB_INST := $(prefix)/vx32/lib/libc.a $(prefix)/vx32/lib/libm.a $(prefix)/vx32/lib/crt0.o
+
+CLEAN_FILES += $(CLIB_OBJS) $(CLIB_DEPS)
+
+all: $(CLIB_DEPS)
+install: $(CLIB_INST)
+
+
+# Build rules
+libvxc/libc.a: $(CLIB_OBJS)
+	$(VX32_AR) r $@ $(CLIB_OBJS)
+
+libvxc/libm.a:
+	$(VX32_AR) r $@
+
+libvxc/%.o: libvxc/%.c
+	$(VX32_CC) -c $(VX32_CFLAGS) -o $@ $<
+
+libvxc/%.o: libvxc/%.S
+	$(VX32_CC) -c $(VX32_CFLAGS) -o $@ $<
+
+ifdef HAVE_X87
+libvxc/msun/x87/%.o: libvxc/msun/x87/%.S
+	$(VX32_CC) -c $(VX32_CFLAGS) -o $@ $<
+endif
+
+# Install rules
+$(prefix)/vx32/lib/lib%.a: libvxc/lib%.a
+	@mkdir -p $(prefix)/vx32/lib
+	$(INSTALL) $< $@
+
+$(prefix)/vx32/lib/crt0.o: libvxc/vx32/crt0.o
+	@mkdir -p $(prefix)/vx32/lib
+	$(INSTALL) $< $@
+
+# 	$(addprefix libvxc/stdio/, \
+# 		fclose.o \
+# 		fflush.o \
+# 		fgetc.o \
+# 		fgets.o \
+# 		fopen.o \
+# 		fputc.o \
+# 		fread.o \
+# 		fscanf.o \
+# 		fseek.o \
+# 		ftell.o \
+# 		fwrite.o \
+# 		getc.o \
+# 		getchar.o \
+# 		getinput.o \
+# 		getospace.o \
+# 		printf.o \
+# 		printfmt.o \
+# 		putc.o \
+# 		puts.o \
+# 		putchar.o \
+# 		rewind.o \
+# 		setbuf.o \
+# 		setvbuf.o \
+# 		snprintf.o \
+# 		sprintf.o \
+# 		sscanf.o \
+# 		vfscanf.o \
+# 		vsscanf.o \
+# 		writebuf.o \
+# 		perror.o \
+# 		ungetc.o \
+# 	) \

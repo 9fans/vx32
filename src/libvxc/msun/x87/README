@@ -1,0 +1,3 @@
+This directory contains implementations of transcendental math functions
+based on the x87 FPU.  They aren't used in the deterministic version
+of vx32 because their exact results will vary from one CPU to another.

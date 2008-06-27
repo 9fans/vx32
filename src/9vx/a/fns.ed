@@ -1,0 +1,19 @@
+g/bios32/d
+g/Pcidev/d
+g/mfence/d
+$a
+
+// Plan 9 VX additions
+void	gotolabel(Label*);
+void	labelinit(Label *l, ulong pc, ulong sp);
+void	latin1putc(int, void(*)(int));
+void	makekprocdev(Dev*);
+void	newmach(void);
+void	oserror(void);
+void	oserrstr(void);
+int	setlabel(Label*);
+int	tailkmesg(char*, int);
+void	trap(Ureg*);
+void	uartecho(char*, int);
+void	uartinit(int);
+.

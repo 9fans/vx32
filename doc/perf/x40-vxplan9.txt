@@ -1,0 +1,8 @@
+              native    vxplan9   vmware    kqemu
+syscall      4.8       8.1      23        111
+pipe-byte    1.8       4.8       6.8       37
+pipe-bulk       2.0       4.9       5.6       44
+rdwr          5.7       5.3      15        104
+sha1zero          7.9       7.9      15         15
+du            0.74      0.42      2.0        6.7
+mk          19        12        25         75

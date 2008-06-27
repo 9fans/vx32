@@ -1,0 +1,8 @@
+Standard C library for the VX codelet environment.
+Provides many standard C and a few UNIX functions,
+but makes no attempt at providing much "legacy"
+UNIX-like API functionality.
+VX codelets must know they are codelets,
+or else rely on a fancier compatibility layer.
+
+Many of these C library routines are from FreeBSD 5.3.

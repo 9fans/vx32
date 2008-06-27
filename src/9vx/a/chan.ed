@@ -1,0 +1,20 @@
+,s!Lock;!Lock lk;!g
+/dumpmount/-1 s!static !/*static*/ !
+,s!lock(r)!lock(\&r->lk)!g
+/static Lock l/d
+,s!lock(\&chanalloc)!lock(\&chanalloc.lk)!g
+,s!->ref!->ref.ref!g
+,s!r->ref.ref!r->ref!g
+,s!incref(pp->mtpt\[i\])!incref(\&pp->mtpt[i]->ref)!g
+,s!ref(p)!ref(\&p->ref)!g
+,s!ref(c)!ref(\&c->ref)!g
+,s!ref(from)!ref(\&from->ref)!g
+g/^cl/ s/(void\*)/(void *v)/
+,s!ref(c->path)!ref(\&c->path->ref)!g
+,s!ref(m)!ref(\&m->ref)!g
+,s!ref(m->mount->to)!ref(\&m->mount->to->ref)!g
+,s!ref((\*mp)->from)!ref(\&(*mp)->from->ref)!g
+,s!ref(path)!ref(\&path->ref)!g
+,s!ref(cnew)!ref(\&cnew->ref)!g
+,s!ref(cnew->path)!ref(\&cnew->path->ref)!g
+/^addelem/-1 s;static;/*static*/;

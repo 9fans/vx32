@@ -1,0 +1,100 @@
+Welcome to Plan 9 VX.
+
+Plan 9 VX has been built and run successfully on Linux 2.6
+(Ubuntu Gutsy and Hoary), FreeBSD 7, and OS X 10.4.11.
+It is likely that it will work on newer machines too.  
+
+In addition to the code in this directory, you need a copy
+of a Plan 9 distribution tree.  If you need one, you can find
+a stripped-down tree at http://swtch.com/9vx/9vx.tgz.
+(That file also contains a pre-built 9vx binary.)
+
+The easiest way to invoke 9vx is to copy it to the root of 
+a Plan 9 distribution tree, cd into that directory, and run "9vx".
+Alternately, you can tell 9vx where the root is with the -r flag:
+
+	9vx -r /var/tmp/plan9
+
+9vx also takes a -u flag to set the user name.  If you are using
+a stock distribution tree, you will get a better environment 
+if you run
+
+	9vx -u glenda
+
+to log in as the default user, glenda.
+
+If all goes well, 9vx should fork itself into the background and
+an X11 window should appear running rio, the Plan 9 window
+manager (or, if not acting as glenda, a shell prompt).
+Even on Darwin, the graphics are via X11.  I have the relevant
+Carbon code in another project, but I need to merge it in.
+
+There is also a "-t" option, which causes 9vx to use
+the terminal on standard input/output for I/O instead of 
+creating an X console.  This option also keeps 9vx from forking
+itself into the background.  It's useful mainly for debugging.
+
+At this point you have a Plan 9 system, and it should behave
+not much differently from any other Plan 9 system.  If it 
+behaves differently in a bad way, please send email to 
+rsc@swtch.com to report a bug.
+
+The 9vx kernel provides the following devices that provide
+access to host resources.
+
+	#A	audio (via /dev/dsp; #A1 is /dev/dsp1, etc.)
+	#i	draw (via X11)
+	#I	ip stack (including cs)
+	#m	mouse, snarf (via X11)
+	#Z	local file system (#U is /; #Uplan9 is -r root)
+
+Notice that done of these enforce permissions--they all
+execute as the user who started 9vx--so it wouldn't be a
+great idea to use 9vx as a replacement for a multiuser system.
+Even the user "none" has full access to the local file system via #Z.
+
+Enjoy!
+
+Russ Cox
+rsc@swtch.com
+June 2008
+
+
+P. S.  Some people have reported getting the following error:
+
+9vx: ../../src/xcb_lock.c:33: _XCBUnlockDisplay: \
+	Assertion `xcb_get_request_setn(dpy->xcb->connection) \
+	== dpy->request' failed.
+
+This is a problem with the X11 libraries that has been known
+since January and was supposedly fixed in the latest X11 library
+sources in March, but the big Linux distributions haven't picked
+up the fixes yet.  See these URLs:
+
+https://bugs.launchpad.net/ubuntu-mobile/+bug/185311
+http://lists.freedesktop.org/archives/xcb/2008-March/003347.html
+https://bugs.freedesktop.org/show_bug.cgi?id=14211
+http://forum.tuxx-home.at/viewtopic.php?f=10&t=565
+
+Supposedly, the XCB error can only happen in improperly locked
+X programs, but they seem to assume that you're using LockDisplay
+and UnlockDisplay to mediate access to the X server instead of
+using your own locks, something that is explicitly permitted in the
+manual page.  I think they're code is just broken.  If you find locking
+errors in the 9vx x11 code, I'd like to know about them.
+
+P. P. S.  Plan 9 VX is much more demanding of the OS than 
+libvx32 itself is.  Some systems, usually older ones, are *not*
+compatible with Plan 9 VX.
+
+Plan 9 VX is known *not* to work on old Linux systems running
+Linux 2.4 kernels or the old LinuxThreads pthreads implementation
+that was the default on 2.4-based systems but crept into some 
+2.6 distributions.
+
+Plan 9 VX is known *not* to work on FreeBSD 6, due to an 
+incompatibility between libkse (the implementation of pthreads)
+and libvx32.  FreeBSD 7 replaced libkse with a new thread library
+that is just great.
+
+

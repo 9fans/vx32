@@ -1,0 +1,100 @@
+g/"pool.h"/d
+,s!QLock;!QLock lk;!g
+/vlong	fasthz/ s!;! = 1000000000ULL;  // Plan 9 VX = nsecs!
+,s!lock(c)!lock(\&c->ref.lk)!g
+g/^kbd/ s/Queue\*,/Queue *q,/
+,s!lock(\&kbd)!lock(\&kbd.lk)!g
+,s!(a = strchr(a, ' '))!(&)!g
+,s!MACHP(0)->ticks!msec()!g
+/^long2le/-1 s!static!/*static*/!
+/fasthz == 0/,/fastticks/d
+/fasthz == 0/,/fastticks/d
+/static int ctrlt, pid/ s/, pid//
+/^		snprint(tmp/,/imagmem/c
+		tmp[0] = 0;
+.
+,s/\.0lud/lud/g
+,s/\.0llud/llud/g
+/^Queue\*	serialoq/d
+/^consactive/-1i
+#if 0 // Plan 9 VX
+.
+/^}/a
+#endif
+.
+/^kbdputcclock/-1i
+#if 0 // Plan 9 VX
+.
+/^}/a
+#endif
+.
+/^prflush/-1i
+#if 0 // Plan 9 VX
+.
+/^}/a
+#endif
+.
+/^putstrn0/
+/	int m/d
+/	char \*t/d
+/	if(serialoq == nil)/i
+	uartputs(str, n);
+#if 0 // Plan 9 VX
+.
+/^}/i
+#endif
+.
+/^static Lock iprintlock/i
+#if 0 // Plan 9 VX
+.
+/^_assert/
+/^}/a
+#endif
+.
+/^echoserialoq/-1i
+#if 0 // Plan 9 VX
+.
+/^}/a
+#endif
+.
+/^echo(/-1 s/static //
+/^	if(serialoq)/d
+d
+/^kbdputc/+1a
+	int n;
+	Rune r;
+	char buf[UTFmax];
+	
+	r = ch;
+	n = runetochar(buf, &r);
+	echo(buf, n);
+	return 0;
+
+#if 0 // Plan 9 VX
+.
+/^}/i
+#endif
+.
+/at 115200 baud/-1i
+#if 0 // Plan 9 VX
+.
+/addclock0link/a
+#endif
+.
+$a
+
+// Plan 9 VX
+int
+tailkmesg(char *a, int n)
+{
+	ilock(&kmesg.lk);
+	if(n > kmesg.n)
+		n = kmesg.n;
+	memmove(a, kmesg.buf+kmesg.n-n, n);
+	iunlock(&kmesg.lk);
+	return n;
+}
+.
+/echoscreen(buf, n)/a
+	uartecho(buf, n);	// Plan 9 VX
+.

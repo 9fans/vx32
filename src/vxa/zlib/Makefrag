@@ -1,0 +1,57 @@
+
+ZLIB_CFLAGS := 
+
+ZLIB_EOBJS := \
+	$(addprefix vxa/zlib/, \
+		ezlib.vo \
+		compress.vo \
+		deflate.vo \
+		trees.vo \
+		adler32.vo \
+		crc32.vo \
+		zutil.vo \
+	)
+
+# VX32 decoder
+ZLIB_DOBJS := \
+	$(addprefix vxa/zlib/, \
+		dzlib.vo \
+		inflate.vo \
+		inftrees.vo \
+		inffast.vo \
+		adler32.vo \
+		crc32.vo \
+		zutil.vo \
+	)
+
+
+ZLIB_TARGETS := vxa/zlib/ezlib vxa/zlib/dzlib vxa/zlib/hdzlib
+
+OBJDIRS += vxa/zlib
+CLEAN_FILES += $(ZLIB_EOBJS) $(ZLIB_DOBJS) $(ZLIB_TARGETS)
+
+
+all: $(ZLIB_TARGETS)
+
+
+# VXA encoder and decoder
+vxa/zlib/ezlib: $(ZLIB_EOBJS) $(CLIB_DEPS)
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $(ZLIB_EOBJS) $(VX32_LDLIBS)
+
+vxa/zlib/dzlib: $(ZLIB_DOBJS) $(CLIB_DEPS)
+	$(VX32_LD) -s -o $@ $(VX32_LDFLAGS) $(ZLIB_DOBJS) $(VX32_LDLIBS)
+
+vxa/zlib/%.vo: vxa/zlib/%.c
+	$(VX32_CC) -c -o $@ $(VX32_CFLAGS) $(ZLIB_CFLAGS) $<
+
+
+# Host version of standalone zlib decoder, for comparison and debugging.
+ZLIB_HDOBJS := $(patsubst %.vo,%.ho,$(ZLIB_DOBJS))
+CLEAN_FILES += $(ZLIB_HDOBJS) vxa/zlib/hdzlib
+
+vxa/zlib/hdzlib: $(ZLIB_HDOBJS)
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $(ZLIB_HDOBJS)
+
+vxa/zlib/%.ho: vxa/zlib/%.c
+	$(HOST_CC) -c -o vxa/zlib/$*.ho $(HOST_CFLAGS) $(ZLIB_CFLAGS) $<
+

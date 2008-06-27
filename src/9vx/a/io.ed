@@ -1,0 +1,6 @@
+g/^typedef struct Vctl/ s/typedef //
+g/^. Vctl;/ s/ Vctl//
+,s/QLock\;/QLock lk;/g
+,s/Lock\;/Lock lk;/g
+g/typedef struct Pcidev/d
+g/typedef struct PCMslot/d

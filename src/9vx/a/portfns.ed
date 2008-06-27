@@ -1,0 +1,30 @@
+1i
+// Plan 9 VX: avoid Unix reserved words
+#define log _klog
+#define malloc _kmalloc
+#define encrypt _kencrypt
+#undef timeradd
+#define timeradd _ktimeradd
+#define reboot _kreboot
+#undef _assert
+#define _assert __kassert
+
+.
+g/gotolabel/d
+g/setlabel/d
+$a
+
+// Plan 9 VX additions
+void	echo(char*, int);
+long	kbind(char*, char*, int);
+Chan*	knamec(char*, int, int, ulong);
+void	ksrvadd(Chan*, Chan*);
+ulong	msec(void);
+void	_ready(Proc*);
+Proc*	_runproc(void);
+void	uartecho(char*, int);
+void	vx32sysr1(void);
+void	vxnewproc(Proc*);
+
+.
+g/µ/d

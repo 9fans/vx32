@@ -1,0 +1,41 @@
+,s!lock(f)!lock(\&f->ref.lk)!g
+,s!lock(c)!lock(\&c->ref.lk)!g
+,s!ref(c)!ref(\&c->ref)!g
+,s!^read(!doread(!
+,s!return read(!return doread(!g
+/use varargs/,/va_end/c
+	// Plan 9 VX replaced dodgy varargs code
+	v = *(vlong*)&arg[3];
+.
+,s!^write(!dowrite(!
+,s!return write(!return dowrite(!g
+/use varargs/,/va_end/c
+	// Plan 9 VX replaced dodgy varargs code
+	v = *(vlong*)&arg[3];
+.
+/^bindmount/ s/int ismount/int isk, int ismount/
+.-1i
+	// Plan 9 VX added isk parameter.
+.
+,s/return bindmount(/return bindmount(0, /g
+g/^sys_/ s/ulong \*)/ulong *u)/
+/^bindmount/,/^sysbind/ s/validaddr/if(!isk) validaddr/
+/^bindmount/,/^sysbind/ s/spec = validnamedup/if(isk) kstrdup(\&spec, spec); else &/
+$a
+
+// Plan 9 VX additions
+long
+kbind(char *new, char *old, int flag)
+{
+	return bindmount(1, 0, -1, -1, new, old, flag, nil);
+}
+
+long
+syspassfd(ulong *u)
+{
+	error("passfd unimplemented");
+	return -1;
+}
+
+.
+g/va_list/d

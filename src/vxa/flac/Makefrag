@@ -1,0 +1,58 @@
+
+FLAC_CFLAGS := -Ivxa/flac/include -Ivxa/flac/src/libFLAC/include \
+		-DVERSION=\"vx32\"
+
+FLAC_OBJS := \
+	vxa/flac/dflac.o \
+	$(addprefix vxa/flac/src/libFLAC/, \
+		stream_decoder.vo \
+	)
+
+FLAC_EOBJS :=
+
+FLAC_DOBJS := \
+	vxa/flac/dflac.vo \
+	$(addprefix vxa/flac/src/flac/, \
+		decode.vo \
+		utils.vo \
+	) \
+	$(addprefix vxa/flac/src/libFLAC/, \
+		bitbuffer.vo \
+		bitmath.vo \
+		cpu.vo \
+		crc.vo \
+		file_decoder.vo \
+		fixed.vo \
+		format.vo \
+		lpc.vo \
+		md5.vo \
+		memory.vo \
+		seekable_stream_decoder.vo \
+		stream_decoder.vo \
+	)
+
+OBJDIRS += vxa/flac vxa/flac/src/flac vxa/flac/src/libFLAC
+CLEAN_FILES += $(FLAC_DOBJS) vxa/flac/dflac
+
+
+all: vxa/flac/dflac vxa/flac/hdflac
+
+vxa/flac/dflac: $(FLAC_DOBJS) $(CLIB_DEPS)
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $(FLAC_DOBJS) $(VX32_LDLIBS)
+
+vxa/flac/%.vo: vxa/flac/%.c
+	$(VX32_CC) -c -o $@ $(VX32_CFLAGS) $(FLAC_CFLAGS) $<
+
+
+# Host version of flac decoder, for comparison and debugging
+# (not built by default - use 'make flac/hdflac' to build it.)
+
+FLAC_HDOBJS := $(patsubst %.vo,%.ho,$(FLAC_DOBJS))
+CLEAN_FILES += $(FLAC_HDOBJS) vxa/flac/hdflac
+
+vxa/flac/hdflac: $(FLAC_HDOBJS)
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $(FLAC_HDOBJS) -lm
+
+vxa/flac/%.ho: vxa/flac/%.c
+	$(HOST_CC) -c -o $@ $(HOST_CFLAGS) $(FLAC_CFLAGS) $<
+

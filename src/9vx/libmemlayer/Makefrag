@@ -1,0 +1,27 @@
+LIBMEMLAYER_OBJS = \
+	$(addprefix 9vx/libmemlayer/, \
+		draw.o \
+		lalloc.o \
+		layerop.o \
+		ldelete.o \
+		lhide.o \
+		line.o \
+		load.o \
+		lorigin.o \
+		lsetrefresh.o \
+		ltofront.o \
+		ltorear.o \
+		unload.o \
+	)
+
+9vx/libmemlayer/%.o: 9vx/libmemlayer/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/libmemlayer/libmemlayer.a: $(LIBMEMLAYER_OBJS)
+	$(AR) rs $@ $(LIBMEMLAYER_OBJS)
+
+CLEAN_FILES += \
+	9vx/libmemlayer/*.d \
+	9vx/libmemlayer/*.o \
+	9vx/libmemlayer/libmemlayer.a \
+

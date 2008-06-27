@@ -1,0 +1,24 @@
+
+MICROBENCHMARKS = null jump jumpal call callind syscall read write 64add 64mul 64div jumpfar
+
+all: 	$(addprefix micro/v,$(MICROBENCHMARKS)) \
+ 	$(addprefix micro/h,$(MICROBENCHMARKS)) \
+	micro/hrepeat
+
+
+# Build rules for VX32 environment
+micro/v%: micro/%.vo
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $< $(VX32_LDLIBS)
+
+micro/%.vo: micro/%.c
+	$(VX32_CC) -c $(VX32_CFLAGS) -o $@ $<
+
+
+
+# Build rules for native host environment (for comparison purposes)
+micro/h%: micro/%.ho
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $< $(HOST_LDLIBS)
+
+micro/%.ho: micro/%.c
+	$(HOST_CC) -c $(HOST_CFLAGS) -o $@ $<
+

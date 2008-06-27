@@ -1,0 +1,29 @@
+LIBMEMDRAW_OBJS = \
+	$(addprefix 9vx/libmemdraw/, \
+		alloc.o \
+		arc.o \
+		cload.o \
+		cmap.o \
+		defont.o \
+		draw.o \
+		ellipse.o \
+		fillpoly.o \
+		line.o \
+		load.o \
+		poly.o \
+		string.o \
+		subfont.o \
+		unload.o \
+	)
+
+9vx/libmemdraw/%.o: 9vx/libmemdraw/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/libmemdraw/libmemdraw.a: $(LIBMEMDRAW_OBJS)
+	$(AR) rs $@ $(LIBMEMDRAW_OBJS)
+
+CLEAN_FILES += \
+	9vx/libmemdraw/*.d \
+	9vx/libmemdraw/*.o \
+	9vx/libmemdraw/libmemdraw.a \
+

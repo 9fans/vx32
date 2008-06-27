@@ -1,0 +1,46 @@
+g/assert/d
+g/memccpy/d
+g/memset/d
+g/memcmp/d
+g/memmove/d
+g/memchr/d
+g/strcat/d
+g/strchr/d
+g/strrchr/d
+g/strcmp/d
+g/strcpy/d
+g/strncat/d
+g/strncpy/d
+g/strncmp/d
+g/strlen/d
+g/strstr/d
+g/atoi/d
+g/abs(/d
+g/#pragma/d
+g/strtol/d
+g/strtoul/d
+g/etext\[\]/d
+g/edata\[\]/d
+g/end\[\]/d
+g/qsort/d
+/fullrune/d
+/UTFmax/-2,/runelen/d
+/print routines/,/one-of-a-kind/-1d
+$a
+
+#include "utf.h"
+#include "fmt.h"
+
+extern	int	dec64(uchar*, int, char*, int);
+extern	int	enc64(char*, int, uchar*, int);
+extern	int	dec32(uchar*, int, char*, int);
+extern	int	enc32(char*, int, uchar*, int);
+extern	int	dec16(uchar*, int, char*, int);
+extern	int	enc16(char*, int, uchar*, int);
+extern	int	encodefmt(Fmt*);
+extern	int	fmtstrcpy(Fmt*, char*);
+
+extern	void*	mallocz(ulong, int);
+extern	void	werrstr(char*, ...);
+
+.

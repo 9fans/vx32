@@ -1,0 +1,97 @@
+/edf.*Admitted/,/edfrecord/d
+/edfstop/,/edf = nil/d
+,s/(!p->edf)/(1)/
+,s/edfready(p)/0/g
+/edflock/,/edfunlock/+1d
+g/edfstop(up)/d
+,s/(p = procalloc.free)/(&)/
+,s/lock(runq)/lock(\&runq->lk)/
+,s/lock(\&procalloc)/lock(\&procalloc.lk)/
+,s/lock(r)/lock(\&r->lk)/
+/^newproc/
+/^	return p/i
+	vxnewproc(p);
+.
+/^twakeup/ s/Ureg\*,/Ureg *ureg,/
+,s/up->tt/up->timer.tt/g
+,s/up->tns/up->timer.tns/g
+,s/up->tf/up->timer.tf/g
+,s/up->timer.tfn/up->tfn/g
+,s/up->ta/up->timer.ta/g
+,s/up->tmode/up->timer.tmode/g
+,s/timeradd(up)/timeradd(\&up->timer)/g
+,s/timerdel(up)/timerdel(\&up->timer)/g
+,s/up->twhen/up->timer.twhen/g
+,s/lock(p->rgrp)/lock(\&p->rgrp->ref.lk)/
+,s/Lock;/Lock lk;/g
+,s/lock(\&broken)/lock(\&broken.lk)/g
+,s/MACHP(0)->ticks/msec()/g
+,s/lock(\&procalloc)/lock(\&procalloc.lk)/g
+,s/lock(\&palloc)/lock(\&palloc.lk)/g
+,s/ref(p->dot)/ref(\&p->dot->ref)/g
+,s/ref(kpgrp)/ref(\&kpgrp->ref)/g
+g/"edf.h"/d
+g/Edf/d
+,s;\.Lock\.;.lk.;g
+/^schedinit/
+/	setlabel(\&m->sched)/a
+	if(traceprocs)	// Plan 9 VX
+		print("schedinit %p %p %s\n", m, up, up ? up->text : "");
+.
+/^sched(void)/+3a
+	if(traceprocs)	// Plan 9 VX
+		print("sched %p %p [%s]\n", m, up, up ? up->text : "");
+.
+/if(setlabel(\&up->sched))/a
+			if(traceprocs)
+				print("sched %p %p: awake\n", m, up);
+.
+/^		}/a
+		if(traceprocs)
+			print("sched %p %p: entering scheduler\n", m, up);
+.
+/^	}/a
+	if(traceprocs)
+		print("sched %p %p: runproc", m, up);
+.
+,s/m->ticks/msec()/g
+/^	mmuswitch(up)/i
+	if(traceprocs)
+		print("run %p %p [%s]\n", m, up, up->text);
+.
+/^ready/ s/^/_/
+/^runproc/ s/^/_/
+/never mind/+1a
+		if(traceprocs)
+			print("sleep %p %p: already happened\n", m, up);
+.
+/if(setlabel(\&up->sched))/a
+			if(traceprocs)
+				print("sleep %p %p: awake\n", m, up);
+.
+/} else {/a
+			if(traceprocs)
+				print("sleep %p %p: sleeping\n", m, up);
+.
+/p->fpsave = up->fpsave/,/p->dbgreg = 0/c
+	if(up){
+		p->fpsave = up->fpsave;
+		p->scallnr = up->scallnr;
+		p->s = up->s;
+		p->slash = up->slash;
+		p->dot = up->dot;
+		if(p->dot)
+			incref(&p->dot->ref);
+
+		memmove(p->note, up->note, sizeof(p->note));
+		p->nnote = up->nnote;
+		p->lastnote = up->lastnote;
+		p->notify = up->notify;
+	}
+
+ 	p->notified = 0;
+ 	p->ureg = 0;
+ 	p->dbgreg = 0;
+	p->nerrlab = 0;
+.
+/^	ready(p)/+1,/flushmmu/d

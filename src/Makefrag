@@ -1,0 +1,78 @@
+# Main top-level makefile fragment for the vx32 virtual machine.
+
+# Compiler flags common to both host and VX32 environment files.
+COMMON_CFLAGS = -g -O3 -MD -std=gnu99 -I. $(CFLAGS)
+#COMMON_CFLAGS = -g -MD -std=gnu99 -I. $(CFLAGS)
+COMMON_LDFLAGS = -g -L. $(LDFLAGS)
+
+# Host environment compiler options
+HOST_CC		:= $(CC)
+HOST_LD		:= $(LD)
+HOST_AR		:= $(AR)
+HOST_LDFLAGS	:= $(COMMON_LDFLAGS)
+HOST_CFLAGS	:= $(COMMON_CFLAGS)
+
+# VX32 environment compiler options
+# If you build your own vx32-specific copies of the GNU
+# tools (see README), you can refer to them here. 
+# On most x86 systems, though, the standard gcc is fine.
+# VX32_CC		:= vx32-gcc
+# VX32_LD		:= vx32-ld
+# VX32_AR		:= vx32-ar
+# VX32_OBJCOPY	:= vx32-objcopy
+VX32_CC		:= gcc -m32
+VX32_LD		:= ld
+VX32_AR		:= ar
+VX32_OBJCOPY	:= objcopy
+
+VX32_CFLAGS := -nostdinc -Ilibvxc/include $(COMMON_CFLAGS)
+VX32_LDFLAGS := -Llibvxc -L$(dir $(shell vx32-gcc -print-libgcc-file-name)) \
+		$(COMMON_LDFLAGS) libvxc/vx32/crt0.o
+VX32_LDLIBS := -lc -lgcc
+
+# Set compiler options if we should generate x87 FPU code.
+HAVE_X87 = yes
+ifdef HAVE_X87
+VX32_CFLAGS += -m80387 -mfp-ret-in-387
+endif
+
+
+INSTALL = install
+
+# Make sure that 'all' is the first target
+all:
+
+# Eliminate default suffix rules
+.SUFFIXES:
+
+# Delete target files if there is an error (or make is interrupted)
+.DELETE_ON_ERROR:
+
+
+# Include Makefrags for subdirectories
+include libvxc/Makefrag
+include libvx32/Makefrag
+include vxrun/Makefrag
+include vxlinux/Makefrag
+include vxa/Makefrag		# VXA decoders
+include hash/Makefrag		# cryptographic hash algorithms
+include micro/Makefrag		# microbenchmarks
+include 9vx/Makefrag	# Plan 9 VX
+include test/Makefrag		# vx32 tests
+
+DEPS_FILES := $(wildcard */*.d */*/*.d */*/*/*.d)
+CLEAN_FILES += .deps $(DEPS_FILES)
+
+clean:
+	rm -f $(CLEAN_FILES)
+
+# This magic automatically generates makefile dependencies
+# for header files included from C source files we compile,
+# and keeps those dependencies up-to-date every time we recompile.
+# See 'mergedep.pl' for more information.
+.deps: $(DEPS_FILES)
+	@mkdir -p $(@D)
+	@$(PERL) $(top_srcdir)/mergedep.pl $@ $^
+
+-include .deps
+

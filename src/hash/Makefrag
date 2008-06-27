@@ -1,0 +1,55 @@
+
+all: 	hash/vmd5 hash/vsha1 hash/vsha2 hash/vwhirlpool hash/vripemd \
+	hash/hmd5 hash/hsha1 hash/hsha2 hash/hwhirlpool hash/hripemd
+
+
+# Build rules for VX32 environment
+hash/vmd5: hash/md5.vo
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) hash/md5.vo \
+		$(VX32_LDLIBS)
+
+hash/vsha1: hash/sha1.vo hash/sha_main.vo
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) hash/sha1.vo hash/sha_main.vo \
+		$(VX32_LDLIBS)
+
+hash/vsha2: hash/sha2.vo hash/sha2_main.vo
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) hash/sha2.vo hash/sha2_main.vo \
+		$(VX32_LDLIBS)
+
+hash/vwhirlpool: hash/whirlpool.vo
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) hash/whirlpool.vo \
+		$(VX32_LDLIBS)
+
+hash/vripemd: hash/ripemd.vo
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) hash/ripemd.vo \
+		$(VX32_LDLIBS)
+
+hash/%.vo: hash/%.c
+	$(VX32_CC) -c $(VX32_CFLAGS) -o $@ $<
+
+
+
+# Build rules for native host environment (for comparison purposes)
+hash/hmd5: hash/md5.ho
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) hash/md5.ho \
+		$(HOST_LDLIBS)
+
+hash/hsha1: hash/sha1.ho hash/sha_main.ho
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) hash/sha1.ho hash/sha_main.ho \
+		$(HOST_LDLIBS)
+
+hash/hsha2: hash/sha2.ho hash/sha2_main.ho
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) hash/sha2.ho hash/sha2_main.ho \
+		$(HOST_LDLIBS)
+
+hash/hwhirlpool: hash/whirlpool.ho
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) hash/whirlpool.ho \
+		$(HOST_LDLIBS)
+
+hash/hripemd: hash/ripemd.ho
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) hash/ripemd.ho \
+		$(HOST_LDLIBS)
+
+hash/%.ho: hash/%.c
+	$(HOST_CC) -c $(HOST_CFLAGS) -o $@ $<
+

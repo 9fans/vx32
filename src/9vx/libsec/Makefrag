@@ -1,0 +1,26 @@
+LIBSEC_OBJS = \
+	$(addprefix 9vx/libsec/, \
+		aes.o \
+		des.o \
+		des3CBC.o \
+		desmodes.o \
+		hmac.o \
+		md4.o \
+		md5.o \
+		md5block.o \
+		rc4.o \
+		sha1.o \
+		sha1block.o \
+	)
+
+9vx/libsec/%.o: 9vx/libsec/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/libsec/libsec.a: $(LIBSEC_OBJS)
+	$(AR) rs $@ $(LIBSEC_OBJS)
+
+CLEAN_FILES += \
+	9vx/libsec/*.d \
+	9vx/libsec/*.o \
+	9vx/libsec/libsec.a \
+

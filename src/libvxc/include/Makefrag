@@ -1,0 +1,15 @@
+
+CINC_HDRS :=	$(wildcard $(top_srcdir)/libvxc/include/*.h) \
+		$(wildcard $(top_srcdir)/libvxc/include/*/*.h)
+
+CINC_INST := $(patsubst $(top_srcdir)/libvxc/include/%, \
+			$(prefix)/vx32/include/%, \
+			$(CINC_HDRS))
+
+
+install: $(CINC_INST)
+
+$(prefix)/vx32/include/%.h: $(top_srcdir)/libvxc/include/%.h
+	@mkdir -p $(dir $@)
+	$(INSTALL) $< $@
+

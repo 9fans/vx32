@@ -1,0 +1,32 @@
+
+Test on Linux 2.6.18-5-686 unknown at Mon Jan 7 22:51:28 EST 2008
+zlib	native	real	1.36	user	1.34	sys	0.01	vx32	real	1.37	user	1.32	sys	0.04	
+bz2	native	real	25.77	user	25.67	sys	0.10	vx32	real	25.76	user	25.66	sys	0.10	
+jpeg	native	real	2.26	user	2.16	sys	0.09	vx32	real	1.60	user	1.46	sys	0.14	
+jp2	native	real	17.36	user	16.78	sys	0.58	vx32	real	19.35	user	17.66	sys	1.69	
+vorbis	native	real	1.31	user	1.30	sys	0.01	vx32	real	1.29	user	1.27	sys	0.01	
+flac	native	real	1.47	user	1.47	sys	0.00	vx32	real	1.52	user	1.48	sys	0.04	
+
+Test on Linux 2.6.18-5-686 unknown at Mon Jan 7 22:53:09 EST 2008
+zlib	native	real	1.36	user	1.34	sys	0.02	vx32	real	1.37	user	1.34	sys	0.03	
+bz2	native	real	25.76	user	25.68	sys	0.08	vx32	real	25.64	user	25.56	sys	0.08	
+jpeg	native	real	2.21	user	2.12	sys	0.09	vx32	real	1.60	user	1.44	sys	0.15	
+jp2	native	real	17.42	user	16.65	sys	0.77	vx32	real	19.12	user	17.64	sys	1.48	
+vorbis	native	real	1.31	user	1.30	sys	0.00	vx32	real	1.28	user	1.26	sys	0.02	
+flac	native	real	1.46	user	1.45	sys	0.00	vx32	real	1.51	user	1.50	sys	0.01	
+
+Test on Linux 2.6.18-5-686 unknown at Mon Jan 7 22:54:49 EST 2008
+zlib	native	real	1.36	user	1.34	sys	0.02	vx32	real	1.36	user	1.34	sys	0.02	
+bz2	native	real	25.71	user	25.65	sys	0.05	vx32	real	25.74	user	25.66	sys	0.08	
+jpeg	native	real	2.25	user	2.18	sys	0.06	vx32	real	1.60	user	1.43	sys	0.17	
+jp2	native	real	17.63	user	16.88	sys	0.76	vx32	real	19.17	user	17.74	sys	1.44	
+vorbis	native	real	1.30	user	1.30	sys	0.00	vx32	real	1.29	user	1.28	sys	0.00	
+flac	native	real	1.47	user	1.45	sys	0.02	vx32	real	1.51	user	1.48	sys	0.02	
+
+Test on Linux 2.6.18-5-686 unknown at Mon Jan 7 22:56:29 EST 2008
+zlib	native	real	1.36	user	1.32	sys	0.04	vx32	real	1.36	user	1.34	sys	0.02	
+bz2	native	real	25.81	user	25.73	sys	0.08	vx32	real	25.77	user	25.71	sys	0.06	
+jpeg	native	real	2.14	user	2.07	sys	0.06	vx32	real	1.60	user	1.43	sys	0.16	
+jp2	native	real	17.71	user	17.01	sys	0.70	vx32	real	19.18	user	17.73	sys	1.44	
+vorbis	native	real	1.31	user	1.30	sys	0.01	vx32	real	1.28	user	1.26	sys	0.01	
+flac	native	real	1.47	user	1.46	sys	0.01	vx32	real	1.51	user	1.49	sys	0.02	

@@ -1,0 +1,4 @@
+This is a slightly hacked subset of the VXA tree,
+just to get the decoders out and in a form useful
+for performance testing.
+Only the decoders are here, not the rest of VXA.

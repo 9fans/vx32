@@ -1,0 +1,15 @@
+Some random datasets to use for benchmarking...
+Run 'make.sh' to build the other datasets needed.
+
+You must have installed:
+- mpg123	(ubuntu package: mpg123)
+- flac		(ubuntu package: flac)
+- oggenc	(ubuntu package: ogg)
+- jasper	(ubuntu package: libjasper-runtime)
+
+Dataset origins:
+- mountains2.jpg: by Bryan Ford, from SOSP in Lake Louise, Canada
+- gently.mp3: by oldDog, featuring Norine Braun
+	Creative Commons Attribution-Noncommercial license
+	from http://ccmixter.org/media/files/oldDog/12919
+

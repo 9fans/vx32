@@ -1,0 +1,71 @@
+
+JP2_CFLAGS := -Ivxa/jp2/include
+
+JP2_HCFLAGS := $(JP2_CFLAGS)
+#JP2_HCFLAGS := $(JP2_CFLAGS) -msse2 -mfpmath=sse
+
+JP2_DSRCS := \
+	$(addprefix vxa/jp2/base/, \
+		jas_cm.c \
+		jas_debug.c \
+		jas_icc.c \
+		jas_iccdata.c \
+		jas_image.c \
+		jas_malloc.c \
+		jas_seq.c \
+		jas_stream.c \
+		jas_string.c \
+		jas_tvp.c \
+	) \
+	vxa/jp2/jp2/jp2_cod.c \
+	vxa/jp2/jp2/jp2_dec.c \
+	$(addprefix vxa/jp2/jpc/, \
+		jpc_bs.c \
+		jpc_cs.c \
+		jpc_dec.c \
+		jpc_math.c \
+		jpc_mct.c \
+		jpc_mqcod.c \
+		jpc_mqdec.c \
+		jpc_qmfb.c \
+		jpc_t1cod.c \
+		jpc_t1dec.c \
+		jpc_t2cod.c \
+		jpc_t2dec.c \
+		jpc_tagtree.c \
+		jpc_tsfb.c \
+		jpc_util.c \
+	) \
+	vxa/jp2/bmp/bmp_cod.c \
+	vxa/jp2/bmp/bmp_enc.c
+
+JP2_DOBJS := vxa/jp2/djp2.vo \
+		$(patsubst %.c,%.vo,$(JP2_DSRCS))
+
+OBJDIRS += vxa/jp2 vxa/jp2/base vxa/jp2/jp2 vxa/jp2/jpc vxa/jp2/bmp
+CLEAN_FILES += $(JP2_DOBJS) vxa/jp2/djp2
+
+
+all: vxa/jp2/djp2 vxa/jp2/hdjp2
+
+
+# VXA decoder
+vxa/jp2/djp2: $(JP2_DOBJS) $(CLIB_DEPS)
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $(JP2_DOBJS) $(VX32_LDLIBS)
+
+vxa/jp2/%.vo: vxa/jp2/%.c
+	$(VX32_CC) -c -o $@ $(VX32_CFLAGS) $(JP2_CFLAGS) $<
+
+
+# Host version of jp2 decoder, for comparison and debugging
+# (not built by default - use 'make jp2/hdjp2' to build it.)
+
+JP2_HDOBJS := $(patsubst %.vo,%.ho,$(JP2_DOBJS))
+CLEAN_FILES += $(JP2_HDOBJS) vxa/jp2/hdjp2
+
+vxa/jp2/hdjp2: $(JP2_HDOBJS)
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $(JP2_HDOBJS) -lm
+
+vxa/jp2/%.ho: vxa/jp2/%.c
+	$(HOST_CC) -c -o $@ $(HOST_CFLAGS) $(JP2_HCFLAGS) -DHOST $<
+

@@ -1,0 +1,67 @@
+
+JPEG_CFLAGS := 
+
+JPEG_HCFLAGS := $(JPEG_CFLAGS)
+#JPEG_HCFLAGS := $(JPEG_CFLAGS) -msse2 -mfpmath=sse
+
+JPEG_SRCS := $(addprefix vxa/jpeg/, \
+		jcomapi.c \
+		jdapimin.c \
+		jdapistd.c \
+		jdatasrc.c \
+		jdcoefct.c \
+		jdcolor.c \
+		jddctmgr.c \
+		jdhuff.c \
+		jdinput.c \
+		jdmainct.c \
+		jdmarker.c \
+		jdmaster.c \
+		jdmerge.c \
+		jdphuff.c \
+		jdpostct.c \
+		jdsample.c \
+		jerror.c \
+		jidctflt.c \
+		jidctfst.c \
+		jidctint.c \
+		jidctred.c \
+		jmemmgr.c \
+		jmemnobs.c \
+		jquant1.c \
+		jquant2.c \
+		jutils.c \
+		wrbmp.c \
+	)
+
+JPEG_DOBJS := vxa/jpeg/djpeg.vo \
+		$(patsubst %.c,%.vo,$(JPEG_SRCS))
+
+JPEG_TARGETS := vxa/jpeg/djpeg vxa/jpeg/hdjpeg
+
+OBJDIRS += vxa/jpeg
+CLEAN_FILES += $(JPEG_DOBJS) $(JPEG_TARGETS)
+
+
+all: $(JPEG_TARGETS)
+
+vxa/jpeg/djpeg: $(JPEG_DOBJS) $(CLIB_DEPS)
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $(JPEG_DOBJS) $(VX32_LDLIBS)
+
+vxa/jpeg/%.vo: vxa/jpeg/%.c
+	$(VX32_CC) -c -o $@ $(VX32_CFLAGS) $(JPEG_CFLAGS) $<
+
+
+
+# Host version of jpeg decoder, for comparison and debugging
+# (not built by default - use 'make jpeg/hdjpeg' to build it.)
+
+JPEG_HDOBJS := $(patsubst %.vo,%.ho,$(JPEG_DOBJS))
+CLEAN_FILES += $(JPEG_HDOBJS) vxa/jpeg/hdjpeg
+
+vxa/jpeg/hdjpeg: $(JPEG_HDOBJS)
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $(JPEG_HDOBJS) -lm
+
+vxa/jpeg/%.ho: vxa/jpeg/%.c
+	$(HOST_CC) -c -o $@ $(HOST_CFLAGS) $(JPEG_HCFLAGS) $<
+

@@ -1,0 +1,5 @@
+g/^envgen/ s/Dirtab\*, int/Dirtab \*dt, int i/
+,s!lock(eg)!lock(\&eg->lk)!g
+g/^envcreate/ s/ulong)/ulong perm)/
+,s!lock(from)!lock(\&from->lk)!g
+,s!ref(eg)!ref(\&eg->ref)!g

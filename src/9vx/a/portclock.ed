@@ -1,0 +1,6 @@
+,s/lock(tt)/lock(\&tt->lk)/
+,s/Lock;/Lock lk;/
+,s/lock(nt)/lock(\&nt->lk)/
+,s/lock(dt)/lock(\&dt->lk)/
+/^timerintr/ s/Tval/Tval v/
+,s/lock(\&timers\[0\])/lock(\&timers[0].lk)/

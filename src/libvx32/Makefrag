@@ -1,0 +1,51 @@
+ifeq ($(ARCH),x86_64)
+VX32_RUN = run64.o
+else
+VX32_RUN = run32.o 
+endif
+
+ifeq ($(OS),darwin)
+VX32_RUN := $(VX32_RUN) darwin-asm.o
+endif
+
+VX32_OBJS = \
+	$(addprefix libvx32/, \
+		chunk.o \
+		elf.o \
+		emu.o \
+		mem.o \
+		proc.o \
+		rts.o \
+		sig.o \
+		x86dis.o \
+		$(OS).o \
+		$(VX32_RUN) \
+	)
+
+VX32_DEPS := libvx32/libvx32.a
+VX32_INST := $(prefix)/lib/libvx32.a
+
+CLEAN_FILES += $(VX32_OBJS) $(VX32_DEPS)
+
+all: $(VX32_DEPS)
+install: $(VX32_INST)
+
+libvx32/rts.o: libvx32/asm.h
+
+libvx32/%.o: libvx32/%.c
+	$(HOST_CC) -Ilibvx32 -c $(HOST_CFLAGS) -o $@ $<
+
+libvx32/%.o: libvx32/%.S
+	$(HOST_CC) -Ilibvx32 -c $(HOST_CFLAGS) -o $@ $<
+
+libvx32/asm.h: libvx32/asm.sym libvx32/gensym.awk libvx32/vx32impl.h
+	awk -f libvx32/gensym.awk libvx32/asm.sym >libvx32/asm-sym.c
+	$(HOST_CC) $(HOST_CFLAGS) -S -o libvx32/asm-sym.s libvx32/asm-sym.c
+	grep mAgIc libvx32/asm-sym.s | sed -e 's/mAgIc[^0-9]*//g' >$@
+
+libvx32/libvx32.a: $(VX32_OBJS)
+	$(AR) rs $@ $(VX32_OBJS)
+
+$(prefix)/lib/libvx32.a: libvx32/libvx32.a
+	$(INSTALL) $< $@
+

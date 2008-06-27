@@ -1,0 +1,26 @@
+/^addphysseg/-1,/^	return/+1d
+,s!Lock;!Lock lk;!
+,s!lock(s)!lock(\&s->ref.lk)!g
+,s!lock(i)!lock(\&i->ref.lk)!g
+,s!(x = \*pg)!(&)!
+,s!SET(n)!n = 0!
+,s!ref(s->image)!ref(\&s->image->ref)!g
+,s!(pte = s->map\[i\])!(&)!
+,s!->ref >!->ref.ref >!g
+,s!ref(s)!ref(\&s->ref)!g
+,s!lock(\&imagealloc)!lock(\&imagealloc.lk)!g
+,s!ref(c)!ref(\&c->ref)!g
+,s!lock(\&palloc)!lock(\&palloc.lk)!g
+,s!lock(p)!lock(\&p->lk)!g
+,s!ref(i->s)!ref(\&i->s->ref)!g
+,s!->ref++!->ref.ref++!g
+,s!->ref =!->ref.ref =!g
+,s!->ref--!->ref.ref--!g
+,s#->ref !#->ref.ref !#g
+,s!p->ref\.ref!p->ref!g
+/^pteflush/+1a
+#if 0	// Not needed for Plan 9 VX - no swap
+.
+/^}/i
+#endif
+.

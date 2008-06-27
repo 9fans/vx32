@@ -1,0 +1,3 @@
+g/^dupgen/ s/char \*, Dirtab\*, int,/char *name, Dirtab *dt, int ndt,/
+g/^dupclose/ s/Chan\*/Chan *c/
+g/^dupwrite/ s/Chan\*, void\*, long, vlong/Chan *c, void *v, long n, vlong o/

@@ -1,0 +1,48 @@
+,s;Rune.*\*so;Rune so[64];
+/k\[0\] == 'X'/s/$/{/
+/return -5/a
+	}
+.
+1a
+#include "lib.h"
+#include "mem.h"
+#include "dat.h"
+#include "fns.h"
+#include "keyboard.h"
+
+.
+$a
+
+// Plan 9 VX
+void
+latin1putc(int c, void (*kputc)(int))
+{
+	int i;
+	static int collecting, nk;
+	static Rune kc[5];
+
+	 if(c == Kalt){
+		 collecting = !collecting;
+		 nk = 0;
+		 return;
+	 }
+
+	 if(!collecting){
+		 kputc(c);
+		 return;
+	 }
+
+	kc[nk++] = c;
+	c = latin1(kc, nk);
+	if(c < -1)  /* need more keystrokes */
+		return;
+	if(c != -1) /* valid sequence */
+		kputc(c);
+	else
+		for(i=0; i<nk; i++)
+		 	kputc(kc[i]);
+	nk = 0;
+	collecting = 0;
+}
+
+.

@@ -1,0 +1,9 @@
+,s/, xcompare/, (int(*)(const void*, const void*))xcompare/
+,s/, ycompare/, (int(*)(const void*, const void*))ycompare/
+,s/, zcompare/, (int(*)(const void*, const void*))zcompare/
+/^fillcolor/-1i
+#if 0
+.
+/^}/a
+#endif
+.

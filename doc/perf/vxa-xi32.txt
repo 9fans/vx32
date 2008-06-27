@@ -1,0 +1,120 @@
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 11:58:35 EST 2008
+zlib	native	real	2.08	user	2.02	sys	0.04	vx32	real	2.29	user	2.15	sys	0.05	
+bz2	native	real	21.08	user	20.90	sys	0.08	vx32	real	21.99	user	21.84	sys	0.06	
+jpeg	native	real	3.59	user	3.43	sys	0.11	vx32	real	3.23	user	2.85	sys	0.22	
+jp2	native	real	27.01	user	25.85	sys	0.87	vx32	real	37.25	user	32.00	sys	1.76	
+vorbis	native	real	2.28	user	2.08	sys	0.01	vx32	real	2.29	user	2.08	sys	0.02	
+flac	native	real	2.06	user	1.94	sys	0.05	vx32	real	2.30	user	2.17	sys	0.04	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:12:02 EST 2008
+zlib	native	real	2.17	user	1.99	sys	0.12	vx32	real	2.24	user	2.16	sys	0.06	
+bz2	native	real	21.19	user	20.92	sys	0.14	vx32	real	22.04	user	21.86	sys	0.09	
+jpeg	native	real	3.49	user	3.30	sys	0.10	vx32	real	3.15	user	2.86	sys	0.21	
+jp2	native	real	27.03	user	25.85	sys	0.82	vx32	real	35.47	user	31.74	sys	1.78	
+vorbis	native	real	2.29	user	2.09	sys	0.02	vx32	real	2.26	user	2.08	sys	0.02	
+flac	native	real	2.08	user	1.93	sys	0.07	vx32	real	2.26	user	2.18	sys	0.04	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:14:09 EST 2008
+zlib	native	real	2.22	user	2.04	sys	0.09	vx32	real	2.26	user	2.16	sys	0.06	
+bz2	native	real	21.39	user	21.08	sys	0.14	vx32	real	22.06	user	21.88	sys	0.08	
+jpeg	native	real	3.62	user	3.48	sys	0.06	vx32	real	3.16	user	2.86	sys	0.18	
+jp2	native	real	27.15	user	25.85	sys	0.91	vx32	real	37.33	user	31.83	sys	1.86	
+vorbis	native	real	2.26	user	2.09	sys	0.01	vx32	real	2.26	user	2.07	sys	0.03	
+flac	native	real	2.11	user	1.92	sys	0.07	vx32	real	2.33	user	2.16	sys	0.04	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:16:18 EST 2008
+zlib	native	real	2.16	user	1.98	sys	0.14	vx32	real	2.26	user	2.14	sys	0.08	
+bz2	native	real	21.18	user	20.90	sys	0.16	vx32	real	22.07	user	21.87	sys	0.09	
+jpeg	native	real	3.54	user	3.37	sys	0.07	vx32	real	3.15	user	2.85	sys	0.21	
+jp2	native	real	27.11	user	25.88	sys	0.84	vx32	real	37.38	user	31.71	sys	1.90	
+vorbis	native	real	2.28	user	2.09	sys	0.02	vx32	real	2.27	user	2.08	sys	0.02	
+flac	native	real	2.07	user	1.94	sys	0.06	vx32	real	2.25	user	2.19	sys	0.02	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:18:26 EST 2008
+zlib	native	real	2.29	user	2.00	sys	0.13	vx32	real	2.26	user	2.11	sys	0.10	
+bz2	native	real	21.17	user	20.90	sys	0.15	vx32	real	22.05	user	21.81	sys	0.14	
+jpeg	native	real	3.47	user	3.34	sys	0.07	vx32	real	3.14	user	2.86	sys	0.19	
+jp2	native	real	27.02	user	25.78	sys	0.94	vx32	real	37.04	user	31.85	sys	1.81	
+vorbis	native	real	2.26	user	2.08	sys	0.00	vx32	real	2.25	user	2.10	sys	0.00	
+flac	native	real	2.07	user	1.94	sys	0.05	vx32	real	2.26	user	2.14	sys	0.07	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 11:58:35 EST 2008
+zlib	native	real	2.08	user	2.02	sys	0.04	vx32	real	2.29	user	2.15	sys	0.05	
+bz2	native	real	21.08	user	20.90	sys	0.08	vx32	real	21.99	user	21.84	sys	0.06	
+jpeg	native	real	3.59	user	3.43	sys	0.11	vx32	real	3.23	user	2.85	sys	0.22	
+jp2	native	real	27.01	user	25.85	sys	0.87	vx32	real	37.25	user	32.00	sys	1.76	
+vorbis	native	real	2.28	user	2.08	sys	0.01	vx32	real	2.29	user	2.08	sys	0.02	
+flac	native	real	2.06	user	1.94	sys	0.05	vx32	real	2.30	user	2.17	sys	0.04	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:12:02 EST 2008
+zlib	native	real	2.17	user	1.99	sys	0.12	vx32	real	2.24	user	2.16	sys	0.06	
+bz2	native	real	21.19	user	20.92	sys	0.14	vx32	real	22.04	user	21.86	sys	0.09	
+jpeg	native	real	3.49	user	3.30	sys	0.10	vx32	real	3.15	user	2.86	sys	0.21	
+jp2	native	real	27.03	user	25.85	sys	0.82	vx32	real	35.47	user	31.74	sys	1.78	
+vorbis	native	real	2.29	user	2.09	sys	0.02	vx32	real	2.26	user	2.08	sys	0.02	
+flac	native	real	2.08	user	1.93	sys	0.07	vx32	real	2.26	user	2.18	sys	0.04	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:14:09 EST 2008
+zlib	native	real	2.22	user	2.04	sys	0.09	vx32	real	2.26	user	2.16	sys	0.06	
+bz2	native	real	21.39	user	21.08	sys	0.14	vx32	real	22.06	user	21.88	sys	0.08	
+jpeg	native	real	3.62	user	3.48	sys	0.06	vx32	real	3.16	user	2.86	sys	0.18	
+jp2	native	real	27.15	user	25.85	sys	0.91	vx32	real	37.33	user	31.83	sys	1.86	
+vorbis	native	real	2.26	user	2.09	sys	0.01	vx32	real	2.26	user	2.07	sys	0.03	
+flac	native	real	2.11	user	1.92	sys	0.07	vx32	real	2.33	user	2.16	sys	0.04	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:16:18 EST 2008
+zlib	native	real	2.16	user	1.98	sys	0.14	vx32	real	2.26	user	2.14	sys	0.08	
+bz2	native	real	21.18	user	20.90	sys	0.16	vx32	real	22.07	user	21.87	sys	0.09	
+jpeg	native	real	3.54	user	3.37	sys	0.07	vx32	real	3.15	user	2.85	sys	0.21	
+jp2	native	real	27.11	user	25.88	sys	0.84	vx32	real	37.38	user	31.71	sys	1.90	
+vorbis	native	real	2.28	user	2.09	sys	0.02	vx32	real	2.27	user	2.08	sys	0.02	
+flac	native	real	2.07	user	1.94	sys	0.06	vx32	real	2.25	user	2.19	sys	0.02	
+
+Test on Linux 2.6.22-14-generic unknown at Sat Jan 5 13:18:26 EST 2008
+zlib	native	real	2.29	user	2.00	sys	0.13	vx32	real	2.26	user	2.11	sys	0.10	
+bz2	native	real	21.17	user	20.90	sys	0.15	vx32	real	22.05	user	21.81	sys	0.14	
+jpeg	native	real	3.47	user	3.34	sys	0.07	vx32	real	3.14	user	2.86	sys	0.19	
+jp2	native	real	27.02	user	25.78	sys	0.94	vx32	real	37.04	user	31.85	sys	1.81	
+vorbis	native	real	2.26	user	2.08	sys	0.00	vx32	real	2.25	user	2.10	sys	0.00	
+flac	native	real	2.07	user	1.94	sys	0.05	vx32	real	2.26	user	2.14	sys	0.07	
+
+Test on Linux 2.6.22-14-generic unknown at Mon Jan 7 09:57:18 EST 2008
+zlib	native	real	7.21	user	2.02	sys	0.10	vx32	real	2.21	user	2.17	sys	0.03	
+bz2	native	real	23.11	user	20.94	sys	0.21	vx32	real	22.13	user	22.03	sys	0.08	
+jpeg	native	real	3.59	user	3.39	sys	0.12	vx32	real	3.10	user	2.88	sys	0.19	
+jp2	native	real	28.93	user	25.90	sys	0.88	vx32	real	34.26	user	31.73	sys	1.76	
+vorbis	native	real	2.52	user	2.09	sys	0.01	vx32	real	2.44	user	2.09	sys	0.03	
+flac	native	real	2.23	user	1.96	sys	0.03	vx32	real	2.31	user	2.24	sys	0.02	
+
+Test on Linux 2.6.22-14-generic unknown at Mon Jan 7 09:59:33 EST 2008
+zlib	native	real	4.35	user	2.05	sys	0.09	vx32	real	2.28	user	2.16	sys	0.05	
+bz2	native	real	21.21	user	20.94	sys	0.14	vx32	real	22.16	user	21.98	sys	0.11	
+jpeg	native	real	3.62	user	3.42	sys	0.11	vx32	real	3.17	user	2.88	sys	0.18	
+jp2	native	real	27.76	user	25.94	sys	0.79	vx32	real	36.30	user	31.60	sys	1.86	
+vorbis	native	real	2.39	user	2.11	sys	0.00	vx32	real	2.36	user	2.08	sys	0.03	
+flac	native	real	2.32	user	1.93	sys	0.08	vx32	real	2.32	user	2.24	sys	0.02	
+
+Test on Linux 2.6.22-14-generic unknown at Mon Jan 7 10:01:44 EST 2008
+zlib	native	real	2.88	user	2.01	sys	0.11	vx32	real	2.25	user	2.14	sys	0.07	
+bz2	native	real	21.57	user	20.95	sys	0.13	vx32	real	22.24	user	22.04	sys	0.13	
+jpeg	native	real	3.54	user	3.36	sys	0.09	vx32	real	3.12	user	2.91	sys	0.16	
+jp2	native	real	28.70	user	25.77	sys	0.94	vx32	real	35.56	user	31.66	sys	1.78	
+vorbis	native	real	2.36	user	2.07	sys	0.02	vx32	real	2.21	user	2.10	sys	0.03	
+flac	native	real	2.41	user	1.92	sys	0.06	vx32	real	2.36	user	2.24	sys	0.02	
+
+Test on Linux 2.6.22-14-generic unknown at Mon Jan 7 10:03:54 EST 2008
+zlib	native	real	4.49	user	2.04	sys	0.08	vx32	real	2.26	user	2.18	sys	0.03	
+bz2	native	real	21.35	user	20.94	sys	0.17	vx32	real	22.20	user	22.04	sys	0.09	
+jpeg	native	real	3.51	user	3.38	sys	0.06	vx32	real	3.14	user	2.88	sys	0.19	
+jp2	native	real	27.81	user	25.97	sys	0.80	vx32	real	36.31	user	31.68	sys	1.82	
+vorbis	native	real	2.45	user	2.11	sys	0.01	vx32	real	2.35	user	2.10	sys	0.02	
+flac	native	real	3.14	user	1.93	sys	0.06	vx32	real	2.38	user	2.22	sys	0.03	
+
+Test on Linux 2.6.22-14-generic unknown at Mon Jan 7 10:06:07 EST 2008
+zlib	native	real	5.65	user	2.00	sys	0.11	vx32	real	2.28	user	2.14	sys	0.07	
+bz2	native	real	21.24	user	20.97	sys	0.13	vx32	real	22.18	user	22.04	sys	0.08	
+jpeg	native	real	3.48	user	3.30	sys	0.11	vx32	real	3.14	user	2.84	sys	0.23	
+jp2	native	real	28.23	user	26.01	sys	0.82	vx32	real	35.72	user	31.69	sys	1.82	
+vorbis	native	real	2.42	user	2.07	sys	0.02	vx32	real	2.19	user	2.11	sys	0.01	
+flac	native	real	2.41	user	1.98	sys	0.03	vx32	real	2.36	user	2.23	sys	0.02	

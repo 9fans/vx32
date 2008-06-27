@@ -1,0 +1,9 @@
+
+# VXA decoders
+include vxa/zlib/Makefrag
+include vxa/bz2/Makefrag
+include vxa/jpeg/Makefrag
+include vxa/jp2/Makefrag
+include vxa/vorbis/Makefrag
+include vxa/flac/Makefrag
+

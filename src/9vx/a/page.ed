@@ -1,0 +1,17 @@
+/k = PGROUND/ s/PGROUND.*/0;/
+,s;lock(\&palloc);lock(\&palloc.lk);g
+,s;lock(p);lock(\&p->lk);g
+/^ispages/ s/(void\*)/(void *v)/
+,s;lock(np);lock(\&np->lk);g
+,s;ref(i);ref(\&i->ref);g
+,s;lock(f);lock(\&f->lk);g
+,s;lock(\*src);lock(\&(*src)->lk);g
+,s;lock(pt);lock(\&pt->lk);g
+,s;->ref !=;->ref.ref !=;g
+,s;p->ref\.ref;p->ref;g
+/int i, hw, dontalloc/ s/i, //
+/ct = PG_NEWCOL/+1a
+	(void)ct;
+.
+/for(i = 0; i < MAXMACH; i++)/d
+d

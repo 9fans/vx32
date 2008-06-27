@@ -1,0 +1,34 @@
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 15:41:47 EST 2008
+md5	native	real	2.25	user	1.56	sys	0.37	vx32	real	2.45	user	1.66	sys	0.49	
+sha1	native	real	10.82	user	10.48	sys	0.32	vx32	real	10.84	user	10.40	sys	0.35	
+sha2	native	real	33.61	user	33.23	sys	0.34	vx32	real	33.68	user	33.16	sys	0.45	
+ripemd	native	real	8.37	user	7.98	sys	0.35	vx32	real	8.43	user	8.02	sys	0.36	
+whirlpool	native	real	5.24	user	4.90	sys	0.32	vx32	real	5.98	user	5.44	sys	0.48	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 15:43:49 EST 2008
+md5	native	real	2.26	user	1.64	sys	0.29	vx32	real	2.42	user	1.75	sys	0.38	
+sha1	native	real	10.82	user	10.45	sys	0.35	vx32	real	10.82	user	10.28	sys	0.48	
+sha2	native	real	33.64	user	33.21	sys	0.36	vx32	real	33.77	user	33.26	sys	0.36	
+ripemd	native	real	8.38	user	7.98	sys	0.38	vx32	real	8.36	user	7.93	sys	0.42	
+whirlpool	native	real	5.23	user	4.87	sys	0.35	vx32	real	5.98	user	5.54	sys	0.41	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 15:45:51 EST 2008
+md5	native	real	2.28	user	1.46	sys	0.47	vx32	real	2.44	user	1.69	sys	0.46	
+sha1	native	real	10.81	user	10.46	sys	0.34	vx32	real	10.78	user	10.38	sys	0.37	
+sha2	native	real	33.62	user	33.24	sys	0.33	vx32	real	33.65	user	33.19	sys	0.42	
+ripemd	native	real	8.36	user	7.99	sys	0.35	vx32	real	8.39	user	7.90	sys	0.48	
+whirlpool	native	real	5.25	user	4.84	sys	0.40	vx32	real	5.93	user	5.42	sys	0.48	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 15:47:53 EST 2008
+md5	native	real	2.27	user	1.52	sys	0.41	vx32	real	2.45	user	1.71	sys	0.42	
+sha1	native	real	10.84	user	10.32	sys	0.48	vx32	real	10.82	user	10.31	sys	0.45	
+sha2	native	real	33.61	user	33.23	sys	0.33	vx32	real	33.65	user	33.14	sys	0.48	
+ripemd	native	real	8.36	user	7.88	sys	0.44	vx32	real	8.38	user	7.81	sys	0.55	
+whirlpool	native	real	5.26	user	4.86	sys	0.38	vx32	real	5.98	user	5.48	sys	0.48	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 15:49:56 EST 2008
+md5	native	real	2.27	user	1.44	sys	0.49	vx32	real	2.59	user	1.78	sys	0.36	
+sha1	native	real	10.83	user	10.45	sys	0.35	vx32	real	10.83	user	10.35	sys	0.39	
+sha2	native	real	33.60	user	33.20	sys	0.37	vx32	real	33.64	user	33.22	sys	0.39	
+ripemd	native	real	8.36	user	8.03	sys	0.30	vx32	real	8.37	user	7.97	sys	0.39	
+whirlpool	native	real	5.25	user	4.85	sys	0.37	vx32	real	5.93	user	5.53	sys	0.38	

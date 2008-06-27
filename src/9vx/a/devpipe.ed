@@ -1,0 +1,5 @@
+,s!Lock;!Lock lk;!g
+,s!lock(\&pipealloc)!lock(\&pipealloc.lk)!g
+,s!lock(p)!lock(\&p->lk)!g
+g/^pipe/ s/long)/long offset)/
+g/^pipegen/ s/char\*,/char *name,/

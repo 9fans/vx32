@@ -1,0 +1,13 @@
+
+TESTS = loop
+
+all: 	$(addprefix test/,$(TESTS)) \
+
+
+# Build rules for VX32 environment
+test/%: test/%.o
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $< $(VX32_LDLIBS)
+
+test/%.o: test/%.c
+	$(VX32_CC) -c $(VX32_CFLAGS) -o $@ $<
+

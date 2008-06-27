@@ -1,0 +1,62 @@
+
+VORBIS_CFLAGS := -Ivxa/vorbis -Ivxa/vorbis/libogg/include \
+		-Ivxa/vorbis/libvorbis/include \
+		-DHAVE_ALLOCA_H
+
+VORBIS_HCFLAGS := $(VORBIS_CFLAGS)
+#VORBIS_HCFLAGS := $(VORBIS_CFLAGS) -msse2 -mfpmath=sse
+
+VORBIS_DOBJS := \
+	vxa/vorbis/dvorbis.vo \
+	$(addprefix vxa/vorbis/libogg/src/, \
+		bitwise.vo \
+		framing.vo \
+	) \
+	$(addprefix vxa/vorbis/libvorbis/lib/, \
+		analysis.vo \
+		bitrate.vo \
+		block.vo \
+		codebook.vo \
+		envelope.vo \
+		floor0.vo \
+		floor1.vo \
+		info.vo \
+		lpc.vo \
+		lsp.vo \
+		mapping0.vo \
+		mdct.vo \
+		psy.vo \
+		registry.vo \
+		res0.vo \
+		sharedbook.vo \
+		smallft.vo \
+		synthesis.vo \
+		vorbisfile.vo \
+		window.vo \
+	)
+
+OBJDIRS += vorbis vorbis/libogg/src vorbis/libvorbis/lib
+CLEAN_FILES += $(VORBIS_DOBJS) vorbis/dvorbis
+
+
+all: vxa/vorbis/dvorbis vxa/vorbis/hdvorbis
+
+vxa/vorbis/dvorbis: $(VORBIS_DOBJS) $(CLIB_DEPS)
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $(VORBIS_DOBJS) $(VX32_LDLIBS)
+
+vxa/vorbis/%.vo: vxa/vorbis/%.c
+	$(VX32_CC) -c -o $@ $(VX32_CFLAGS) $(VORBIS_CFLAGS) $<
+
+
+# Host version of vorbis decoder, for comparison and debugging
+# (not built by default - use 'make vorbis/hdvorbis' to build it.)
+
+VORBIS_HDOBJS := $(patsubst %.vo,%.ho,$(VORBIS_DOBJS))
+CLEAN_FILES += $(VORBIS_HDOBJS) vorbis/hdvorbis
+
+vxa/vorbis/hdvorbis: $(VORBIS_HDOBJS)
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $(VORBIS_HDOBJS) -lm
+
+vxa/vorbis/%.ho: vxa/vorbis/%.c
+	$(HOST_CC) -c -o $@ $(VORBIS_HCFLAGS) $(HOST_CFLAGS) $<
+

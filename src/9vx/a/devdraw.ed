@@ -1,0 +1,40 @@
+/^drawgen/ s/char\*, Dirtab\*, int,/char *_, Dirtab *__, int ___,/
+,s/(Memimage\*,/(Memimage *m,/
+,s/(next = ds->next)/(&)/
+,s/(next = d->next)/(&)/
+,s/(next = cs->next)/(&)/
+/^makescreenimage/+2i
+	void *X;
+.
+/attachscreen/ s/);/, \&X);/
+/allocmemimaged/ s/md)/md, X)/
+,s/(r = cl->refresh)/(&)/
+/^drawwrite/ s/vlong)/vlong _)/
+g/SET(s,q,p)/d
+g/USED/d
+g/^	int s;/d
+/screen.h"/a
+
+#define blankscreen(x)
+#define ishwimage(x) (0)
+.
+/^drawlookupscreen/
+/	return 0/ s/return 0/for(;;)/
+g/Edepth/d
+,s/dunlock/drawqunlock/g
+,s/candlock/drawcanqlock/g
+,s/dlock(/drawqlock(/g
+/^drawqlock/-1 s/static //
+/^drawqunlock/-1 s/static //
+/^drawcanqlock/-1 s/static //
+$a
+
+/* why is this here? why can't caller use drawqlock himself? */
+void
+drawflushr(Rectangle r)
+{
+	drawqlock();
+	flushmemscreen(r);
+	drawqunlock();
+}
+.

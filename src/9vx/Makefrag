@@ -1,0 +1,194 @@
+# For now Linux32 only.  Should work elsewhere but untested.
+ifeq ($(OS),linux)
+ifeq ($(ARCH),x86_64)
+else
+PLAN9VX=1
+PLAN9GUI=x11
+PLAN9AUDIO=unix
+endif
+endif
+
+ifeq ($(OS),darwin)
+PLAN9VX=1
+  # TODO: carbon
+PLAN9GUI=x11
+PLAN9AUDIO=none
+endif
+
+ifeq ($(OS),freebsd)
+PLAN9VX=1
+PLAN9GUI=x11
+PLAN9AUDIO=unix
+endif
+
+# If you don't have/want X11
+#PLAN9GUI=nogui
+
+ifeq ($(PLAN9VX),1)
+
+all: 9vx/9vx
+
+PLAN9_OBJS = \
+	$(addprefix 9vx/, \
+		bootcode.o \
+		devaudio.o \
+		devaudio-$(PLAN9AUDIO).o \
+		devfs-posix.o \
+		devip.o \
+		devip-posix.o \
+		devmntloop.o \
+		devmouse.o \
+		devtab.o \
+		factotum.o \
+		kprocdev.o \
+		label.o \
+		main.o \
+		mmu.o \
+		sched.o \
+		stub.o \
+		term.o \
+		time.o \
+		trap.o \
+		tty.o \
+		vx32.o \
+	)
+
+PLAN9_A_OBJS = \
+	$(addprefix 9vx/a/, \
+		allocb.o \
+		auth.o \
+		bo.o \
+		chan.o \
+		classmask.o \
+		cleanname.o \
+		convD2M.o \
+		convM2D.o \
+		convS2M.o \
+		convM2S.o \
+		dev.o \
+		devcons.o \
+		devdraw.o \
+		devdup.o \
+		devenv.o \
+		devmnt.o \
+		devproc.o \
+		devpipe.o \
+		devroot.o \
+		devsrv.o \
+		devssl.o \
+		devtls.o \
+		eipfmt.o \
+		encodefmt.o \
+		fault.o \
+		fcallfmt.o \
+		fmt.o \
+		getfields.o \
+		ipaux.o \
+		latin1.o \
+		page.o \
+		parse.o \
+		parseip.o \
+		pgrp.o \
+		print.o \
+		proc.o \
+		qio.o \
+		qlock.o \
+		segment.o \
+		strecpy.o \
+		sysfile.o \
+		sysproc.o \
+		thwack.o \
+		tokenize.o \
+		u16.o \
+		u32.o \
+		u64.o \
+		unthwack.o \
+		utf.o \
+	)
+
+PLAN9_nogui_OBJS = \
+	$(addprefix 9vx/,\
+		nogui.o \
+	)
+
+PLAN9_nogui_LIBS = 
+
+PLAN9_x11_OBJS = \
+	$(addprefix 9vx/x11/, \
+		x11-draw.o \
+		x11-init.o \
+		x11-itrans.o \
+		x11-kernel.o \
+		x11-keysym2rune.o \
+	)
+
+PLAN9_x11_LIBS = -L/usr/X11R6/lib -L/usr/local/lib -lX11
+
+PLAN9_GUI_OBJS = $(PLAN9_$(PLAN9GUI)_OBJS)
+PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
+
+PLAN9_DEPS = \
+	$(PLAN9_OBJS) \
+	$(PLAN9_A_OBJS) \
+	$(PLAN9_GUI_OBJS) \
+	9vx/libsec/libsec.a \
+	9vx/libmemlayer/libmemlayer.a \
+	9vx/libmemdraw/libmemdraw.a \
+	9vx/libdraw/libdraw.a \
+	libvx32/libvx32.a \
+
+9vx/9vx: $(PLAN9_DEPS)
+	$(HOST_CC) -o $@ $(PLAN9_DEPS) $(PLAN9_GUI_LIBS) -lpthread
+
+9vx/a/%.o: 9vx/a/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/x11/%.o: 9vx/x11/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -I/usr/X11R6/include -I/usr/local/include -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/%.o: 9vx/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/%.o: 9vx/%.S
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/data2s: 9vx/data2s.c
+	$(HOST_CC) -o $@ $<
+
+9vx/bootcode.S: 9vx/data2s 9vx/bootcode.9
+	./9vx/data2s boot < 9vx/bootcode.9 >$@_ && mv $@_ $@
+
+9vx/factotum.S: 9vx/data2s 9vx/factotum.9
+	./9vx/data2s factotum < 9vx/factotum.9 >$@_ && mv $@_ $@
+
+9vx/a/errstr.h: 9vx/a/error.h
+	sed 's/extern //; s!;.*/\* ! = "!; s! \*\/!";!' 9vx/a/error.h >9vx/a/errstr.h
+
+9vx/a/proc.o: 9vx/a/errstr.h
+
+9vx/stub.o: 9vx/kerndate.h
+
+9vx/kerndate.h:
+	echo 'ulong kerndate =' `date +%s` ';' >9vx/kerndate.h
+
+.PHONY: 9vx/kerndate.h
+
+CLEAN_FILES += \
+	9vx/*.d \
+	9vx/*.o \
+	9vx/a/*.d \
+	9vx/a/*.o \
+	9vx/x11/*.d \
+	9vx/x11/*.o \
+	9vx/kerndate.h \
+	9vx/a/errstr.h \
+	9vx/9vx \
+	9vx/data2s \
+	9vx/bootcode.S
+
+include 9vx/libdraw/Makefrag
+include 9vx/libmemlayer/Makefrag
+include 9vx/libmemdraw/Makefrag
+include 9vx/libsec/Makefrag
+
+endif

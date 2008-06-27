@@ -1,0 +1,5 @@
+g/^rootgen/ s/Dirtab\*, int/Dirtab *dt, int i/
+g/^rootclose/ s/(Chan\*)/(Chan *c)/
+,s/^#endif asdf/#endif/
+g/^rootwrite/ s/(Chan\*, void\*, long, vlong)/(Chan *c, void *v, long l, vlong vl)/
+/^static uchar \*bootdata/ s/ =.*/;/

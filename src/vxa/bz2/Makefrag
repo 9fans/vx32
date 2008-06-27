@@ -1,0 +1,45 @@
+
+BZ2_CFLAGS := -DBZ_NO_STDIO
+
+# VX32 decoder
+BZ2_OBJS := \
+	$(addprefix vxa/bz2/, \
+		blocksort.vo \
+		huffman.vo \
+		crctable.vo \
+		randtable.vo \
+		compress.vo \
+		decompress.vo \
+		bzlib.vo \
+	)
+
+BZ2_TARGETS := vxa/bz2/dbz2 vxa/bz2/hdbz2 vxa/bz2/ebz2
+
+OBJDIRS += vxa/bz2
+CLEAN_FILES += $(BZ2_OBJS) $(BZ2_TARGETS)
+
+
+all: $(BZ2_TARGETS)
+
+
+# VXA-based bzip2 encoder and decoder
+vxa/bz2/%bz2: vxa/bz2/%bz2.vo vxa/bz2/libbz2.a $(CLIB_DEPS)
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) -Lbz2 $< -Lvxa/bz2 -lbz2 $(VX32_LDLIBS)
+
+vxa/bz2/libbz2.a: $(BZ2_OBJS)
+	$(VX32_AR) r $@ $(BZ2_OBJS)
+
+vxa/bz2/%.vo: vxa/bz2/%.c
+	$(VX32_CC) -c -o $@ $(VX32_CFLAGS) $(BZ2_CFLAGS) $<
+
+
+# Host version of bz2 decoder, for comparison and debugging
+BZ2_HDOBJS := vxa/bz2/dbz2.ho $(patsubst %.vo,%.ho,$(BZ2_OBJS))
+CLEAN_FILES += $(BZ2_HDOBJS) vxa/bz2/hdbz2
+
+vxa/bz2/hdbz2: $(BZ2_HDOBJS)
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $(BZ2_HDOBJS)
+
+vxa/bz2/%.ho: vxa/bz2/%.c
+	$(HOST_CC) -c -o vxa/bz2/$*.ho $(HOST_CFLAGS) $(BZ2_CFLAGS) $<
+

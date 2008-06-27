@@ -1,0 +1,5 @@
+/^sslgen/ s/char\*,/char *_,/
+/^sslbread/ s/ulong)/ulong _)/
+/^sslbwrite/ s/ulong)/ulong _)/
+/^#endif NOSPOOKS/ s/NOSPOOKS//
+/^sslwrite/ s/vlong)/vlong offset)/

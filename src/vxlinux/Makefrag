@@ -1,0 +1,23 @@
+ifeq ($(OS),linux)
+ifeq ($(ARCH),x86_64)
+else
+
+vxlinux/%.o: vxlinux/%.c
+	$(HOST_CC) -Ilibvx32 -c $(HOST_CFLAGS) -o $@ $<
+
+vxlinux/vxlinux: vxlinux/vxlinux.o vxlinux/strsyscall.o libvx32/libvx32.a
+	$(HOST_CC) -o $@ $^
+
+CLEAN_FILES += vxlinux/*.o vxlinux/vxlinux 
+
+all: vxlinux/vxlinux
+install: $(BINDIR)/vxlinux
+
+$(BINDIR)/vxlinux: vxlinux/vxlinux
+	$(INSTALL) $< $@
+
+vxlinux/strsyscall.c: vxlinux/mkstrsyscall.pl
+	$< > $@_ && mv $@_ $@
+
+endif
+endif

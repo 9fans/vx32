@@ -1,0 +1,10 @@
+#!/bin/sh
+
+while true; do
+	# emu </dev/null >out 2>&1
+	emu </dev/null 2>&1 | cat >out
+	if grep page.fault out; then exit 0; fi
+	tail -1 out
+	cp out out1
+
+done

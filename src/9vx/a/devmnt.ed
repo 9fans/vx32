@@ -1,0 +1,21 @@
+,s!Lock;!Lock lk;!
+,s!lock(c)!lock(\&c->ref.lk)!g
+,s!lock(\&mntalloc)!lock(\&mntalloc.lk)!g
+,s!lock(m)!lock(\&m->lk)!g
+,s!ref(m->c)!ref(\&m->c->ref)!g
+,s!ref(c->mchan)!ref(\&c->mchan->ref)!g
+/c = bogus.chan/a
+
+	{ // Plan 9 VX addition
+		extern Dev mntloopdevtab;
+		Chan *mc;
+		if(devtab[c->type] == &mntloopdevtab){
+			if(bogus.authchan || (bogus.spec && bogus.spec[0]))
+				error(Ebadarg);
+			mc = c->aux;
+			incref(&mc->ref);
+			return mc;
+		}
+	}
+
+.

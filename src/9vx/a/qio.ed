@@ -1,0 +1,5 @@
+/typedef.*Queue/d
+,s/Lock;/Lock lk;/g
+,s/(nbp = bp->next)/(&)/
+v/qwakeup_iunlock/ s/lock(q)/lock(\&q->lk)/g
+g/setmalloctag/d

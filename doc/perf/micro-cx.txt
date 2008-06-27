@@ -1,0 +1,42 @@
+
+Test on Darwin 9.1.0 i386 at Sun Jan 6 23:07:27 MST 2008
+jump	native	real	25.98	user	25.90	sys	0.01	vx32	real	10.86	user	10.83	sys	0.01	
+jumpal	native	real	8.72	user	8.68	sys	0.00	vx32	real	10.87	user	10.83	sys	0.01	
+jumpfar	native	real	14.35	user	14.26	sys	0.05	vx32	real	1.52	user	1.09	sys	0.01	
+call	native	real	1.82	user	1.78	sys	0.01	vx32	real	13.03	user	12.97	sys	0.05	
+callind	native	real	6.20	user	6.15	sys	0.02	vx32	real	22.29	user	22.20	sys	0.08	
+syscall	native	real	1.17	user	0.74	sys	0.40	vx32	real	2.80	user	1.85	sys	0.94	
+read	native	real	1.55	user	0.07	sys	1.44	vx32	real	1.67	user	0.28	sys	1.38	
+write	native	real	1.94	user	0.70	sys	1.22	vx32	real	4.90	user	2.70	sys	2.18	
+nullrun	native	real	1.06	user	0.20	sys	0.62	vx32	real	7.26	user	0.77	sys	6.46	
+64add	native	real	3.10	user	3.05	sys	0.01	vx32	real	3.11	user	3.07	sys	0.02	
+64div	native	real	2.72	user	2.68	sys	0.00	vx32	real	3.95	user	3.93	sys	0.01	
+64mul	native	real	10.98	user	10.97	sys	0.00	vx32	real	4.84	user	4.82	sys	0.01	
+
+Test on Darwin 9.1.0 i386 at Sun Jan 6 23:12:48 MST 2008
+jump	native	real	25.92	user	25.86	sys	0.02	vx32	real	10.91	user	10.84	sys	0.05	
+jumpal	native	real	8.74	user	8.69	sys	0.02	vx32	real	10.90	user	10.83	sys	0.03	
+jumpfar	native	real	14.26	user	14.25	sys	0.00	vx32	real	1.10	user	1.08	sys	0.01	
+call	native	real	1.78	user	1.78	sys	0.00	vx32	real	12.99	user	12.96	sys	0.01	
+callind	native	real	6.18	user	6.17	sys	0.00	vx32	real	22.22	user	22.18	sys	0.01	
+syscall	native	real	1.15	user	0.76	sys	0.38	vx32	real	2.75	user	1.84	sys	0.91	
+read	native	real	1.51	user	0.07	sys	1.43	vx32	real	1.65	user	0.28	sys	1.36	
+write	native	real	1.94	user	0.71	sys	1.21	vx32	real	4.83	user	2.68	sys	2.13	
+nullrun	native	real	1.14	user	0.20	sys	0.65	vx32	real	7.43	user	0.78	sys	6.53	
+64add	native	real	3.07	user	3.06	sys	0.00	vx32	real	3.09	user	3.06	sys	0.01	
+64div	native	real	2.70	user	2.68	sys	0.01	vx32	real	3.94	user	3.92	sys	0.02	
+64mul	native	real	11.02	user	10.98	sys	0.03	vx32	real	4.85	user	4.82	sys	0.02	
+
+Test on Darwin 9.1.0 i386 at Sun Jan 6 23:15:35 MST 2008
+jump	native	real	26.12	user	26.08	sys	0.00	vx32	real	10.88	user	10.83	sys	0.04	
+jumpal	native	real	8.73	user	8.68	sys	0.02	vx32	real	10.87	user	10.83	sys	0.02	
+jumpfar	native	real	14.31	user	14.26	sys	0.01	vx32	real	1.10	user	1.08	sys	0.01	
+call	native	real	1.78	user	1.78	sys	0.00	vx32	real	13.03	user	12.97	sys	0.05	
+callind	native	real	6.17	user	6.15	sys	0.01	vx32	real	22.27	user	22.19	sys	0.07	
+syscall	native	real	1.12	user	0.73	sys	0.39	vx32	real	2.76	user	1.84	sys	0.91	
+read	native	real	1.52	user	0.07	sys	1.45	vx32	real	1.67	user	0.28	sys	1.38	
+write	native	real	1.93	user	0.70	sys	1.21	vx32	real	4.82	user	2.68	sys	2.12	
+nullrun	native	real	1.06	user	0.20	sys	0.64	vx32	real	7.28	user	0.78	sys	6.48	
+64add	native	real	3.05	user	3.05	sys	0.00	vx32	real	3.09	user	3.06	sys	0.01	
+64div	native	real	2.68	user	2.68	sys	0.00	vx32	real	3.93	user	3.91	sys	0.01	
+64mul	native	real	10.97	user	10.96	sys	0.00	vx32	real	4.83	user	4.82	sys	0.01	

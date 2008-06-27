@@ -1,0 +1,70 @@
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:06:03 EST 2008
+jump	native	real	3.42	user	3.40	sys	0.00	vx32	real	3.49	user	3.39	sys	0.01	
+jumpal	native	real	3.99	user	3.39	sys	0.00	vx32	real	3.53	user	3.39	sys	0.00	
+jumpfar	native	real	17.96	user	17.87	sys	0.00	vx32	real	0.37	user	0.34	sys	0.00	
+call	native	real	2.65	user	2.64	sys	0.00	vx32	real	5.30	user	5.25	sys	0.00	
+callind	native	real	17.95	user	17.72	sys	0.00	vx32	real	24.34	user	24.16	sys	0.00	
+syscall	native	real	0.65	user	0.27	sys	0.37	vx32	real	0.89	user	0.50	sys	0.35	
+read	native	real	1.02	user	0.00	sys	1.01	vx32	real	1.09	user	0.08	sys	0.96	
+write	native	real	1.10	user	0.18	sys	0.91	vx32	real	2.06	user	0.69	sys	1.32	
+nullrun	native	real	1.01	user	0.34	sys	0.67	vx32	real	27.94	user	0.69	sys	0.75	
+64add	native	real	4.73	user	4.71	sys	0.00	vx32	real	4.94	user	4.84	sys	0.00	
+64div	native	real	7.01	user	6.94	sys	0.00	vx32	real	9.06	user	8.99	sys	0.00	
+64mul	native	real	17.16	user	16.98	sys	0.00	vx32	real	17.18	user	17.06	sys	0.00	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:09:03 EST 2008
+jump	native	real	3.53	user	3.40	sys	0.00	vx32	real	3.49	user	3.41	sys	0.00	
+jumpal	native	real	3.41	user	3.39	sys	0.00	vx32	real	3.50	user	3.40	sys	0.00	
+jumpfar	native	real	18.06	user	17.90	sys	0.00	vx32	real	0.37	user	0.34	sys	0.00	
+call	native	real	2.65	user	2.64	sys	0.00	vx32	real	5.40	user	5.34	sys	0.00	
+callind	native	real	17.76	user	17.66	sys	0.00	vx32	real	24.45	user	24.22	sys	0.00	
+syscall	native	real	0.67	user	0.22	sys	0.43	vx32	real	0.91	user	0.48	sys	0.39	
+read	native	real	1.02	user	0.01	sys	1.00	vx32	real	1.09	user	0.02	sys	1.01	
+write	native	real	1.17	user	0.21	sys	0.90	vx32	real	2.06	user	0.62	sys	1.39	
+nullrun	native	real	1.02	user	0.30	sys	0.73	vx32	real	32.75	user	0.68	sys	0.76	
+64add	native	real	4.74	user	4.72	sys	0.00	vx32	real	4.89	user	4.83	sys	0.00	
+64div	native	real	6.97	user	6.94	sys	0.00	vx32	real	9.06	user	8.99	sys	0.00	
+64mul	native	real	17.09	user	16.97	sys	0.00	vx32	real	17.45	user	17.10	sys	0.00	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:12:06 EST 2008
+jump	native	real	3.41	user	3.38	sys	0.00	vx32	real	3.48	user	3.39	sys	0.00	
+jumpal	native	real	3.41	user	3.38	sys	0.00	vx32	real	3.42	user	3.38	sys	0.00	
+jumpfar	native	real	18.00	user	17.89	sys	0.00	vx32	real	0.37	user	0.33	sys	0.01	
+call	native	real	2.65	user	2.64	sys	0.00	vx32	real	5.35	user	5.29	sys	0.00	
+callind	native	real	17.74	user	17.63	sys	0.00	vx32	real	24.28	user	24.12	sys	0.00	
+syscall	native	real	0.65	user	0.23	sys	0.41	vx32	real	0.90	user	0.46	sys	0.40	
+read	native	real	1.03	user	0.00	sys	1.01	vx32	real	1.08	user	0.07	sys	0.97	
+write	native	real	1.12	user	0.22	sys	0.88	vx32	real	2.05	user	0.73	sys	1.28	
+nullrun	native	real	1.03	user	0.30	sys	0.73	vx32	real	26.29	user	0.63	sys	0.79	
+64add	native	real	4.74	user	4.71	sys	0.00	vx32	real	4.94	user	4.85	sys	0.00	
+64div	native	real	7.07	user	6.96	sys	0.00	vx32	real	9.05	user	8.98	sys	0.00	
+64mul	native	real	17.03	user	16.96	sys	0.00	vx32	real	17.24	user	17.07	sys	0.00	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:15:03 EST 2008
+jump	native	real	3.47	user	3.40	sys	0.00	vx32	real	3.44	user	3.39	sys	0.00	
+jumpal	native	real	3.40	user	3.38	sys	0.00	vx32	real	3.44	user	3.40	sys	0.00	
+jumpfar	native	real	18.45	user	18.01	sys	0.00	vx32	real	0.37	user	0.34	sys	0.00	
+call	native	real	2.65	user	2.64	sys	0.00	vx32	real	5.43	user	5.34	sys	0.00	
+callind	native	real	17.80	user	17.70	sys	0.00	vx32	real	24.35	user	24.21	sys	0.00	
+syscall	native	real	0.65	user	0.23	sys	0.41	vx32	real	0.90	user	0.54	sys	0.31	
+read	native	real	1.02	user	0.02	sys	0.99	vx32	real	1.10	user	0.03	sys	1.00	
+write	native	real	1.14	user	0.20	sys	0.91	vx32	real	2.07	user	0.65	sys	1.37	
+nullrun	native	real	1.02	user	0.26	sys	0.76	vx32	real	27.02	user	0.73	sys	0.70	
+64add	native	real	4.73	user	4.71	sys	0.00	vx32	real	4.89	user	4.83	sys	0.00	
+64div	native	real	6.98	user	6.93	sys	0.00	vx32	real	9.06	user	9.00	sys	0.00	
+64mul	native	real	17.08	user	16.96	sys	0.00	vx32	real	17.14	user	17.05	sys	0.00	
+
+Test on FreeBSD 6.2-RELEASE-p9 i386 at Mon Jan 7 16:18:01 EST 2008
+jump	native	real	3.40	user	3.39	sys	0.00	vx32	real	3.43	user	3.38	sys	0.00	
+jumpal	native	real	3.40	user	3.38	sys	0.00	vx32	real	3.44	user	3.39	sys	0.00	
+jumpfar	native	real	17.99	user	17.88	sys	0.00	vx32	real	0.38	user	0.33	sys	0.00	
+call	native	real	2.66	user	2.64	sys	0.00	vx32	real	5.58	user	5.49	sys	0.00	
+callind	native	real	18.67	user	18.01	sys	0.00	vx32	real	26.46	user	24.18	sys	0.00	
+syscall	native	real	0.65	user	0.19	sys	0.45	vx32	real	0.91	user	0.41	sys	0.44	
+read	native	real	1.02	user	0.00	sys	1.01	vx32	real	1.08	user	0.09	sys	0.95	
+write	native	real	1.10	user	0.09	sys	1.00	vx32	real	2.10	user	0.66	sys	1.40	
+nullrun	native	real	1.02	user	0.32	sys	0.70	vx32	real	27.84	user	0.70	sys	0.73	
+64add	native	real	4.73	user	4.71	sys	0.00	vx32	real	4.88	user	4.83	sys	0.00	
+64div	native	real	7.02	user	6.95	sys	0.00	vx32	real	9.07	user	8.99	sys	0.00	
+64mul	native	real	17.05	user	16.96	sys	0.00	vx32	real	17.18	user	17.05	sys	0.00	

@@ -1,0 +1,106 @@
+Welcome to vx32.
+
+> look
+
+You are near the bottom of a tree.
+
+> look doc
+
+You see PDFs of the two published papers about vx32.
+
+> look src
+
+You see the source code behind the papers.
+
+> examine src
+
+Upon closer examination, the src/ directory contains the following
+subdirectories:
+
+	libvx32/	the vx32 virtual machine itself
+
+	vxrun/	a simple portable execution environment
+	libvxc/	an optional C library for use in vxrun apps
+	
+	vxlinux/	a simple delegation-based system jail for Linux
+
+	hash/	hash function benchmarks (Alpaca results in vx32 paper)
+	micro/	micro benchmarks (in vx32 paper)
+	vxa/		compression benchmarks (VXA results in vx32 paper)
+	
+	9vx/		Plan 9 VX
+
+> build src
+
+Okay: cd src; make.
+On BSD machines you may need to say gmake instead.
+
+> install src
+
+Okay: cd src; make; make install
+
+> more
+
+If you want to try the benchmarks on your own machines,
+you can run "run.sh" in any of the benchmark directories
+and then inspect results.txt
+
+> show license
+
+The individual subdirectories contain LICENSE files explaining
+the copyrights and licenses.  
+
+The vx32 core, found in src/libvx32/, is licensed under the LGPL v2.1;
+see src/libvx32/LICENSE for details.
+
+The sample programs, found in src/vxrun/ and src/vxlinux/, are made
+available under the traditional MIT license to encourage use as jumping-off
+points for new programs.  See src/vxrun/LICENSE and src/vxlinux/LICENSE.
+
+The C library, which is found in src/libvxc and is absolutely not required
+in order to use vx32, is mostly taken from FreeBSD and Sun Microsystems
+code, both of which use BSD-like licenses.  See the copyright notices in the
+individual files.  Files without copyright notices were written by us and
+are licensed under an MIT license.
+
+The benchmarks in hash/ and vxa/ are mostly code written by others.
+See the copyright notices in individual files.  The benchmarks in micro/
+are too short to worry about.
+
+The Plan 9 VX user-level operating system, found in src/9vx/, is
+derived from Plan 9 from Bell Labs and is made available under the
+terms of the Lucent Public License.  See src/9vx/LICENSE.
+
+> get vx32-gcc
+
+You probably don't need to do that.
+
+> get vx32-gcc
+
+Okay, if you insist.  You can download vx32-specific versions
+of binutils and gcc from http://pdos.csail.mit.edu/~baford/vm/
+and then extract them in this directory.  Then you can run
+
+	cd binutils-2.18-vx32
+	./configure --target=vx32
+	make
+	make install
+	
+	cd gcc-4.1.2-vx32
+	./configure --enable-languages=c --disable-libssp --target=vx32
+	make
+	make install
+	make distclean
+
+But again, you probably don't need to do that.
+If you are on a 32-bit ELF machine, your host gcc is likely fine.
+
+> who
+
+Russ Cox <rsc@swtch.com>
+Bryan Ford <baford@pdos.csail.mit.edu>
+
+> date
+
+June 27, 2008
+

@@ -1,0 +1,61 @@
+Plan 9 VX Hacking Guide
+
+* Make
+
+For now, 9vx lives in the vx32 distribution, so it uses a somewhat
+involved build setup comprising multiple makefile fragments
+called Makefrags.  You shouldn't need to concern yourself with
+these except to remember to open "Makefrag" instead of "Makefile"
+and to run "make 9vx/9vx" in the src/ directory to build 9vx.
+The primary benefit of this arrangement is that if you edit
+a file anywhere in the tree (even in libvx32), make will know that
+9vx/9vx is out of date.
+
+
+* Source layout
+
+The files in the 9vx and 9vx/x11 directories are maintained by hand.
+The files in the other 9vx subdirectories (9vx/a, 9vx/libsec, etc.)
+are automatically generated from Plan 9 sources by applying simple
+ed scripts (named *.ed).  This simplifies incorporating new code from
+Plan 9, and also documents what the local changes are, so that
+there's some hope of pushing them back.  If someone would like to
+take these scripts and do the same to drawterm, I'd gladly accept 
+the result.  (If you don't know what drawterm is, don't worry about it.)
+The 1,000 lines of ed scripts substitute for maintaining 40,000 lines
+of imported code.  (If someone would like to convert drawterm to
+do this, please feel free.)
+
+Unless you're fiddling with x11 or Plan 9 itself, you should be able
+to restrict yourself to just editing files in this top directory.  
+The core of 9vx is the six files:
+
+	main.c
+	mmu.c
+	sched.c
+	time.c
+	trap.c
+	vx32.c
+
+These files total about 2500 lines.  I've tried to comment them pretty
+well, and you should try to understand them all before hacking on 9vx.
+If anything isn't clear, feel free to ask, so that I can update the comments.
+
+The *dev*.c files implement access to host resources.
+
+
+* Kernel changes
+
+The most pervasive change to the Plan 9 kernel in creating Plan 9 VX
+is that valid user addresses cannot simply be dereferenced in kernel mode.
+Instead they must be translated to sit relative to uzero, the base of the
+user address space.  (Early versions of 9vx used uzero=0, but too many
+operating systems had problems with mapping data at address 0.)
+Any code that casts a user address to a pointer or vice versa is wrong.
+I think I've caught them all, but I might have missed some in obscure
+code paths.
+
+
+Russ Cox
+rsc@swtch.com
+June 2008

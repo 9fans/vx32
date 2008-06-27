@@ -1,0 +1,140 @@
+
+Test on Linux 2.6.22-14-386 unknown at Sun Jan 6 20:43:53 EST 2008
+jump	native	real	8.38	user	4.19	sys	0.01	vx32	real	8.45	user	4.19	sys	0.00	
+jumpal	native	real	8.49	user	4.12	sys	0.02	vx32	real	8.60	user	4.18	sys	0.00	
+jumpfar	native	real	118.51	user	58.72	sys	0.22	vx32	real	0.93	user	0.43	sys	0.00	
+call	native	real	5.82	user	2.87	sys	0.01	vx32	real	13.67	user	6.75	sys	0.02	
+callind	native	real	34.52	user	17.08	sys	0.04	vx32	real	54.49	user	27.03	sys	0.10	
+syscall	native	real	0.34	user	0.05	sys	0.09	vx32	real	0.91	user	0.30	sys	0.20	
+read	native	real	0.55	user	0.02	sys	0.22	vx32	real	0.65	user	0.09	sys	0.25	
+write	native	real	0.39	user	0.06	sys	0.13	vx32	real	1.54	user	0.43	sys	0.33	
+#nullrun	native	real	10.22	user	0.83	sys	2.54	vx32	real	75.74	user	10.53	sys	14.34	
+64add	native	real	9.93	user	4.98	sys	0.00	vx32	real	10.39	user	5.12	sys	0.01	
+64div	native	real	15.27	user	7.52	sys	0.02	vx32	real	19.58	user	9.67	sys	0.01	
+64mul	native	real	35.30	user	17.48	sys	0.07	vx32	real	35.39	user	17.56	sys	0.03	
+
+Test on Linux 2.6.22-14-386 unknown at Sun Jan 6 20:51:52 EST 2008
+jump	native	real	8.44	user	4.17	sys	0.02	vx32	real	8.54	user	4.20	sys	0.00	
+jumpal	native	real	8.38	user	4.12	sys	0.00	vx32	real	8.52	user	4.19	sys	0.01	
+jumpfar	native	real	118.52	user	58.76	sys	0.18	vx32	real	0.92	user	0.42	sys	0.00	
+call	native	real	5.88	user	2.88	sys	0.00	vx32	real	13.69	user	6.76	sys	0.03	
+callind	native	real	34.49	user	17.00	sys	0.09	vx32	real	54.46	user	26.96	sys	0.14	
+syscall	native	real	0.34	user	0.08	sys	0.06	vx32	real	1.00	user	0.34	sys	0.16	
+read	native	real	0.55	user	0.01	sys	0.23	vx32	real	0.64	user	0.12	sys	0.22	
+write	native	real	0.40	user	0.07	sys	0.11	vx32	real	1.47	user	0.50	sys	0.27	
+#nullrun	native	real	10.38	user	1.03	sys	2.34	vx32	real	76.14	user	10.44	sys	14.44	
+64add	native	real	9.93	user	4.96	sys	0.02	vx32	real	10.41	user	5.13	sys	0.02	
+64div	native	real	15.53	user	7.60	sys	0.00	vx32	real	19.54	user	9.62	sys	0.03	
+64mul	native	real	35.30	user	17.51	sys	0.05	vx32	real	35.42	user	17.49	sys	0.09	
+
+Test on Linux 2.6.22-14-386 unknown at Sun Jan 6 20:59:51 EST 2008
+jump	native	real	8.43	user	4.14	sys	0.03	vx32	real	8.44	user	4.16	sys	0.02	
+jumpal	native	real	8.38	user	4.12	sys	0.01	vx32	real	8.50	user	4.18	sys	0.00	
+jumpfar	native	real	118.54	user	58.69	sys	0.22	vx32	real	0.94	user	0.41	sys	0.01	
+call	native	real	5.83	user	2.88	sys	0.01	vx32	real	13.77	user	6.73	sys	0.03	
+callind	native	real	34.51	user	17.06	sys	0.08	vx32	real	54.67	user	27.08	sys	0.04	
+syscall	native	real	0.34	user	0.05	sys	0.09	vx32	real	0.99	user	0.35	sys	0.14	
+read	native	real	0.56	user	0.02	sys	0.23	vx32	real	0.65	user	0.06	sys	0.27	
+write	native	real	0.39	user	0.05	sys	0.13	vx32	real	1.47	user	0.46	sys	0.31	
+#nullrun	native	real	10.75	user	0.87	sys	2.54	vx32	real	76.28	user	10.63	sys	14.28	
+64add	native	real	9.96	user	4.96	sys	0.03	vx32	real	10.40	user	5.13	sys	0.01	
+64div	native	real	15.32	user	7.56	sys	0.00	vx32	real	19.56	user	9.60	sys	0.05	
+64mul	native	real	35.38	user	17.56	sys	0.05	vx32	real	35.42	user	17.55	sys	0.02	
+
+Test on Linux 2.6.22-14-386 unknown at Sun Jan 6 21:07:51 EST 2008
+jump	native	real	8.43	user	4.17	sys	0.00	vx32	real	8.45	user	4.17	sys	0.02	
+jumpal	native	real	8.38	user	4.12	sys	0.00	vx32	real	8.52	user	4.20	sys	0.00	
+jumpfar	native	real	118.91	user	58.84	sys	0.16	vx32	real	1.03	user	0.42	sys	0.00	
+call	native	real	5.82	user	2.88	sys	0.01	vx32	real	13.69	user	6.78	sys	0.02	
+callind	native	real	34.54	user	17.12	sys	0.02	vx32	real	54.58	user	27.00	sys	0.12	
+syscall	native	real	0.34	user	0.05	sys	0.09	vx32	real	0.90	user	0.36	sys	0.14	
+read	native	real	0.55	user	0.02	sys	0.22	vx32	real	0.75	user	0.07	sys	0.27	
+write	native	real	0.39	user	0.06	sys	0.12	vx32	real	1.58	user	0.42	sys	0.34	
+#nullrun	native	real	10.90	user	0.90	sys	2.58	vx32	real	74.54	user	10.49	sys	14.39	
+64add	native	real	10.03	user	4.98	sys	0.00	vx32	real	10.36	user	5.11	sys	0.01	
+64div	native	real	15.29	user	7.53	sys	0.03	vx32	real	19.45	user	9.64	sys	0.02	
+64mul	native	real	35.32	user	17.50	sys	0.06	vx32	real	35.52	user	17.53	sys	0.08	
+
+Test on Linux 2.6.22-14-386 unknown at Sun Jan 6 21:15:50 EST 2008
+jump	native	real	8.41	user	4.15	sys	0.02	vx32	real	8.45	user	4.17	sys	0.02	
+jumpal	native	real	8.39	user	4.13	sys	0.00	vx32	real	8.50	user	4.18	sys	0.00	
+jumpfar	native	real	73.61	user	58.70	sys	0.17	vx32	real	0.34	user	0.33	sys	0.00	
+call	native	real	2.64	user	2.63	sys	0.00	vx32	real	5.19	user	5.16	sys	0.02	
+callind	native	real	16.74	user	16.65	sys	0.04	vx32	real	23.92	user	23.74	sys	0.06	
+syscall	native	real	0.17	user	0.05	sys	0.10	vx32	real	0.47	user	0.30	sys	0.16	
+read	native	real	0.24	user	0.00	sys	0.24	vx32	real	0.34	user	0.11	sys	0.23	
+write	native	real	0.18	user	0.05	sys	0.14	vx32	real	0.73	user	0.40	sys	0.33	
+#nullrun	native	real	3.54	user	0.94	sys	2.59	vx32	real	23.96	user	9.12	sys	14.77	
+64add	native	real	4.71	user	4.68	sys	0.00	vx32	real	4.85	user	4.82	sys	0.01	
+64div	native	real	7.18	user	7.15	sys	0.02	vx32	real	9.07	user	8.96	sys	0.02	
+64mul	native	real	17.14	user	17.03	sys	0.05	vx32	real	17.08	user	17.00	sys	0.04	
+
+Test on Linux 2.6.22-14-386 unknown at Mon Jan 7 07:28:10 EST 2008
+jump	native	real	3.37	user	3.35	sys	0.00	vx32	real	3.37	user	3.35	sys	0.00	
+jumpal	native	real	3.36	user	3.34	sys	0.01	vx32	real	3.43	user	3.35	sys	0.01	
+jumpfar	native	real	58.99	user	58.60	sys	0.15	vx32	real	0.34	user	0.34	sys	0.00	
+call	native	real	2.64	user	2.62	sys	0.01	vx32	real	5.19	user	5.16	sys	0.02	
+callind	native	real	16.73	user	16.64	sys	0.04	vx32	real	23.94	user	23.74	sys	0.06	
+syscall	native	real	0.14	user	0.05	sys	0.09	vx32	real	0.46	user	0.28	sys	0.18	
+read	native	real	0.26	user	0.01	sys	0.24	vx32	real	0.33	user	0.08	sys	0.25	
+write	native	real	0.19	user	0.05	sys	0.14	vx32	real	0.75	user	0.40	sys	0.34	
+nullrun	native	real	0.35	user	0.11	sys	0.23	vx32	real	1.13	user	0.71	sys	0.42	
+64add	native	real	4.71	user	4.68	sys	0.01	vx32	real	4.87	user	4.78	sys	0.01	
+64div	native	real	7.25	user	7.21	sys	0.01	vx32	real	9.04	user	8.99	sys	0.02	
+64mul	native	real	17.13	user	17.04	sys	0.05	vx32	real	17.09	user	17.00	sys	0.04	
+
+Test on Linux 2.6.22-14-386 unknown at Mon Jan 7 07:45:23 EST 2008
+jump	native	real	3.36	user	3.35	sys	0.00	vx32	real	3.37	user	3.34	sys	0.01	
+jumpal	native	real	3.37	user	3.35	sys	0.00	vx32	real	3.36	user	3.34	sys	0.01	
+jumpfar	native	real	58.98	user	58.60	sys	0.16	vx32	real	0.34	user	0.33	sys	0.00	
+call	native	real	2.64	user	2.63	sys	0.00	vx32	real	5.21	user	5.17	sys	0.02	
+callind	native	real	16.72	user	16.65	sys	0.03	vx32	real	23.92	user	23.73	sys	0.06	
+syscall	native	real	0.14	user	0.06	sys	0.08	vx32	real	0.46	user	0.33	sys	0.13	
+read	native	real	0.26	user	0.01	sys	0.23	vx32	real	0.33	user	0.09	sys	0.24	
+write	native	real	0.18	user	0.06	sys	0.12	vx32	real	0.74	user	0.40	sys	0.34	
+nullrun	native	real	0.33	user	0.10	sys	0.22	vx32	real	1.15	user	0.82	sys	0.33	
+64add	native	real	4.71	user	4.67	sys	0.02	vx32	real	4.84	user	4.78	sys	0.01	
+64div	native	real	7.26	user	7.22	sys	0.02	vx32	real	9.03	user	8.98	sys	0.02	
+64mul	native	real	17.17	user	17.05	sys	0.04	vx32	real	17.16	user	17.00	sys	0.04	
+
+Test on Linux 2.6.22-14-386 unknown at Mon Jan 7 07:48:29 EST 2008
+jump	native	real	3.38	user	3.36	sys	0.00	vx32	real	3.37	user	3.35	sys	0.01	
+jumpal	native	real	3.37	user	3.36	sys	0.00	vx32	real	3.37	user	3.34	sys	0.01	
+jumpfar	native	real	58.98	user	58.60	sys	0.15	vx32	real	0.34	user	0.34	sys	0.00	
+call	native	real	2.64	user	2.63	sys	0.00	vx32	real	5.20	user	5.17	sys	0.02	
+callind	native	real	16.73	user	16.64	sys	0.04	vx32	real	23.92	user	23.72	sys	0.06	
+syscall	native	real	0.14	user	0.04	sys	0.09	vx32	real	0.46	user	0.30	sys	0.16	
+read	native	real	0.25	user	0.01	sys	0.24	vx32	real	0.33	user	0.10	sys	0.23	
+write	native	real	0.19	user	0.06	sys	0.12	vx32	real	0.75	user	0.38	sys	0.35	
+nullrun	native	real	0.35	user	0.09	sys	0.25	vx32	real	1.13	user	0.74	sys	0.38	
+64add	native	real	4.71	user	4.68	sys	0.00	vx32	real	4.80	user	4.78	sys	0.01	
+64div	native	real	7.27	user	7.23	sys	0.01	vx32	real	9.04	user	8.99	sys	0.02	
+64mul	native	real	17.13	user	17.04	sys	0.04	vx32	real	17.16	user	17.00	sys	0.04	
+
+Test on Linux 2.6.22-14-386 unknown at Mon Jan 7 07:51:34 EST 2008
+jump	native	real	3.36	user	3.35	sys	0.01	vx32	real	3.36	user	3.35	sys	0.00	
+jumpal	native	real	3.37	user	3.35	sys	0.01	vx32	real	3.38	user	3.35	sys	0.00	
+jumpfar	native	real	58.98	user	58.62	sys	0.14	vx32	real	0.34	user	0.33	sys	0.00	
+call	native	real	2.64	user	2.62	sys	0.01	vx32	real	5.20	user	5.18	sys	0.00	
+callind	native	real	16.73	user	16.63	sys	0.05	vx32	real	23.92	user	23.73	sys	0.06	
+syscall	native	real	0.14	user	0.02	sys	0.12	vx32	real	0.47	user	0.32	sys	0.14	
+read	native	real	0.24	user	0.03	sys	0.22	vx32	real	0.34	user	0.06	sys	0.28	
+write	native	real	0.19	user	0.06	sys	0.12	vx32	real	0.74	user	0.39	sys	0.35	
+nullrun	native	real	0.34	user	0.11	sys	0.22	vx32	real	1.13	user	0.74	sys	0.38	
+64add	native	real	4.70	user	4.69	sys	0.00	vx32	real	4.81	user	4.78	sys	0.01	
+64div	native	real	7.25	user	7.22	sys	0.01	vx32	real	9.04	user	8.98	sys	0.03	
+64mul	native	real	17.21	user	17.04	sys	0.05	vx32	real	17.10	user	16.99	sys	0.05	
+
+Test on Linux 2.6.22-14-386 unknown at Mon Jan 7 07:54:39 EST 2008
+jump	native	real	3.36	user	3.35	sys	0.00	vx32	real	3.37	user	3.35	sys	0.01	
+jumpal	native	real	3.37	user	3.35	sys	0.00	vx32	real	3.37	user	3.34	sys	0.01	
+jumpfar	native	real	59.00	user	58.63	sys	0.13	vx32	real	0.34	user	0.33	sys	0.00	
+call	native	real	2.64	user	2.62	sys	0.01	vx32	real	5.17	user	5.15	sys	0.01	
+callind	native	real	16.73	user	16.63	sys	0.05	vx32	real	23.92	user	23.73	sys	0.06	
+syscall	native	real	0.14	user	0.04	sys	0.10	vx32	real	0.46	user	0.30	sys	0.16	
+read	native	real	0.26	user	0.02	sys	0.23	vx32	real	0.34	user	0.08	sys	0.25	
+write	native	real	0.19	user	0.06	sys	0.12	vx32	real	0.75	user	0.37	sys	0.37	
+nullrun	native	real	0.34	user	0.07	sys	0.26	vx32	real	1.13	user	0.74	sys	0.39	
+64add	native	real	4.71	user	4.68	sys	0.01	vx32	real	4.80	user	4.79	sys	0.01	
+64div	native	real	7.27	user	7.22	sys	0.02	vx32	real	9.03	user	8.98	sys	0.03	
+64mul	native	real	17.20	user	17.06	sys	0.04	vx32	real	17.09	user	16.99	sys	0.05	

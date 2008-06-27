@@ -1,0 +1,18 @@
+,s/lock(lkp)/lock(\&lkp->lk)/g
+,s/lkp->ref\.ref/lkp->ref/g
+,s/s->ref/s->ref.ref/g
+/^validaddr/+3a
+	
+	// This is a valid address, but the host kernel
+	// might not know that.  In case we're going
+	// to pass the address to the host kernel in a
+	// system call, fault in the pages.
+	volatile char *a = (char*)addr;
+	ulong i;
+	for(i=0; i<len; i+=BY2PG){
+		if(write)
+			*a = *a;
+		else
+			(void)*a;
+	}
+.

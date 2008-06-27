@@ -1,0 +1,26 @@
+vxrun/vxrun.o: vxrun/vxrun.c
+	$(HOST_CC) -Ilibvx32 -c $(HOST_CFLAGS) -o $@ $<
+
+vxrun/%.o: vxrun/%.c
+	$(VX32_CC) -Ilibvxc/include -c $(VX32_CFLAGS) -o $@ $<
+
+vxrun/vxrun: vxrun/vxrun.o libvx32/libvx32.a
+	$(HOST_CC) -o $@ $^
+
+vxrun/hello: vxrun/hello.o libvxc/libc.a
+	$(VX32_CC) -o $@ $^
+
+vxrun/float: vxrun/float1.o vxrun/float2.o libvxc/libc.a
+	$(VX32_CC) -o $@ $^
+
+vxrun/fib: vxrun/fib.o libvxc/libc.a
+	$(VX32_CC) -o $@ $^
+
+CLEAN_FILES += vxrun/*.o vxrun/vxrun vxrun/hello
+
+all: vxrun/hello vxrun/vxrun
+install: $(BINDIR)/vxrun
+
+$(BINDIR)/vxrun: vxrun/vxrun
+	$(INSTALL) $< $@
+

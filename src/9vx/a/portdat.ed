@@ -1,0 +1,40 @@
+1i
+// Plan 9 VX
+struct vxseg;
+struct vxproc;
+
+.
+v/typedef/ s!Lock;!Lock lk;!g
+v/typedef/ s!QLock;!QLock lk;!g
+g/CCREATE/d
+v/typedef/ s!Ref;!Ref ref;!g
+v/typedef/ s/Rendez;/Rendez rendez;/g
+v/typedef/ s/RWlock;/RWlock lk;/g
+
+/^	RFNAMEG/-3i
+// Plan 9 VX added for help with FreeBSD
+#undef RFNAMEG
+#undef RFENVG
+#undef RFFDG
+#undef RFPROC
+#undef RFMEM
+#undef RFNOWAIT
+#undef RFCNAMEG
+#undef RFCENVG
+#undef RFCFDG
+#undef RFREND
+#undef RFNOMNT
+#undef RFNOTEG
+
+.
+v/typedef/ s/Timer;/Timer timer;/g
+/Notsave;/ s/Notsave;/Notsave notsave;/
+,s/PMMU;/PMMU pmmu;/g
+$a
+void	printmap(void);	// Plan 9 VX
+
+.
+g/typedef.*Confmem/d
+g/typedef.*Page/d
+g/typedef.*Proc/d
+/cachectl\[MAXMACH\]/d

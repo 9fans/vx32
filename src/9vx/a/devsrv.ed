@@ -1,0 +1,34 @@
+g/^srvgen/ s/char\*, Dirtab\*, int/char *name, Dirtab *dt, int i/
+,s!ref(sp->chan)!ref(\&sp->chan->ref)!
+g/^srv/ s/long)/long off)/
+/c1 = fdtochan/a
+	srvadd(c, c1);
+	return n;
+}
+
+// Plan 9 VX split srvadd out from srvwrite.
+static void
+srvadd(Chan *c, Chan *c1)
+{
+	Srv *sp;
+
+	/* c1 already incref'ed */
+.
+/^	return n/d
+/^srvwrite/
+/^	Srv/d
+/^srvwrite/-2i
+static void srvadd(Chan*, Chan*);
+
+.
+$a
+
+// Plan 9 VX addition
+void
+ksrvadd(Chan *c, Chan *c1)
+{
+	incref(&c1->ref);
+	srvadd(c, c1);
+}
+
+.

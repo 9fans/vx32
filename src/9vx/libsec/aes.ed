@@ -1,0 +1,8 @@
+g/USED/d
+/^static int rijndaelKeySetupDec/d
+/^rijndaelKeySetupDec/-1i
+#if 0
+.
+/^}/a
+#endif
+.

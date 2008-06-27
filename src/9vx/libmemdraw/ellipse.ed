@@ -1,0 +1,7 @@
+g!/\*\*/!d
+,s!b<a \&\& u>b*b!(&)!
+,s!a<b \&\& -u>a*a!(&)!
+/^		newstate(\&in/a
+	else
+		memset(&in, 0, sizeof in);
+.

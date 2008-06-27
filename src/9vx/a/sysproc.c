@@ -219,7 +219,7 @@ static char Echanged[] = "exec arguments changed underfoot";
 long
 sysexec(ulong *arg)
 {
-	char *volatile elem, *volatile file;
+	char *volatile elem, *volatile file, *ufile;
 	Chan *volatile tc;
 
 	/*
@@ -238,8 +238,8 @@ sysexec(ulong *arg)
 		nexterror();
 	}
 
-	file = uvalidaddr(arg[0], 1, 0);
-	file = validnamedup(file, 1);
+	ufile = uvalidaddr(arg[0], 1, 0);
+	file = validnamedup(ufile, 1);
 	tc = namec(file, Aopen, OEXEC, 0);
 	kstrdup((char**)&elem, up->genbuf);
 

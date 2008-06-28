@@ -79,10 +79,14 @@ static Psleep idling;
 void
 idlehands(void)
 {
+	int nbad;
+
 	plock(&idling);
+	nbad = 0;
 	while(!idlewakeup){
 		psleep(&idling);
-		iprint("idlehands spurious wakeup\n");
+		if(!idlewakeup && ++nbad%1000 == 0)
+			iprint("idlehands spurious wakeup\n");
 	}
 	idlewakeup = 0;
 	punlock(&idling);
@@ -137,7 +141,6 @@ ready(Proc *p)
 	kprocq.n++;
 	if(kprocq.n > nrunproc)
 		newmach();
-iprint("ready p\n");
 	pwakeup(&run);
 	unlock(&kprocq.lk);
 	punlock(&run);

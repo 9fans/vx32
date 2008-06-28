@@ -10,7 +10,8 @@ endif
 
 ifeq ($(OS),darwin)
 PLAN9VX=1
-  # TODO: carbon
+# TODO: osx works except that Carbon gets confused
+# that we can survive an EXC_BAD_ACCESS
 PLAN9GUI=x11
 PLAN9AUDIO=none
 endif
@@ -124,8 +125,15 @@ PLAN9_x11_OBJS = \
 		x11-kernel.o \
 		x11-keysym2rune.o \
 	)
-
 PLAN9_x11_LIBS = -L/usr/X11R6/lib -L/usr/local/lib -lX11
+
+PLAN9_osx_OBJS =\
+	$(addprefix 9vx/osx/, \
+		screen.o \
+		draw.o \
+	)
+PLAN9_osx_LIBS = -ggdb -framework Carbon -framework QuickTime
+
 
 PLAN9_GUI_OBJS = $(PLAN9_$(PLAN9GUI)_OBJS)
 PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
@@ -148,6 +156,9 @@ PLAN9_DEPS = \
 
 9vx/x11/%.o: 9vx/x11/%.c
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -I/usr/X11R6/include -I/usr/local/include -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/osx/%.o: 9vx/osx/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
 
 9vx/%.o: 9vx/%.c
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<

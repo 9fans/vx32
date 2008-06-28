@@ -4,6 +4,10 @@
 
 #define	WANT_M
 
+#ifdef __APPLE__
+#define __DARWIN_UNIX03 0
+#endif
+
 #include	"u.h"
 #include	"libvx32/vx32.h"
 #include	<sys/mman.h>

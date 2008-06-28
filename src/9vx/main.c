@@ -48,6 +48,8 @@ extern int tracekdev;
 static int singlethread;
 
 static void	bootinit(void);
+static void	siginit(void);
+
 static char*	getuser(void);
 static char*	findroot(void);
 
@@ -152,6 +154,12 @@ main(int argc, char **argv)
 	 */
 	if(!usetty && !nofork && fork() > 0)
 		_exit(0);
+
+	/*
+	 * Have to do this after fork; on OS X child does
+	 * not inherit sigaltstack.
+	 */
+	siginit();
 
 	/*
 	 * Debugging: tell user what options we guessed.
@@ -642,11 +650,20 @@ setsigsegv(int vx32)
 void
 mach0init(void)
 {
-	struct sigaction act;
-
 #ifndef TLS
 	machkeyinit();
 #endif
+
+	conf.nmach = 1;
+	machinit();	/* common per-processor init */
+	active.machs = 1;
+	active.exiting = 0;
+}
+
+static void
+siginit(void)
+{
+	struct sigaction act;
 
 	/* Install vx32signal handlers ... */
 	vx32_siginit();
@@ -660,10 +677,6 @@ mach0init(void)
 	sigaction(SIGUSR1, &act, nil);
 	sigaction(SIGURG, &act, nil);
 
-	conf.nmach = 1;
-	machinit();	/* common per-processor init */
-	active.machs = 1;
-	active.exiting = 0;
 }
 
 void

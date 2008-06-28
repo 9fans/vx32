@@ -44,6 +44,17 @@ punlock(Psleep *p)
 static void
 psleep(Psleep *p)
 {
+	/*
+	 * OS X is trying to be helpful and has changed the behavior
+	 * of pthreads condition variables.  After pthread_cond_signal
+	 * any subsequent pthread_cond_wait returns immediately.
+	 * This is perhaps more sensible behavior than the standard,
+	 * but it's not actually what the standard requires.
+	 * So we have to pthread_cond_init to clear any pre-existing
+	 * condition.  This is okay because we hold the lock that
+	 * protects the condition in the first place.  Sigh.
+	 */
+	pthread_cond_init(&p->cond, nil);
 	pthread_cond_wait(&p->cond, &p->mutex);
 }
 
@@ -69,8 +80,10 @@ void
 idlehands(void)
 {
 	plock(&idling);
-	while(!idlewakeup)
+	while(!idlewakeup){
 		psleep(&idling);
+		iprint("idlehands spurious wakeup\n");
+	}
 	idlewakeup = 0;
 	punlock(&idling);
 }
@@ -124,6 +137,7 @@ ready(Proc *p)
 	kprocq.n++;
 	if(kprocq.n > nrunproc)
 		newmach();
+iprint("ready p\n");
 	pwakeup(&run);
 	unlock(&kprocq.lk);
 	punlock(&run);
@@ -137,11 +151,13 @@ ready(Proc *p)
 Proc*
 runproc(void)
 {
+	int nbad;
 	Proc *p;
 
 	if(m->machno == 0)
 		return _runproc();
 
+	nbad = 0;
 	plock(&run);
 	lock(&kprocq.lk);	/* redundant but fine */
 	while((p = kprocq.head) == nil){
@@ -149,6 +165,8 @@ runproc(void)
 		unlock(&kprocq.lk);
 		psleep(&run);
 		lock(&kprocq.lk);
+		if(kprocq.head == nil && ++nbad%1000 == 0)
+			iprint("cpu%d: runproc spurious wakeup\n", m->machno);	
 		nrunproc--;
 	}
 	kprocq.head = p->rnext;

@@ -3,6 +3,10 @@
  * for implementing vx32 on x86-32 hosts.
  */
 
+#ifdef __APPLE__
+#define __DARWIN_UNIX03 0
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>

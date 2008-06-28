@@ -176,10 +176,6 @@ sdincvers(SDunit *unit)
 static int
 sdinitpart(SDunit* unit)
 {
-	int nf;
-	uvlong start, end;
-	char *f[4], *p, *q, buf[10];
-
 	if(unit->sectors > 0){
 		unit->sectors = unit->secsize = 0;
 		sdincvers(unit);
@@ -253,7 +249,7 @@ sdgetdev(int idno)
 		return nil;
 
 	qlock(&devslock);
-	if(sdev = devs[i])
+	if((sdev = devs[i]))
 		incref(&sdev->r);
 	qunlock(&devslock);
 	return sdev;
@@ -1467,7 +1463,7 @@ unconfigure(char* spec)
 		sdev->ifc->disable(sdev);
 
 	for(i = 0; i != sdev->nunit; i++){
-		if(unit = sdev->unit[i]){
+		if((unit = sdev->unit[i])){
 			free(unit->perm.name);
 			free(unit->perm.user);
 			free(unit);

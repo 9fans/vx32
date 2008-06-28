@@ -4,6 +4,16 @@
 #include	<grp.h>	/* going to regret this - getgrgid is a stack smasher */
 #include	<sys/socket.h>
 #include	<sys/un.h>
+#if defined(__FreeBSD__)
+#include <sys/disk.h>
+#include <sys/disklabel.h>
+#include <sys/ioctl.h>
+#endif
+#if defined(__linux__)
+#include <linux/hdreg.h>
+#include <linux/fs.h>
+#include <sys/ioctl.h>
+#endif
 #include	"lib.h"
 #include	"mem.h"
 #include	"dat.h"
@@ -23,6 +33,8 @@ static char *uidtoname(int);
 static char *gidtoname(int);
 static int nametouid(char*);
 static int nametogid(char*);
+
+static vlong disksize(int, struct stat*);
 
 typedef struct UnixFd UnixFd;
 struct UnixFd
@@ -247,6 +259,7 @@ fswalk(Chan *c, Chan *nc, char **name, int nname)
 static int
 fsdirstat(char *path, int dev, Dir *d)
 {
+	int fd;
 	struct stat st;
 	
 	if(stat(path, &st) < 0 && lstat(path, &st) < 0)
@@ -261,6 +274,10 @@ fsdirstat(char *path, int dev, Dir *d)
 	d->atime = st.st_atime;
 	d->mtime = st.st_mtime;
 	d->length = st.st_size;
+	if(S_ISBLK(st.st_mode) && (fd = open(path, O_RDONLY)) >= 0){
+		d->length = disksize(fd, &st);
+		close(fd);
+	}
 	d->type = FsChar;
 	d->dev = dev;
 	return 0;
@@ -844,3 +861,48 @@ nametogid(char *name)
 		return -1;
 	return u->id;
 }
+
+#if defined(__linux__)
+
+static vlong
+disksize(int fd, struct stat *st)
+{
+	uvlong u64;
+	long l;
+	struct hd_geometry geo;
+	
+	memset(&geo, 0, sizeof geo);
+	l = 0;
+	u64 = 0;
+#ifdef BLKGETSIZE64
+	if(ioctl(fd, BLKGETSIZE64, &u64) >= 0)
+		return u64;
+#endif
+	if(ioctl(fd, BLKGETSIZE, &l) >= 0)
+		return l*512;
+	if(ioctl(fd, HDIO_GETGEO, &geo) >= 0)
+		return (vlong)geo.heads*geo.sectors*geo.cylinders*512;
+	return 0;
+}
+
+#elif defined(__FreeBSD__) && defined(DIOCGMEDIASIZE)
+
+static vlong
+disksize(int fd, struct stat *st)
+{
+	off_t mediasize;
+	
+	if(ioctl(fd, DIOCGMEDIASIZE, &mediasize) >= 0)
+		return mediasize;
+	return 0;
+}
+
+#else
+
+static vlong
+disksize(int fd, struct stat *st)
+{
+	return 0;
+}
+
+#endif

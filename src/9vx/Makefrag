@@ -45,6 +45,7 @@ PLAN9_OBJS = \
 		main.o \
 		mmu.o \
 		sched.o \
+		sdloop.o \
 		stub.o \
 		term.o \
 		time.o \
@@ -74,6 +75,7 @@ PLAN9_A_OBJS = \
 		devproc.o \
 		devpipe.o \
 		devroot.o \
+		devsd.o \
 		devsrv.o \
 		devssl.o \
 		devtls.o \
@@ -93,6 +95,7 @@ PLAN9_A_OBJS = \
 		proc.o \
 		qio.o \
 		qlock.o \
+		sdscsi.o \
 		segment.o \
 		strecpy.o \
 		sysfile.o \

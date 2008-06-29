@@ -320,7 +320,11 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		if (emu->trapenv == NULL)
 			return 0;
 		emu->cpu.traperr = ctx->err;
-		emu->cpu.trapva = ctx->cr2;
+		// Usually, ctx->cr2 == si->si_addr.
+		// But on a segmentation fault (as opposed to a paging fault),
+		// cr2 is not updated and the kernel sends an si_addr == 0.
+		// Be sure to use si_addr, not cr2.
+		emu->cpu.trapva = (uint32_t)si->si_addr;
 		memmove(mc->gregs, emu->trapenv->gregs, 19*4);
 		return 1;
 	}

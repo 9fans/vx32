@@ -162,12 +162,11 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		break;
 
 	case SIGTRAP:
-#warning "OS X: neeed to test single-stepping"
-		// Linux sends SIGTRAP when it gets a processor 
+		// OS X sends SIGTRAP when it gets a processor 
 		// debug exception, which is caused by single-stepping
 		// with the TF bit, among other things.  The processor
 		// turns off the TF bit before generating the trap, but
-		// it appears that Linux turns it back on for us.
+		// it appears that the handler turns it back on for us.
 		// Let's use it to confirm that this is a single-step trap.
 		if (ctx->ss.eflags & EFLAGS_TF){
 			newtrap = VXTRAP_SINGLESTEP;

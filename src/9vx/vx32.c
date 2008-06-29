@@ -260,10 +260,7 @@ touser(void *initsp)
 		if(rc == VXTRAP_PAGEFAULT){
 			int read;
 			nfaults++;
-			if(vp->cpu->traperr == 0xffffffff)
-				read = -1;
-			else
-				read = !(vp->cpu->traperr & 2);
+			read = !(vp->cpu->traperr & 2);
 			addr = (uchar*)vp->cpu->trapva;
 			if(traceprocs)
 				print("fault %p read=%d\n", addr, read);

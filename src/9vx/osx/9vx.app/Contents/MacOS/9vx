@@ -1,0 +1,3 @@
+#!/bin/sh
+
+~/vx32-public/src/9vx/9vx -r ~/9vx

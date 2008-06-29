@@ -1,0 +1,13 @@
+Known bugs; feel free to submit fixes!
+======================================
+
+libvx32
+-------
+need to do a better job mapping SIGFPE back to hardware floating-point errors
+
+9vx
+---
+gs spins on startup, cause unknown.  (run "gs", no arguments)
+
+blank line inserted when kernel terminal scrolls
+

@@ -10,6 +10,7 @@
  */
 
 #define	WANT_M
+#define	PIPES 0
 
 #include	"u.h"
 #include	<pthread.h>
@@ -30,6 +31,8 @@ void
 plock(Psleep *p)
 {
 	pthread_mutex_lock(&p->mutex);
+	if(p->fd[1] == 0)
+		pipe(p->fd);
 }
 
 void
@@ -51,16 +54,35 @@ psleep(Psleep *p)
 	 * condition.  This is okay because we hold the lock that
 	 * protects the condition in the first place.  Sigh.
 	 */
+#if PIPES
+	p->nread++;
+	punlock(p);
+	char c;
+	read(p->fd[0], &c, 1);
+	plock(p);
+#else
 	pthread_cond_init(&p->cond, nil);
 	pthread_cond_wait(&p->cond, &p->mutex);
+#endif
 }
 
 void
 pwakeup(Psleep *p)
 {
+#if PIPES
+	char c = 0;
+	int nbad = 0;
+	if(p->nwrite < p->nread){
+		p->nwrite++;
+		while(write(p->fd[1], &c, 1) < 1){
+			if(++nbad%100 == 0)
+				iprint("pwakeup: write keeps failing\n");
+		}
+	}
+#else
 	pthread_cond_signal(&p->cond);
+#endif
 }
-
 
 /*
  * The cpu0 scheduler calls idlehands when there is
@@ -176,5 +198,13 @@ runproc(void)
 	unlock(&kprocq.lk);
 	punlock(&run);
 	return p;
+}
+
+void
+schedinit0(void)
+{
+	pinit(&run);
+	pinit(&idling);
+iprint("pinit\n");
 }
 

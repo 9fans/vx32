@@ -10,7 +10,7 @@
  * See also http://lists.apple.com/archives/darwin-dev/2006/Oct/msg00122.html
  */
 
-#define __DARWIN_UNIX_03 0
+#define __DARWIN_UNIX03 0
 
 #include <mach/mach.h>
 #include <sys/ucontext.h>

@@ -182,6 +182,8 @@ static Psleep scr;
 void
 screeninit(void)
 {
+iprint("screeninit %p\n", &scr);
+	pinit(&scr);
 	plock(&scr);
 	kproc("*screen*", screenproc, nil);
 	while(osx.window == nil)

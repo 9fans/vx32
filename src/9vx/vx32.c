@@ -27,6 +27,7 @@
 
 enum {
 	ClockTicks = 1,
+	ClockMillis = 25,
 };
 
 int nfaults;
@@ -168,10 +169,10 @@ setclock(int start)
 {
 	struct itimerval itv;
 
-	/* Ask for clock tick to interrupt execution after 50ms. */
+	/* Ask for clock tick to interrupt execution after ClockMillis ms. */
 	memset(&itv, 0, sizeof itv);
 	if(start)
-		itv.it_value.tv_usec = 50*1000;
+		itv.it_value.tv_usec = ClockMillis*1000;
 	else
 		itv.it_value.tv_usec = 0;
 	setitimer(ITIMER_VIRTUAL, &itv, 0);
@@ -277,7 +278,7 @@ touser(void *initsp)
 				abort();
 		}
 
-up->dbgreg = &u;
+		up->dbgreg = &u;
 		proc2ureg(vp, &u);
 		u.trap = rc;
 		trap(&u);

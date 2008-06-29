@@ -319,14 +319,23 @@ termputs(char *s, int n)
 static void
 showkmesg(void)
 {
-	int n;
-	char buf[512], *p;
-	
+	int n, nb;
+	char buf[512], *p, *ep;
+	Rune r;
+
 	n = tailkmesg(buf, sizeof buf);
 	if(n > 0){
 		if(n < sizeof buf || (p = memchr(buf, '\n', n)) == nil)
 			p = buf;
-		_termputs(p, (buf+n)-p);
+		/* can't call termputs - drawqlock is held */
+		for(ep=p+n; p<ep; p+=nb){
+			nb = chartorune(&r, p);
+			if(nb <= 0){
+				nb = 1;
+				continue;
+			}
+			termputc(r);
+		}
 	}
 }
 

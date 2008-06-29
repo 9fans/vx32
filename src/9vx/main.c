@@ -218,6 +218,8 @@ findroot(void)
 	}
 	
 	/* Sorry, but great for debugging. */
+	if(access("/Users/rsc/9vx", 0) >= 0)
+		return "/Users/rsc/9vx";
 	if(access("/home/rsc/plan9/4e/386/bin/rc", 0) >= 0)
 		return "/home/rsc/plan9/4e";
 

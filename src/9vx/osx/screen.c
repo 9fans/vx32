@@ -29,7 +29,7 @@ struct {
 	Rectangle screenr;
 	Memimage *screenimage;
 	int isfullscreen;
-	Rectangle nonfullscreenr;
+	ulong fullscreentime;
 	
 	Point xy;
 	int buttons;
@@ -55,8 +55,8 @@ enum
 };
 
 static void screenproc(void*);
-static void eresized(int);
-static void fullscreen(int);
+static void eresized(int force);
+static void fullscreen(void);
 
 static OSStatus quithandler(EventHandlerCallRef, EventRef, void*);
 static OSStatus eventhandler(EventHandlerCallRef, EventRef, void*);
@@ -123,8 +123,8 @@ _screeninit(void)
 
 	// Create the window.
 	or.left = 0;
-	or.top = 30;
-	or.bottom = Dy(osx.fullscreenr) - 100;
+	or.top = 50;
+	or.bottom = Dy(osx.fullscreenr) - 200;
 	or.right = Dx(osx.fullscreenr);
 	CreateNewWindow(kDocumentWindowClass, WindowAttrs, &or, &osx.window);
 	CreateWindowGroup(0, &osx.wingroup);
@@ -171,7 +171,7 @@ _screeninit(void)
 	// Finally, put the window on the screen.
 	ShowWindow(osx.window);
 	ShowMenuBar();
-	eresized(0);
+	eresized(1);
 	SelectWindow(osx.window);
 	
 	InitCursor();
@@ -182,8 +182,6 @@ static Psleep scr;
 void
 screeninit(void)
 {
-iprint("screeninit %p\n", &scr);
-	pinit(&scr);
 	plock(&scr);
 	kproc("*screen*", screenproc, nil);
 	while(osx.window == nil)
@@ -241,7 +239,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			exit(0);
 		
 		case CmdFullScreen:
-			fullscreen(1);
+			fullscreen();
 			break;
 		
 		default:
@@ -255,7 +253,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			exit(0);
 		
 		case kEventWindowBoundsChanged:
-			eresized(1);
+			eresized(0);
 			break;
 		
 		default:
@@ -400,9 +398,10 @@ kbdevent(EventRef event)
 	case kEventRawKeyDown:
 	case kEventRawKeyRepeat:
 		if(mod == cmdKey){
-			if(ch == 'F' && osx.isfullscreen){
-				fullscreen(0);
-				break;
+			if(ch == 'F' || ch == 'f'){
+				if(osx.isfullscreen && msec() - osx.fullscreentime > 500)
+					fullscreen();
+				return noErr;
 			}
 			return eventNotHandledErr;
 		}
@@ -414,6 +413,8 @@ kbdevent(EventRef event)
 		break;
 
 	case kEventRawKeyModifiersChanged:
+		if(mod == (optionKey|controlKey) && osx.isfullscreen)
+			fullscreen();
 		if(!osx.buttons && !osx.kbuttons){
 			if(mod == optionKey)
 				kbdputc(kbdq, Kalt);
@@ -435,7 +436,7 @@ kbdevent(EventRef event)
 }
 
 static void
-eresized(int new)
+eresized(int force)
 {
 	Memimage *m;
 	OSXRect or;
@@ -447,7 +448,7 @@ eresized(int new)
 	
 	GetWindowBounds(osx.window, kWindowContentRgn, &or);
 	r = Rect(or.left, or.top, or.right, or.bottom);
-	if(Dx(r) == Dx(osx.screenr) && Dy(r) == Dy(osx.screenr)){
+	if(Dx(r) == Dx(osx.screenr) && Dy(r) == Dy(osx.screenr) && !force){
 		// No need to make new image.
 		osx.screenr = r;
 		return;
@@ -467,15 +468,15 @@ eresized(int new)
 		kCGImageAlphaNoneSkipLast,
 		provider, 0, 0, kCGRenderingIntentDefault);
 	CGDataProviderRelease(provider);	// CGImageCreate did incref
-	
+
 	mouserect = m->r;
-	termreplacescreenimage(m);
-	drawreplacescreenimage(m);	// frees old osx.screenimage if any
 	if(osx.image)
 		CGImageRelease(osx.image);
 	osx.image = image;
-	osx.screenimage = m;
 	osx.screenr = r;
+	osx.screenimage = m;
+	termreplacescreenimage(m);
+	drawreplacescreenimage(m);	// frees old osx.screenimage if any
 }
 
 void
@@ -501,8 +502,24 @@ flushmemscreen(Rectangle r)
 }
 
 void
-fullscreen(int x)
+fullscreen(void)
 {
+	static Ptr restore;
+	static WindowRef oldwindow;
+
+	if(osx.isfullscreen){
+		EndFullScreen(restore, 0);
+		osx.window = oldwindow;
+		ShowWindow(osx.window);
+		osx.isfullscreen = 0;
+	}else{
+		HideWindow(osx.window);
+		oldwindow = osx.window;
+		BeginFullScreen(&restore, 0, 0, 0, &osx.window, 0, 0);
+		osx.isfullscreen = 1;
+		osx.fullscreentime = msec();
+	}
+	eresized(1);
 }
 
 void

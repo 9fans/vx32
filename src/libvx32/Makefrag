@@ -8,6 +8,10 @@ ifeq ($(OS),darwin)
 VX32_RUN := $(VX32_RUN) darwin-asm.o
 endif
 
+ifeq ($(OS),linux)
+VX32_RUN := $(VX32_RUN) linux-asm.o
+endif
+
 VX32_OBJS = \
 	$(addprefix libvx32/, \
 		chunk.o \

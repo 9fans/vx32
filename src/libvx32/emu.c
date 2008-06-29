@@ -1801,9 +1801,9 @@ int vxproc_run(struct vxproc *vxp)
 	emu->trapenv = &env;
 	if(vx32_getcontext(&env)){
 #else
-	sigjmp_buf env;
+	mcontext_t env;
 	emu->trapenv = &env;
-	if(sigsetjmp(env, 1)){
+	if(vx32_getcontext(&env)){
 #endif
 		if(vx32_debugxlate) vxprint("VX trap %x err %x va %08x "
 				"veip %08x veflags %08x\n",

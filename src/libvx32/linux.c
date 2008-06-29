@@ -1,10 +1,12 @@
 // Code specific to x86 hosts running Linux.
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
 #include <assert.h>
 #include <ucontext.h>
+#include <sys/ucontext.h>
 #include <asm/ldt.h>
 
 #include "vx32.h"
@@ -319,14 +321,8 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 			return 0;
 		emu->cpu.traperr = ctx->err;
 		emu->cpu.trapva = ctx->cr2;
-
-		/*
-		 * Linux helpfully reset the floating point state
-		 * before entering the signal hander, so change it back.
-		  */
-		if(ctx->fpstate)
-			fprestore(ctx->fpstate);
-		siglongjmp(*emu->trapenv, 1);
+		memmove(mc->gregs, emu->trapenv->gregs, 19*4);
+		return 1;
 	}
 
 	// The signal handler is confused; so are we.

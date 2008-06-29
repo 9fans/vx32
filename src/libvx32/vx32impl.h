@@ -119,6 +119,9 @@ typedef struct vxentry {
 struct i386_thread_state;
 int vx32_getcontext(struct i386_thread_state*);
 #endif
+#ifdef __linux__
+int vx32_getcontext(mcontext_t*);
+#endif
 
 // Emulation state for vx32-to-x86 translation.
 // This is the header for a variable-length structure;
@@ -156,7 +159,7 @@ struct vxemu {
 	uint32_t	saved_trap;	// trap to trigger after single-step
 	int	nsinglestep;
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) || defined(__linux__)
 	mcontext_t		*trapenv;
 #elif defined(__APPLE__)
 	struct i386_thread_state *trapenv;

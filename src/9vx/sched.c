@@ -10,10 +10,11 @@
  */
 
 #define	WANT_M
-#define	PIPES 0
+#define	PIPES 1
 
 #include	"u.h"
 #include	<pthread.h>
+#include	<sys/poll.h>
 #include	<sched.h>
 #include	"lib.h"
 #include	"mem.h"
@@ -31,8 +32,10 @@ void
 plock(Psleep *p)
 {
 	pthread_mutex_lock(&p->mutex);
-	if(p->fd[1] == 0)
+	if(p->fd[1] == 0){
 		pipe(p->fd);
+		fcntl(p->fd[0], F_SETFL, fcntl(p->fd[0], F_GETFL)|O_NONBLOCK);
+	}
 }
 
 void
@@ -58,7 +61,13 @@ psleep(Psleep *p)
 	p->nread++;
 	punlock(p);
 	char c;
-	read(p->fd[0], &c, 1);
+	while(read(p->fd[0], &c, 1) < 1){
+		struct pollfd pfd;
+		pfd.fd = p->fd[0];
+		pfd.events = POLLIN;
+		pfd.revents = 0;
+		poll(&pfd, 1, 1000);
+	}
 	plock(p);
 #else
 	pthread_cond_init(&p->cond, nil);

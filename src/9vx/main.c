@@ -64,7 +64,7 @@ usage(void)
 	exit(1);
 }
 
-static void
+void
 nop(void)
 {
 }

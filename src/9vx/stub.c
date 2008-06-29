@@ -204,7 +204,7 @@ fpinit(void)
 void
 fpsave(FPsave *s)
 {
-	asm volatile("fsave 0(%%eax)\n" : : "a" (s) : "memory");
+	asm volatile("fnsave 0(%%eax)\n" : : "a" (s) : "memory");
 	if(tracefp)
 		iprint("fpsave: %#x %#x %#x %#ux\n", s->control, s->status, s->tag, s->pc);
 }

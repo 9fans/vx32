@@ -144,7 +144,9 @@ main(int argc, char **argv)
 
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";
-	kstrdup(&eve, username);
+	eve = strdup(username);
+	if(eve == nil)
+		panic("strdup eve");
 
 	mach0init();
 	mmuinit();

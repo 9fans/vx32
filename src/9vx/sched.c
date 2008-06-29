@@ -10,7 +10,12 @@
  */
 
 #define	WANT_M
+
+#ifdef __APPLE__
 #define	PIPES 1
+#else
+#define PIPES 0
+#endif
 
 #include	"u.h"
 #include	<pthread.h>
@@ -23,19 +28,23 @@
 #include	"error.h"
 #include	"trace.h"
 
-void
-pinit(Psleep *p)
+struct Pwaiter
 {
-}
+	pthread_cond_t cond;
+	Pwaiter *next;
+	int awake;
+};
 
 void
 plock(Psleep *p)
 {
 	pthread_mutex_lock(&p->mutex);
+#if PIPES
 	if(p->fd[1] == 0){
 		pipe(p->fd);
 		fcntl(p->fd[0], F_SETFL, fcntl(p->fd[0], F_GETFL)|O_NONBLOCK);
 	}
+#endif
 }
 
 void
@@ -47,16 +56,6 @@ punlock(Psleep *p)
 void
 psleep(Psleep *p)
 {
-	/*
-	 * OS X is trying to be helpful and has changed the behavior
-	 * of pthreads condition variables.  After pthread_cond_signal
-	 * any subsequent pthread_cond_wait returns immediately.
-	 * This is perhaps more sensible behavior than the standard,
-	 * but it's not actually what the standard requires.
-	 * So we have to pthread_cond_init to clear any pre-existing
-	 * condition.  This is okay because we hold the lock that
-	 * protects the condition in the first place.  Sigh.
-	 */
 #if PIPES
 	p->nread++;
 	punlock(p);
@@ -70,8 +69,14 @@ psleep(Psleep *p)
 	}
 	plock(p);
 #else
-	pthread_cond_init(&p->cond, nil);
-	pthread_cond_wait(&p->cond, &p->mutex);
+	Pwaiter w;
+	memset(&w, 0, sizeof w);
+	pthread_cond_init(&w.cond, nil);
+	w.next = p->waiter;
+	p->waiter = &w;
+	while(!w.awake)
+		pthread_cond_wait(&w.cond, &p->mutex);
+	pthread_cond_destroy(&w.cond);
 #endif
 }
 
@@ -89,7 +94,14 @@ pwakeup(Psleep *p)
 		}
 	}
 #else
-	pthread_cond_signal(&p->cond);
+	Pwaiter *w;
+
+	w = p->waiter;
+	if(w){
+		p->waiter = w->next;
+		w->awake = 1;
+		pthread_cond_signal(&w->cond);
+	}
 #endif
 }
 
@@ -208,12 +220,3 @@ runproc(void)
 	punlock(&run);
 	return p;
 }
-
-void
-schedinit0(void)
-{
-	pinit(&run);
-	pinit(&idling);
-iprint("pinit\n");
-}
-

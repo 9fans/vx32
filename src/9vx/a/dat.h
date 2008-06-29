@@ -352,10 +352,11 @@ extern int doabort;
 
 /* Pthreads-based sleep and wakeup. */
 typedef struct Psleep Psleep;
+typedef struct Pwaiter Pwaiter;
 struct Psleep
 {
 	pthread_mutex_t mutex;
-	pthread_cond_t cond;
+	Pwaiter *waiter;
 	int fd[2];
 	vlong nread;
 	vlong nwrite;

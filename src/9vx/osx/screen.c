@@ -115,9 +115,6 @@ _screeninit(void)
 	AppendMenuItemTextWithCFString(osx.vmenu,
 		CFSTR("Full Screen"), 0, CmdFullScreen, &ix);
 	SetMenuItemCommandKey(osx.vmenu, ix, 0, 'F');
-	AppendMenuItemTextWithCFString(osx.vmenu,
-		CFSTR("Ctl-Opt exits full screen"),
-		kMenuItemAttrDisabled, CmdFullScreen, &ix);
 	InsertMenu(osx.vmenu, GetMenuID(osx.wmenu));
 	DrawMenuBar();
 
@@ -413,11 +410,9 @@ kbdevent(EventRef event)
 		break;
 
 	case kEventRawKeyModifiersChanged:
-		if(mod == (optionKey|controlKey) && osx.isfullscreen)
-			fullscreen();
 		if(!osx.buttons && !osx.kbuttons){
 			if(mod == optionKey)
-				kbdputc(kbdq, Kalt);
+				latin1putc(Kalt, kputc);
 			break;
 		}
 		

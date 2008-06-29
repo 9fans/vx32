@@ -166,3 +166,9 @@ void	uartinit(int);
 void	*uvalidaddr(ulong addr, ulong len, int write);
 int	isuaddr(void*);
 void	setsigsegv(int invx32);
+
+void	plock(Psleep*);
+void	punlock(Psleep*);
+void	pwakeup(Psleep*);
+void	psleep(Psleep*);
+

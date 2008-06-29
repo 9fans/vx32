@@ -144,6 +144,7 @@ main(int argc, char **argv)
 
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";
+	kstrdup(&eve, username);
 
 	mach0init();
 	mmuinit();
@@ -155,9 +156,12 @@ main(int argc, char **argv)
 	 * fork into the background.  This is a little dicey, since we
 	 * haven't allocated the screen yet, but that would kick off
 	 * a kproc, and we need to fork before we start any pthreads.
+	 * Cannot fork on OS X - it can't handle it.
 	 */
+#ifndef __APPLE__
 	if(!usetty && !nofork && fork() > 0)
 		_exit(0);
+#endif
 
 	/*
 	 * Have to do this after fork; on OS X child does
@@ -182,6 +186,12 @@ main(int argc, char **argv)
 	}
 	bootinit();
 	pageinit();
+#ifdef __APPLE__
+	if(conf.monitor)
+		screeninit();
+	extern void machsiginit(void);
+	machsiginit();
+#endif
 	userinit();
 	terminit(!usetty);
 	uartinit(usetty);
@@ -473,7 +483,7 @@ init0(void)
 	touser(sp);	/* infinity, and beyond. */
 }
 
-static int invx32;
+int invx32;	/* shared with sbcl-signal.c */
 
 /*
  * SIGSEGV handler.  If we get SIGSEGV while executing
@@ -680,7 +690,6 @@ siginit(void)
 	act.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR1, &act, nil);
 	sigaction(SIGURG, &act, nil);
-
 }
 
 void

@@ -54,10 +54,13 @@ enum
 		kWindowFullZoomAttribute
 };
 
-static OSStatus eventhandler(EventHandlerCallRef, EventRef, void*);
 static void screenproc(void*);
 static void eresized(int);
 static void fullscreen(int);
+
+static OSStatus quithandler(EventHandlerCallRef, EventRef, void*);
+static OSStatus eventhandler(EventHandlerCallRef, EventRef, void*);
+static OSStatus cmdhandler(EventHandlerCallRef, EventRef, void*);
 
 enum
 {
@@ -86,7 +89,7 @@ attachscreen(Rectangle *r, ulong *chan, int *depth,
 }
 
 void
-screeninit(void)
+_screeninit(void)
 {
 	CGRect cgr;
 	OSXRect or;
@@ -131,13 +134,13 @@ screeninit(void)
 	// Set up the clip board.
 	if(PasteboardCreate(kPasteboardClipboard, &osx.snarf) != noErr)
 		panic("pasteboard create");
-	
+
 	// Explain in great detail which events we want to handle.
 	// Why can't we just have one handler?
 	const EventTypeSpec quits[] = {
 		{ kEventClassApplication, kEventAppQuit }
 	};
-	const EventTypeSpec commands[] = {
+	const EventTypeSpec cmds[] = {
 		{ kEventClassWindow, kEventWindowClosed },
 		{ kEventClassWindow, kEventWindowBoundsChanged },
 		{ kEventClassCommand, kEventCommandProcess }
@@ -152,16 +155,19 @@ screeninit(void)
 		{ kEventClassMouse, kEventMouseDragged },
 		{ kEventClassMouse, kEventMouseWheelMoved },
 	};
+
 	InstallApplicationEventHandler(
-		NewEventHandlerUPP(eventhandler),
+		NewEventHandlerUPP(quithandler),
 		nelem(quits), quits, nil, nil);
-	InstallApplicationEventHandler(
-		NewEventHandlerUPP(eventhandler),
-		nelem(events), events, osx.window, nil);
+
+ 	InstallApplicationEventHandler(
+ 		NewEventHandlerUPP(eventhandler),
+		nelem(events), events, nil, nil);
+
 	InstallWindowEventHandler(osx.window,
-		NewEventHandlerUPP(eventhandler),
-		nelem(commands), commands, osx.window, nil);
-	
+		NewEventHandlerUPP(cmdhandler),
+		nelem(cmds), cmds, osx.window, nil);
+
 	// Finally, put the window on the screen.
 	ShowWindow(osx.window);
 	ShowMenuBar();
@@ -169,34 +175,60 @@ screeninit(void)
 	SelectWindow(osx.window);
 	
 	InitCursor();
+}
 
+static Psleep scr;
+
+void
+screeninit(void)
+{
+	plock(&scr);
 	kproc("*screen*", screenproc, nil);
+	while(osx.window == nil)
+		psleep(&scr);
+	punlock(&scr);
 }
 
 static void
 screenproc(void *v)
 {
+	plock(&scr);
+	_screeninit();
+	pwakeup(&scr);
+	punlock(&scr);
 	RunApplicationEventLoop();
+	iprint("screenproc exited!\n");
 }
 
 static OSStatus kbdevent(EventRef);
 static OSStatus mouseevent(EventRef);
 
 static OSStatus
+cmdhandler(EventHandlerCallRef next, EventRef event, void *arg)
+{
+	return eventhandler(next, event, arg);
+}
+
+static OSStatus
+quithandler(EventHandlerCallRef next, EventRef event, void *arg)
+{
+	exit(0);
+	return 0;
+}
+
+static OSStatus
 eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 {
 	OSStatus result;
-	
+
 	result = CallNextEventHandler(next, event);
-	
+
 	switch(GetEventClass(event)){
 	case kEventClassKeyboard:
 		return kbdevent(event);
-		break;
 	
 	case kEventClassMouse:
 		return mouseevent(event);
-		break;
 	
 	case kEventClassCommand:;
 		HICommand cmd;
@@ -241,6 +273,7 @@ mouseevent(EventRef event)
 	
 	GetEventParameter(event, kEventParamMouseLocation,
 		typeQDPoint, 0, sizeof op, 0, &op);
+
 	osx.xy = subpt(Pt(op.h, op.v), osx.screenr.min);
 	wheel = 0;
 
@@ -279,6 +312,7 @@ mouseevent(EventRef event)
 		break;
 
 	case kEventMouseMoved:
+	case kEventMouseDragged:
 		break;
 	
 	default:
@@ -432,6 +466,7 @@ eresized(int new)
 		provider, 0, 0, kCGRenderingIntentDefault);
 	CGDataProviderRelease(provider);	// CGImageCreate did incref
 	
+	mouserect = m->r;
 	termreplacescreenimage(m);
 	drawreplacescreenimage(m);	// frees old osx.screenimage if any
 	if(osx.image)
@@ -455,6 +490,7 @@ flushmemscreen(Rectangle r)
 	cgr.size.width = Dx(r);
 	cgr.size.height = Dy(r);
 	subimg = CGImageCreateWithImageInRect(osx.image, cgr);
+	cgr.origin.y = Dy(osx.screenr) - r.max.y; // XXX how does this make any sense?
 	CGContextDrawImage(context, cgr, subimg);
 	CGContextFlush(context);
 	CGImageRelease(subimg);

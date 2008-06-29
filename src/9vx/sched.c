@@ -21,27 +21,24 @@
 #include	"error.h"
 #include	"trace.h"
 
-/* Pthreads-based sleep and wakeup. */
-typedef struct Psleep Psleep;
-struct Psleep
+void
+pinit(Psleep *p)
 {
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
-};
+}
 
-static void
+void
 plock(Psleep *p)
 {
 	pthread_mutex_lock(&p->mutex);
 }
 
-static void
+void
 punlock(Psleep *p)
 {
 	pthread_mutex_unlock(&p->mutex);
 }
 
-static void
+void
 psleep(Psleep *p)
 {
 	/*
@@ -58,7 +55,7 @@ psleep(Psleep *p)
 	pthread_cond_wait(&p->cond, &p->mutex);
 }
 
-static void
+void
 pwakeup(Psleep *p)
 {
 	pthread_cond_signal(&p->cond);

@@ -10,9 +10,7 @@ endif
 
 ifeq ($(OS),darwin)
 PLAN9VX=1
-# TODO: osx works except that Carbon gets confused
-# that we can survive an EXC_BAD_ACCESS
-PLAN9GUI=x11
+PLAN9GUI=osx
 PLAN9AUDIO=none
 endif
 
@@ -54,6 +52,10 @@ PLAN9_OBJS = \
 		tty.o \
 		vx32.o \
 	)
+
+ifeq ($(OS),darwin)
+PLAN9_OBJS := $(PLAN9_OBJS) 9vx/osx/signal.o
+endif
 
 PLAN9_A_OBJS = \
 	$(addprefix 9vx/a/, \

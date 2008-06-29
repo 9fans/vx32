@@ -67,6 +67,9 @@ terminit(int printing)
 	/* x11 will call termreplacescreenimage when it is ready */
 	unlock(&term.lk);
 	
+	/* maybe it already has */
+	if(term.screen)
+		termreplacescreenimage(term.screen);
 
 	/* If we're the output mechanism, set it up and kick off the screen. */
 	if(printing)
@@ -105,6 +108,12 @@ _termreplacescreenimage(Memimage *m)
 {
 	int h;
 	Rectangle r, r0;
+
+	if(term.bg == nil){
+		/* not yet init */
+		term.screen = m;
+		return;
+	}
 
 	/* white background */
 	if(!mouse.open)

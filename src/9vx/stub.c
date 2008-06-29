@@ -544,10 +544,7 @@ panic(char *fmt, ...)
 	if(doabort){
 		for(;;)
 			microdelay(1000000);
-		signal(SIGSEGV, SIG_IGN);
-		*(int*)0 = 0;
 	}
-	//	abort();
 	exit(0);
 }
 

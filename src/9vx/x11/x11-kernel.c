@@ -110,6 +110,11 @@ _xproc(void *v)
 	}
 }
 
+void
+screeninit(void)
+{
+}
+
 uchar*
 attachscreen(Rectangle *r, ulong *chan, int *depth,
 	int *width, int *softscreen, void **X)
@@ -175,3 +180,4 @@ setmouse(Point p)
 	_xmoveto(p);
 	drawqunlock();
 }
+

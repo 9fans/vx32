@@ -349,3 +349,12 @@ extern int traceprocs;
 extern int tracesyscalls;
 extern uchar *uzero;
 extern int doabort;
+
+/* Pthreads-based sleep and wakeup. */
+typedef struct Psleep Psleep;
+struct Psleep
+{
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+};
+

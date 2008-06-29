@@ -25,11 +25,16 @@
 #include "fns.h"
 #include "error.h"
 
-extern void sigsegv(int, siginfo_t*, void*);	/* provided by Plan 9 VX */
+#define EFLAGS_TF 0x100
+
 extern int invx32;
 
 static x86_thread_state32_t normal;	/* normal segment registers */
 static void *altstack;
+
+static void (*sigbus)(int, siginfo_t*, void*);
+static void (*sigtrap)(int, siginfo_t*, void*);
+static void (*sigfpe)(int, siginfo_t*, void*);
 
 /*
  * Manipulate stack in regs.
@@ -82,9 +87,10 @@ wrapper(siginfo_t *siginfo,
 	/* Cause EXC_BAD_INSTRUCTION to "exit" signal handler */
 	asm volatile(
 		"movl %0, %%eax\n"
+		"movl %1, %%ebx\n"
 		"movl $0xdeadbeef, %%esp\n"
 		".long 0xffff0b0f\n"
-		: : "r" (mcontext));
+		: : "r" (mcontext), "r" (siginfo));
 }
 
 void
@@ -130,6 +136,7 @@ catch_exception_raise(mach_port_t exception_port,
 	kern_return_t ret;
 	uint *sp;
 	mcontext_t stk_mcontext;
+	void (*handler)(int, siginfo_t*, void*);
 
 	n = x86_THREAD_STATE32_COUNT;
 	ret = thread_get_state(thread, x86_THREAD_STATE32, (void*)&regs, &n);
@@ -138,6 +145,8 @@ catch_exception_raise(mach_port_t exception_port,
 
 	switch(exception){
 	case EXC_BAD_ACCESS:
+	case EXC_BREAKPOINT:
+	case EXC_ARITHMETIC:
 		save_regs = regs;
 		if(invx32)
 			regs.esp = (uint)altstack;
@@ -153,8 +162,24 @@ catch_exception_raise(mach_port_t exception_port,
 		stk_mcontext = alloc(&regs, sizeof *stk_mcontext);
 
 		memset(stk_siginfo, 0, sizeof *stk_siginfo);
-		stk_siginfo->si_signo = SIGBUS;
-		stk_siginfo->si_addr = (void*)code_vector[1];
+		switch(exception){
+		default:
+			panic("osx/signal.c missing case %d", exception);
+		case EXC_BAD_ACCESS:
+			stk_siginfo->si_signo = SIGBUS;
+			stk_siginfo->si_addr = (void*)code_vector[1];
+			handler = sigbus;
+			break;
+		case EXC_BREAKPOINT:
+			stk_siginfo->si_signo = SIGTRAP;
+			handler = sigtrap;
+			regs.eflags &= ~EFLAGS_TF;
+			break;
+		case EXC_ARITHMETIC:
+			stk_siginfo->si_signo = SIGFPE;
+			handler = sigfpe;
+			break;
+		}
 
 		stk_mcontext->ss = save_regs;
 		n = x86_FLOAT_STATE32_COUNT;
@@ -169,7 +194,7 @@ catch_exception_raise(mach_port_t exception_port,
 		sp = alloc(&regs, 3*4);
 		sp[0] = (uint)stk_siginfo;
 		sp[1] = (uint)stk_mcontext;
-		sp[2] = (uint)sigsegv;
+		sp[2] = (uint)handler;
 		
 		push(&regs, regs.eip);	/* for debugger; wrapper won't return */
 		regs.eip = (uint)wrapper;
@@ -178,6 +203,10 @@ catch_exception_raise(mach_port_t exception_port,
 			(void*)&regs, x86_THREAD_STATE32_COUNT);
 		if(ret != KERN_SUCCESS)
 			panic("mach set regs failed: %d", ret);
+		if(0 && stk_siginfo->si_signo != SIGBUS){
+			iprint("call sig %d\n", stk_siginfo->si_signo);
+			dumpmcontext(stk_mcontext);
+		}
 		return KERN_SUCCESS;
 	
 	case EXC_BAD_INSTRUCTION:
@@ -188,6 +217,11 @@ catch_exception_raise(mach_port_t exception_port,
 			panic("bad instruction eip=%p", regs.eip);
 		}
 		stk_mcontext = (mcontext_t)regs.eax;
+		stk_siginfo = (siginfo_t*)regs.ebx;
+		if(0 && stk_siginfo->si_signo != SIGBUS){
+			iprint("return sig %d\n", stk_siginfo->si_signo);
+			dumpmcontext(stk_mcontext);
+		}
 		ret = thread_set_state(thread, x86_THREAD_STATE32,
 			(void*)&stk_mcontext->ss, x86_THREAD_STATE32_COUNT);
 		if(ret != KERN_SUCCESS)
@@ -219,6 +253,7 @@ machsiginit(void)
 	mach_port_t port;
 	pthread_t pid;
 	stack_t ss;
+	struct sigaction act;
 	int ret;
 	
 	extern int vx32_getcontext(x86_thread_state32_t*);
@@ -228,10 +263,24 @@ machsiginit(void)
 		panic("machsiginit: no alt stack");
 	altstack = ss.ss_sp + ss.ss_size;
 
+	if(sigaction(SIGBUS, nil, &act) < 0)
+		panic("sigaction bus");
+	sigbus = (void*)act.sa_handler;
+
+	if(sigaction(SIGTRAP, nil, &act) < 0)
+		panic("sigaction trap");
+	sigtrap = (void*)act.sa_handler;
+
+	if(sigaction(SIGFPE, nil, &act) < 0)
+		panic("sigaction fpe");
+	sigfpe = (void*)act.sa_handler;
+
 	mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port);
 	mach_port_insert_right(mach_task_self(), port, port, MACH_MSG_TYPE_MAKE_SEND);
-	ret = thread_set_exception_ports(mach_thread_self(), EXC_MASK_BAD_ACCESS|EXC_MASK_BAD_INSTRUCTION, port,
-		EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
+	ret = thread_set_exception_ports(mach_thread_self(),
+		EXC_MASK_BAD_ACCESS|EXC_MASK_BAD_INSTRUCTION|
+		EXC_MASK_BREAKPOINT|EXC_MASK_ARITHMETIC,
+		port, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
 	pthread_create(&pid, nil, handler, (void*)port);
 }
 

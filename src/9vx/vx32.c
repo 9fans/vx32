@@ -186,6 +186,9 @@ setclock(int start)
 void
 forkret(void)
 {
+	extern void kexit(Ureg*);
+
+	kexit(nil);
 	touser(0);
 }
 

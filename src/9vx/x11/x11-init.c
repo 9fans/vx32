@@ -254,7 +254,6 @@ _xattach(char *label, char *winsize)
 		havemin = 0;
 	}
 	screenrect = Rect(0, 0, WidthOfScreen(xscreen), HeightOfScreen(xscreen));
-	windowrect = r;
 	mouserect = Rect(0, 0, Dx(r), Dy(r));
 
 	memset(&attr, 0, sizeof attr);
@@ -369,6 +368,8 @@ _xattach(char *label, char *winsize)
 	_x.takefocus = XInternAtom(_x.display, "WM_TAKE_FOCUS", False);
 	_x.losefocus = XInternAtom(_x.display, "_9WM_LOSE_FOCUS", False);
 	_x.wmprotos = XInternAtom(_x.display, "WM_PROTOCOLS", False);
+	_x.wmstate = XInternAtom(_x.display, "_NET_WM_STATE", False);
+	_x.wmfullscreen = XInternAtom(_x.display, "_NET_WM_STATE_FULLSCREEN", False);
 
 	atoms[0] = _x.takefocus;
 	atoms[1] = _x.losefocus;
@@ -385,8 +386,8 @@ _xattach(char *label, char *winsize)
 		fprint(2, "XGetWindowAttributes failed\n");
 	else if(wattr.width && wattr.height){
 		if(wattr.width != Dx(r) || wattr.height != Dy(r)){
-			r.max.x = wattr.width;
-			r.max.y = wattr.height;
+			r.max.x = r.min.x + wattr.width;
+			r.max.y = r.min.y + wattr.height;
 		}
 	}else
 		fprint(2, "XGetWindowAttributes: bad attrs\n");
@@ -398,6 +399,16 @@ _xattach(char *label, char *winsize)
 	_x.screenpm = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
 	_x.nextscreenpm = _x.screenpm;
 	_x.screenimage = _xallocmemimage(r, _x.chan, _x.screenpm);
+
+	/*
+	 * Figure out physical window location.
+	 */
+	int rx, ry;
+	XWindow w;
+	if(XTranslateCoordinates(_x.display, _x.drawable,
+			DefaultRootWindow(_x.display), 0, 0, &rx, &ry, &w))
+		r = Rect(rx, ry, Dx(r), Dy(r));
+	windowrect = r;
 
 	/*
 	 * Allocate some useful graphics contexts for the future.

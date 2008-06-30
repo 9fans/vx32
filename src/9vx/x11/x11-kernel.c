@@ -86,7 +86,40 @@ runxevent(XEvent *xev)
 		XLookupString((XKeyEvent*)xev, NULL, 0, &k, NULL);
 		if(k == XK_F11){
 			fullscreen = !fullscreen;
-		//TODO	_xmovewindow(fullscreen ? screenrect : windowrect);
+			if(1){
+				/* The old way: send a move request */
+				XWindowChanges e;
+				int mask;
+				Rectangle r;
+				
+				memset(&e, 0, sizeof e);
+				mask = CWX|CWY|CWWidth|CWHeight;
+				if(fullscreen)
+					r = screenrect;
+				else
+					r = windowrect;
+				e.x = r.min.x;
+				e.y = r.min.y;
+				e.width = Dx(r);
+				e.height = Dy(r);
+				XConfigureWindow(_x.kmcon, _x.drawable, mask, &e);
+				XFlush(_x.kmcon);
+			}else{
+				/* The "right" way, but not supported by rio. */
+				XClientMessageEvent e;
+
+				memset(&e, 0, sizeof e);
+				e.type = ClientMessage;
+				e.send_event = True;
+				e.window = _x.drawable;
+				e.message_type = _x.wmstate;
+				e.format = 32;
+				e.data.l[0] = fullscreen;	// 0 off, 1 on, 2 is toggle
+				e.data.l[1] = _x.wmfullscreen;
+				e.data.l[2] = 0;
+				XSendEvent(_x.kmcon, DefaultRootWindow(_x.kmcon), False,
+					SubstructureRedirectMask|SubstructureNotifyMask, (XEvent*)&e);
+			}
 			return;
 		}
 		_xtoplan9kbd(xev);

@@ -157,12 +157,9 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	vxemu *emu;
 	ucontext_t *uc;
 	mcontext_t *mc;
-	uint32_t cr2;
 
 	uc = v;
 	mc = &uc->uc_mcontext;
-
-	cr2 = (uint32_t)si->si_addr;
 
 	// We can't be sure that vxemu is running,
 	// and thus that %VSEG is actually mapped to a
@@ -207,39 +204,45 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	// so that thread-local storage and such works.
 	vxrun_cleanup(emu);
 	
-	// dumpmcontext(mc, cr2);
+	// dumpmcontext(mc, (uint32_t)si->si_addr);
 
+	uint32_t addr;
 	int newtrap;
+	addr = 0;
 	switch(signo){
 	case SIGSEGV:
-	case SIGBUS:
 		newtrap = VXTRAP_PAGEFAULT;
+		addr = (uint32_t)si->si_addr;
+		break;
+	case SIGBUS:
+		/*
+		 * On FreeBSD, SIGBUS means segmentation limit fault.
+		 * The supplied address is bogus.
+		 */
+		newtrap = VXTRAP_PAGEFAULT;
+		addr = 0;
 		break;
 	
 	case SIGFPE:
-		// iprint("fpe %d\n", si->si_code);
+		// vxprint("fpe %d\n", si->si_code);
 		newtrap = VXTRAP_FLOAT;
+		addr = 0;
 		break;
 	
 	case SIGVTALRM:
 		newtrap = VXTRAP_IRQ + VXIRQ_TIMER;
+		addr = 0;
 		break;
 
 	case SIGTRAP:
-#warning "FreeBSD: need to test single-stepping"
-		// Linux sends SIGTRAP when it gets a processor 
+		// FreeBSD sends SIGTRAP when it gets a processor 
 		// debug exception, which is caused by single-stepping
-		// with the TF bit, among other things.  The processor
-		// turns off the TF bit before generating the trap, but
-		// it appears that Linux turns it back on for us.
-		// Let's use it to confirm that this is a single-step trap.
-		if (mc->mc_eflags & EFLAGS_TF){
-			newtrap = VXTRAP_SINGLESTEP;
-			mc->mc_eflags &= ~EFLAGS_TF;
-		}else{
-			vxprint("Unexpected sigtrap eflags=%#x\n", mc->mc_eflags);
-			newtrap = VXTRAP_SIGNAL + signo;
-		}
+		// with the TF bit, among other things.  
+		// It appears that FreeBSD does not turn the flag back on
+		// before entering the signal handler.
+		addr = 0;
+		newtrap = VXTRAP_SINGLESTEP;
+		mc->mc_eflags &= ~EFLAGS_TF;	// Just in case.
 		break;
 
 	default:
@@ -323,7 +326,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		if (emu->trapenv == NULL)
 			return 0;
 		emu->cpu.traperr = mc->mc_err;
-		emu->cpu.trapva = cr2;
+		emu->cpu.trapva = addr;
 		memmove(&mc->mc_gs, &emu->trapenv->mc_gs, 19*4);
 		return 1;
 	}

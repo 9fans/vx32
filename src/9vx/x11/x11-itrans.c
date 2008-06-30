@@ -312,7 +312,9 @@ _xsetcursor(Cursor *c)
 void
 setcursor(Cursor *c)
 {
+	drawqlock();
 	_xsetcursor(c);
+	drawqunlock();
 }
 
 struct {

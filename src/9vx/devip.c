@@ -15,7 +15,7 @@ void	csclose(Chan*);
 long	csread(Chan*, void*, long, vlong);
 long	cswrite(Chan*, void*, long, vlong);
 
-static int csremoved;
+static int csremoved = 1;	/* was nice while it lasted... */
 
 void osipinit(void);
 

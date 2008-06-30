@@ -89,6 +89,8 @@ wrapper(siginfo_t *siginfo,
 		"movl %0, %%eax\n"
 		"movl %1, %%ebx\n"
 		"movl $0xdeadbeef, %%esp\n"
+		".globl _wrapper_bad\n"
+		"_wrapper_bad:\n"
 		".long 0xffff0b0f\n"
 		: : "r" (mcontext), "r" (siginfo));
 }
@@ -137,17 +139,36 @@ catch_exception_raise(mach_port_t exception_port,
 	uint *sp;
 	mcontext_t stk_mcontext;
 	void (*handler)(int, siginfo_t*, void*);
+	ulong addr;
+	int signo;
 
 	n = x86_THREAD_STATE32_COUNT;
 	ret = thread_get_state(thread, x86_THREAD_STATE32, (void*)&regs, &n);
 	if(ret != KERN_SUCCESS)
 		panic("mach get regs failed: %d", ret);
 
+	addr = 0;
+	save_regs = regs;
+
 	switch(exception){
 	case EXC_BAD_ACCESS:
+		signo = SIGBUS;
+		addr = code_vector[1];
+		handler = sigbus;
+		goto Trigger;
+
 	case EXC_BREAKPOINT:
+		signo = SIGTRAP;
+		handler = sigtrap;
+		regs.eflags &= ~EFLAGS_TF;
+		goto Trigger;
+		
 	case EXC_ARITHMETIC:
-		save_regs = regs;
+		signo = SIGFPE;
+		handler = sigfpe;
+		goto Trigger;
+
+	Trigger:
 		if(invx32)
 			regs.esp = (uint)altstack;
 		else if(regs.ss != normal.ss)
@@ -162,24 +183,8 @@ catch_exception_raise(mach_port_t exception_port,
 		stk_mcontext = alloc(&regs, sizeof *stk_mcontext);
 
 		memset(stk_siginfo, 0, sizeof *stk_siginfo);
-		switch(exception){
-		default:
-			panic("osx/signal.c missing case %d", exception);
-		case EXC_BAD_ACCESS:
-			stk_siginfo->si_signo = SIGBUS;
-			stk_siginfo->si_addr = (void*)code_vector[1];
-			handler = sigbus;
-			break;
-		case EXC_BREAKPOINT:
-			stk_siginfo->si_signo = SIGTRAP;
-			handler = sigtrap;
-			regs.eflags &= ~EFLAGS_TF;
-			break;
-		case EXC_ARITHMETIC:
-			stk_siginfo->si_signo = SIGFPE;
-			handler = sigfpe;
-			break;
-		}
+		stk_siginfo->si_signo = signo;
+		stk_siginfo->si_addr = (void*)addr;
 
 		stk_mcontext->ss = save_regs;
 		n = x86_FLOAT_STATE32_COUNT;
@@ -209,28 +214,50 @@ catch_exception_raise(mach_port_t exception_port,
 		}
 		return KERN_SUCCESS;
 	
-	case EXC_BAD_INSTRUCTION:
-		/* Thread signalling that it's done with sigsegv. */
-		if(regs.esp != 0xdeadbeef){
-			dumpregs1(&regs);
-			return KERN_INVALID_RIGHT;
-			panic("bad instruction eip=%p", regs.eip);
+	case EXC_BAD_INSTRUCTION:;
+		/*
+		 * We use an invalid instruction in wrapper to note
+		 * that we're done with the signal handler, but 
+		 * Mach sends the same exception (different code_vector[0])
+		 * when it gets the GP fault triggered by an address
+		 * greater than the segment limit.  Catch both.
+		 */
+		extern char wrapper_bad[];
+		if(regs.eip == (ulong)wrapper_bad && regs.esp == 0xdeadbeef){
+			stk_mcontext = (mcontext_t)regs.eax;
+			stk_siginfo = (siginfo_t*)regs.ebx;
+			if(0 && stk_siginfo->si_signo != SIGBUS){
+				iprint("return sig %d\n", stk_siginfo->si_signo);
+				dumpmcontext(stk_mcontext);
+			}
+			ret = thread_set_state(thread, x86_THREAD_STATE32,
+				(void*)&stk_mcontext->ss, x86_THREAD_STATE32_COUNT);
+			if(ret != KERN_SUCCESS)
+				panic("mach set regs1 failed: %d", ret);
+			ret = thread_set_state(thread, x86_FLOAT_STATE32,
+				(void*)&stk_mcontext->fs, x86_FLOAT_STATE32_COUNT);
+			if(ret != KERN_SUCCESS)
+				panic("mach set fpregs failed: %d", ret);
+			return KERN_SUCCESS;
 		}
-		stk_mcontext = (mcontext_t)regs.eax;
-		stk_siginfo = (siginfo_t*)regs.ebx;
-		if(0 && stk_siginfo->si_signo != SIGBUS){
-			iprint("return sig %d\n", stk_siginfo->si_signo);
-			dumpmcontext(stk_mcontext);
+
+		/*
+		 * Other things can cause GP faults too, but let's assume it was this.
+		 * Linux sends si_addr == 0; so will we.  The app isn't going to try
+		 * to recover anyway, so it's not a big deal if we send other GP
+		 * faults that way too.
+		 */
+		if(code_vector[0] == EXC_I386_GPFLT){
+			signo = SIGBUS;
+			handler = sigbus;
+			addr = 0;
+			goto Trigger;
 		}
-		ret = thread_set_state(thread, x86_THREAD_STATE32,
-			(void*)&stk_mcontext->ss, x86_THREAD_STATE32_COUNT);
-		if(ret != KERN_SUCCESS)
-			panic("mach set regs1 failed: %d", ret);
-		ret = thread_set_state(thread, x86_FLOAT_STATE32,
-			(void*)&stk_mcontext->fs, x86_FLOAT_STATE32_COUNT);
-		if(ret != KERN_SUCCESS)
-			panic("mach set fpregs failed: %d", ret);
-		return KERN_SUCCESS;
+
+		iprint("Unexpected bad instruction at eip=%p: code %p %p\n",
+			regs.eip, code_vector[0], code_vector[1]);
+		dumpregs1(&regs);
+		return KERN_INVALID_RIGHT;
 	}
 	return KERN_INVALID_RIGHT;
 }

@@ -324,10 +324,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 			return 0;
 		emu->cpu.traperr = mc->mc_err;
 		emu->cpu.trapva = cr2;
-
-		emu->cpu.traperr = mc->mc_err;
-		emu->cpu.trapva = cr2;
-
 		memmove(&mc->mc_gs, &emu->trapenv->mc_gs, 19*4);
 		return 1;
 	}

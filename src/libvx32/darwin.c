@@ -97,7 +97,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	vxemu *emu;
 	ucontext_t *uc;
 	mcontext_t ctx;
-	uint32_t cr2;
 
 	// In Darwin, 'mcontext_t' is actually a pointer...
 	uc = v;
@@ -256,7 +255,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		if (emu->trapenv == NULL)
 			return 0;
 		emu->cpu.traperr = ctx->es.err;
-		emu->cpu.trapva = ctx->es.faultvaddr;
+		emu->cpu.trapva = (uint32_t)si->si_addr;
 		ctx->ss = *emu->trapenv;
 		return 1;
 	}

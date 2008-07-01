@@ -101,13 +101,12 @@ looprio(SDreq *r)
 	ctlr = sdev->ctlr;
 	cmd = r->cmd;
 
-#if 0	
-	if((status = sdfakescsi(r, ctlr->info, sizeof ctlr->info)) != SDnostatus){
+	if((status = sdfakescsi(r, nil, 0)) != SDnostatus){
+#warning "Need to check for SDcheck in sdloop.";
 		/* XXX check for SDcheck here */
 		r->status = status;
 		return status;
 	}
-#endif
 
 	switch(cmd[0]){
 	case 0x28:	/* read */
@@ -146,6 +145,7 @@ looprctl(SDunit *unit, char *p, int l)
 	op = p;
 	
 	p = seprint(p, e, "loop %s %s\n", ctlr->mode == ORDWR ? "rw" : "ro", chanpath(ctlr->c));
+	p = seprint(p, e, "geometry %llud 512\n", unit->sectors*512);
 	return p - op;
 }
 
@@ -178,6 +178,19 @@ static void
 loopclear(SDev *sdev)
 {
 	loopclear1(sdev->ctlr);
+}
+
+static char*
+looprtopctl(SDev *s, char *p, char *e)
+{
+	Ctlr *c;
+	char *r;
+
+	c = s->ctlr;
+	r = "ro";
+	if(c->mode == ORDWR)
+		r = "rw";
+	return seprint(p, e, "%s loop %s %s\n", s->name, r, chanpath(c->c));
 }
 
 static int
@@ -260,7 +273,7 @@ SDifc sdloopifc = {
 	scsibio,
 	nil,	/* probe */
 	loopclear,	/* clear */
-	nil,
+	looprtopctl,
 	loopwtopctl,
 };
 

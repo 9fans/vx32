@@ -398,7 +398,7 @@ static int xscan(struct vxproc *p)
 
 		// PUSHF; POPF
 		case 0x9c: case 0x9d:
-			assert(0);	// XXX
+			goto notrans;
 
 		// SAHF; LAHF
 		case 0x9f: case 0x9e:

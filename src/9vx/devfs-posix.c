@@ -106,6 +106,9 @@ fsattach(char *spec)
 		}
 	}
 
+	if(localroot == nil)
+		error("no #Zplan9 root without -r");
+
 	if(stat(localroot, &st) < 0)
 		oserror();
 
@@ -161,13 +164,20 @@ fspath(Chan *c, char *suffix)
 	
 	ufd = c->aux;
 	s = ufd->path->s;
-	len = strlen(localroot)+strlen(s)+1;
-	if(suffix)
-		len += 1+strlen(suffix);
-	t = smalloc(len);
-	if(ufd->plan9)
+	if(ufd->plan9){
+		len = strlen(localroot)+strlen(s)+1;
+		if(suffix)
+			len += 1+strlen(suffix);
+		t = smalloc(len);
 		strcpy(t, localroot);
-	strcat(t, s);
+		strcat(t, s);
+	}else{
+		len = strlen(s)+1;
+		if(suffix)
+			len += 1+strlen(suffix);
+		t = smalloc(len);
+		strcpy(t, s);
+	}
 	if(suffix){
 		if(s[strlen(s)-1] != '/')
 			strcat(t, "/");

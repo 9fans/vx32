@@ -75,6 +75,7 @@ main(int argc, char **argv)
 	int usetty;
 	int nogui;
 	int nofork;
+	char buf[1024];
 	
 	/* Minimal set up to make print work. */
 	setmach(&mach0);
@@ -139,8 +140,13 @@ main(int argc, char **argv)
 	if(argc != 0)
 		usage();
 	
-	if(localroot == nil && (localroot = findroot()) == nil)
-		panic("cannot find plan 9 root; use -r");
+	if(!bootboot){
+		if(localroot == nil && (localroot = findroot()) == nil)
+			panic("cannot find plan 9 root; use -r");
+		snprint(buf, sizeof buf, "%s/386/bin/rc", localroot);
+		if(access(buf, 0) < 0)
+			panic("%s does not exist", buf);
+	}
 
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";
@@ -209,22 +215,25 @@ main(int argc, char **argv)
 static char*
 findroot(void)
 {
-	static char buf[1024];
-
-	if(access("386/bin/rc", 0) >= 0){
-		if(getcwd(buf, sizeof buf) == nil){
-			oserrstr();
-			panic("getcwd: %r");
-		}
-		return buf;
-	}
+	static char cwd[1024];
+	int i;
+	char buf[1024];
+	char *dir[] = {
+		cwd,
+		"/Users/rsc/9vx",
+		"/home/rsc/plan9/4e"
+	};
 	
-	/* Sorry, but great for debugging. */
-	if(access("/Users/rsc/9vx", 0) >= 0)
-		return "/Users/rsc/9vx";
-	if(access("/home/rsc/plan9/4e/386/bin/rc", 0) >= 0)
-		return "/home/rsc/plan9/4e";
+	if(getcwd(cwd, sizeof cwd) == nil){
+		oserrstr();
+		panic("getcwd: %r");
+	}
 
+	for(i=0; i<nelem(dir); i++){
+		snprint(buf, sizeof buf, "%s/386/bin/rc", dir[i]);
+		if(access(buf, 0) >= 0)
+			return dir[i];
+	}
 	return nil;
 }
 

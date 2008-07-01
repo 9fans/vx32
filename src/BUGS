@@ -12,8 +12,3 @@ gs spins on startup, cause unknown.  (run "gs", no arguments)
 blank line inserted when kernel terminal scrolls
 
 can cause sigsegv panic resizing the window, rarely
-
-if you use -r xxx where xxx is an empty directory,
-9vx just sits there after printing the 256MB memory line,
-with no indication what you did wrong.
-

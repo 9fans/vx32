@@ -455,9 +455,6 @@ sysexec(ulong *arg)
 		nexterror();
 	}
 	memmove(args, bp, n);
-	for(i=0; i<n; i++)	/* NULs -> spaces */
-		if(args[i] == '\0')
-			args[i] = ' ';
 	/* find beginning of UTF character boundary to place final NUL */
 	while(n > 0 && (args[n-1]&0xC0) == 0x80)
 		n--;

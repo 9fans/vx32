@@ -23,6 +23,7 @@
 #include "screen.h"
 #include "mouse.h"
 #include "keycodes.h"
+#include "nineball.h"
 
 struct {
 	Rectangle fullscreenr;
@@ -57,6 +58,7 @@ enum
 static void screenproc(void*);
 static void eresized(int force);
 static void fullscreen(void);
+static void seticon(void);
 
 static OSStatus quithandler(EventHandlerCallRef, EventRef, void*);
 static OSStatus eventhandler(EventHandlerCallRef, EventRef, void*);
@@ -127,7 +129,8 @@ _screeninit(void)
 	CreateWindowGroup(0, &osx.wingroup);
 	SetWindowGroup(osx.window, osx.wingroup);
 	SetWindowTitleWithCFString(osx.window, CFSTR("Plan 9 VX"));
-	
+	seticon();
+
 	// Set up the clip board.
 	if(PasteboardCreate(kPasteboardClipboard, &osx.snarf) != noErr)
 		panic("pasteboard create");
@@ -678,5 +681,19 @@ putsnarf(char *s)
 	}
 	/* CFRelease(cfdata); ??? */
 	qunlock(&clip.lk);
+}
+
+static void
+seticon(void)
+{
+	CGImageRef im;
+	CGDataProviderRef d;
+
+	d = CGDataProviderCreateWithData(nil, nineball_png, sizeof nineball_png, nil);
+	im = CGImageCreateWithPNGDataProvider(d, nil, true, kCGRenderingIntentDefault);
+	if(im)
+		SetApplicationDockTileImage(im);
+	CGImageRelease(im);
+	CGDataProviderRelease(d);
 }
 

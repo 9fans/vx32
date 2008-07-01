@@ -141,6 +141,8 @@ static Proc *mmup;
 static void
 mmapflush(void)
 {
+	m->flushmmu = 0;
+
 	/* Nothing mapped? */
 	if(mmup == nil || mmup->pmmu.lo > mmup->pmmu.hi)
 		return;
@@ -229,12 +231,13 @@ mmuswitch(Proc *p)
 	 * one we were just in.  Also, kprocs don't count --
 	 * only the guys on cpu0 do.
 	 */
-	if(!p->kp && mmup != p){
+	if(!p->kp && (mmup != p || p->newtlb || m->flushmmu)){
 		if(0) print("^^^^^^^^^^ %ld %s\n========== %ld %s\n",
 			mmup ? mmup->pid : 0, mmup? mmup->text : "",
 			p->pid, p->text);
 		/* No vxproc_flush - vxproc cache is okay */
 		mmapflush();
+		p->newtlb = 0;
 		mmup = p;
 	}
 }
@@ -249,7 +252,7 @@ mmurelease(Proc *p)
 		return;
 	if(p->pmmu.vxproc)
 		vxproc_flush(p->pmmu.vxproc);
-	if(p == mmup){
+	if(p == mmup || m->flushmmu){
 		mmapflush();
 		mmup = nil;
 	}

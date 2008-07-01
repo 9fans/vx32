@@ -44,7 +44,7 @@ static vxmem thevxmem;
 void
 vx32sysr1(void)
 {
-//	traceprocs = !traceprocs;
+	traceprocs = !traceprocs;
 //	vx32_debugxlate = traceprocs;
 	tracesyscalls = !tracesyscalls;
 }

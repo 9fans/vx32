@@ -134,51 +134,6 @@ splx(int s)
 
 
 /*
- * Swap
- */
-Image swapimage;
-
-int
-swapfull(void)
-{
-	return 0;
-}
-
-void
-kickpager(void)
-{
-}
-
-void
-setswapchan(Chan *c)
-{
-}
-
-void
-pagersummary(void)
-{
-}
-
-void
-putswap(Page *p)
-{
-	panic("putswap");
-}
-
-int
-swapcount(ulong daddr)
-{
-	return 0;
-}
-
-void
-dupswap(Page *p)
-{
-	panic("dupswap");
-}
-
-
-/*
  * Floating point.
  */
 void
@@ -542,6 +497,9 @@ panic(char *fmt, ...)
 	buf[n] = '\n';
 	write(2, buf, n+1);
 	if(doabort){
+#ifndef __APPLE__
+		abort();
+#endif
 		for(;;)
 			microdelay(1000000);
 	}

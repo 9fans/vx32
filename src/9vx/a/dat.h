@@ -193,6 +193,7 @@ struct Mach
 	int	tlbfault;
 	int	tlbpurge;
 	int	pfault;
+	int	new;
 	int	cs;
 	int	syscall;
 	int	load;

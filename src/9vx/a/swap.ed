@@ -1,0 +1,9 @@
+,s;(void\*);(void *v);g
+,s;lock(\&swapalloc);lock(\&swapalloc.lk);g
+,s;s->ref ==;s->ref.ref ==;g
+,s;s->ref++;s->ref.ref++;g
+,s;(s = p->seg\[i\]);(&);g
+,s;lock(s);lock(\&s->ref.lk);g
+,s;lock(out);lock(\&out->lk);g
+,s;lock(outp);lock(\&outp->lk);g
+g/swopen/d

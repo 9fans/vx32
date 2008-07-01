@@ -129,7 +129,7 @@ newpage(int clear, Segment **s, ulong va)
 	color = getpgcolor(va);
 	hw = swapalloc.highwater;
 	for(;;) {
-		if(palloc.freecount > hw)
+		if(palloc.freecount >= hw)
 			break;
 		if(up->kp && palloc.freecount > 0)
 			break;

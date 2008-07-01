@@ -742,6 +742,7 @@ newmach(void)
 		panic("out of processors");
 	mm = mallocz(sizeof *mm, 1);
 	mm->machno = i;
+	mm->new = 1;
 	machp[i] = mm;
 	conf.nmach++;
 	

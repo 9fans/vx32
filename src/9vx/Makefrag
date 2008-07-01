@@ -101,6 +101,7 @@ PLAN9_A_OBJS = \
 		sdscsi.o \
 		segment.o \
 		strecpy.o \
+		swap.o \
 		sysfile.o \
 		sysproc.o \
 		thwack.o \

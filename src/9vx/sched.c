@@ -41,11 +41,17 @@ idlehands(void)
 	plock(&idling);
 	nbad = 0;
 	while(!idlewakeup){
+		if(traceprocs)
+			iprint("cpu%d: idlehands\n", m->machno);
 		psleep(&idling);
+		if(traceprocs)
+			iprint("cpu%d: busy hands\n", m->machno);
 		if(!idlewakeup && ++nbad%1000 == 0)
 			iprint("idlehands spurious wakeup\n");
 	}
 	idlewakeup = 0;
+	if(traceprocs)
+		iprint("cpu%d: idlehands returning\n", m->machno);
 	punlock(&idling);
 }
 
@@ -96,8 +102,14 @@ ready(Proc *p)
 	 * kick off a new one.
 	 */
 	kprocq.n++;
-	if(kprocq.n > nrunproc)
+	if(kprocq.n > nrunproc){
+		if(traceprocs)
+			iprint("create new cpu: kprocq.n=%d nrunproc=%d\n", kprocq.n, nrunproc);
+		nrunproc++;
 		newmach();
+	}
+	if(traceprocs)
+		iprint("cpu%d: ready %ld %s; wakeup kproc cpus\n", m->machno, p->pid, p->text);
 	pwakeup(&run);
 	unlock(&kprocq.lk);
 	punlock(&run);
@@ -120,19 +132,29 @@ runproc(void)
 	nbad = 0;
 	plock(&run);
 	lock(&kprocq.lk);	/* redundant but fine */
+	if(m->new){
+		nrunproc--;
+		m->new = 0;
+	}
 	while((p = kprocq.head) == nil){
 		nrunproc++;
 		unlock(&kprocq.lk);
+		if(traceprocs)
+			iprint("cpu%d: runproc psleep %d %d\n", m->machno, kprocq.n, nrunproc);
 		psleep(&run);
 		lock(&kprocq.lk);
 		if(kprocq.head == nil && ++nbad%1000 == 0)
 			iprint("cpu%d: runproc spurious wakeup\n", m->machno);	
+		if(traceprocs)
+			iprint("cpu%d: runproc awake\n", m->machno);
 		nrunproc--;
 	}
 	kprocq.head = p->rnext;
 	if(kprocq.head == 0)
 		kprocq.tail = nil;
 	kprocq.n--;
+	if(traceprocs)
+		iprint("cpu%d: runproc %ld %s [%d %d]\n", m->machno, p->pid, p->text, kprocq.n, nrunproc);
 	unlock(&kprocq.lk);
 	punlock(&run);
 	return p;

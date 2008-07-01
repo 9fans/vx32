@@ -1310,9 +1310,9 @@ procflushseg(Segment *s)
 	 *  wait for all processors to take a clock interrupt
 	 *  and flush their mmu's
 	 */
-	for(nm = 0; nm < conf.nmach; nm++)
+	for(nm = 0; nm < conf.nmach && nm < 1; nm++)
 		if(MACHP(nm) != m)
-			while(MACHP(nm)->flushmmu)
+			while(MACHP(nm)->flushmmu && MACHP(nm)->proc != nil)
 				sched();
 }
 

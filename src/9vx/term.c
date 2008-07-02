@@ -208,6 +208,7 @@ termscroll(void)
 	r1.min.y += dy;
 	memimagedraw(term.screen, r0, term.screen, r1.min,
 		memopaque, ZP, S);
+	r1.min.y = r0.max.y;
 	memimagedraw(term.screen, r1, term.bg, ZP, memopaque, ZP, S);
 	addflush(r0);
 	addflush(r1);

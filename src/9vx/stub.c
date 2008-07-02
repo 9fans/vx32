@@ -497,11 +497,14 @@ panic(char *fmt, ...)
 	buf[n] = '\n';
 	write(2, buf, n+1);
 	if(doabort){
-#ifndef __APPLE__
-		abort();
-#endif
+#ifdef __APPLE__
+		fprint(2, "sleeping, so you can attach gdb to pid %d\n", (int)getpid());
 		for(;;)
 			microdelay(1000000);
+#else
+		fprint(2, "aborting, to dump core.\n");
+		abort();
+#endif
 	}
 	exit(0);
 }

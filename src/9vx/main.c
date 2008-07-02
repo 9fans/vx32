@@ -36,7 +36,7 @@ extern Dev drawdevtab;
 extern Dev fsdevtab;
 extern Dev audiodevtab;
 
-int	doabort;
+int	doabort = 1;	// for now
 char*	argv0;
 char*	conffile = "9vx";
 Conf	conf;

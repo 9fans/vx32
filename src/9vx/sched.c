@@ -61,7 +61,7 @@ noidlehands(void)
 	if(m->machno == 0)
 		return;
 	plock(&idling);
-	idlewakeup++;
+	idlewakeup = 1;
 	pwakeup(&idling);
 	punlock(&idling);
 }
@@ -154,7 +154,8 @@ runproc(void)
 		kprocq.tail = nil;
 	kprocq.n--;
 	if(traceprocs)
-		iprint("cpu%d: runproc %ld %s [%d %d]\n", m->machno, p->pid, p->text, kprocq.n, nrunproc);
+		iprint("cpu%d: runproc %ld %s [%d %d]\n",
+			m->machno, p->pid, p->text, kprocq.n, nrunproc);
 	unlock(&kprocq.lk);
 	punlock(&run);
 	return p;
@@ -198,12 +199,14 @@ runproc(void)
 #define	PIPES	0
 #define	WAITERS	1
 
-#ifdef __APPLE__
+#if 0
 #undef	PIPES
 #define	PIPES	1
 #undef	WAITERS
 #define	WAITERS	0
 #endif
+
+static pthread_mutex_t initmutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct Pwaiter
 {
@@ -215,11 +218,19 @@ struct Pwaiter
 void
 plock(Psleep *p)
 {
-	pthread_mutex_lock(&p->mutex);
-	if(!p->condinit){
-		p->condinit = 1;
-		pthread_cond_init(&p->cond, nil);
+	int r;
+
+	if(!p->init){
+		pthread_mutex_lock(&initmutex);
+		if(!p->init){
+			p->init = 1;
+			pthread_mutex_init(&p->mutex, nil);
+			pthread_cond_init(&p->cond, nil);
+		}
+		pthread_mutex_unlock(&initmutex);
 	}
+	if((r = pthread_mutex_lock(&p->mutex)) != 0)
+		panic("pthread_mutex_lock: %d", r);
 #if PIPES
 	if(p->fd[1] == 0){
 		pipe(p->fd);
@@ -231,12 +242,17 @@ plock(Psleep *p)
 void
 punlock(Psleep *p)
 {
-	pthread_mutex_unlock(&p->mutex);
+	int r;
+
+	if((r = pthread_mutex_unlock(&p->mutex)) != 0)
+		panic("pthread_mutex_unlock: %d", r);
 }
 
 void
 psleep(Psleep *p)
 {
+	int r;
+
 #if PIPES
 	p->nread++;
 	punlock(p);
@@ -256,16 +272,20 @@ psleep(Psleep *p)
 	w.next = p->waiter;
 	p->waiter = &w;
 	while(!w.awake)
-		pthread_cond_wait(&w.cond, &p->mutex);
+		if((r = pthread_cond_wait(&w.cond, &p->mutex)) != 0)
+			panic("pthread_cond_wait: %d", r);
 	pthread_cond_destroy(&w.cond);
 #else
-	pthread_cond_wait(&p->cond, &p->mutex);
+	if((r = pthread_cond_wait(&p->cond, &p->mutex)) != 0)
+		panic("pthread_cond_wait: %d", r);
 #endif
 }
 
 void
 pwakeup(Psleep *p)
 {
+	int r;
+
 #if PIPES
 	char c = 0;
 	int nbad = 0;
@@ -283,10 +303,12 @@ pwakeup(Psleep *p)
 	if(w){
 		p->waiter = w->next;
 		w->awake = 1;
-		pthread_cond_signal(&w->cond);
+		if((r = pthread_cond_signal(&w->cond)) != 0)
+			panic("pthread_cond_signal: %d", r);
 	}
 #else
-	pthread_cond_signal(&p->cond);
+	if((r = pthread_cond_signal(&p->cond)) != 0)
+		panic("pthread_cond_signal: %d", r);
 #endif
 }
 

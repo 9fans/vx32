@@ -412,9 +412,11 @@ kbdevent(EventRef event)
 			latin1putc(k, kputc);
 		else{
 			UniChar uc;
-			GetEventParameter(event, kEventParamKeyUnicodes,
+			OSStatus s;
+			
+			s = GetEventParameter(event, kEventParamKeyUnicodes,
 				typeUnicodeText, nil, sizeof uc, nil, &uc);
-			if(uc >= 0)
+			if(s == noErr)
 				kputc(uc);
 		}
 		break;

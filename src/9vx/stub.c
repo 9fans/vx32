@@ -276,18 +276,19 @@ _tas(void *x)
 int
 lock(Lock *lk)
 {
-	int i, printed;
+	int i, j, printed;
 	
 	for(i=0; i<1000; i++){
 		if(canlock(lk))
 			return 1;
 		sched_yield();
 	}
-	for(i=0; i<100; i++){
-		if(canlock(lk))
-			return 1;
-		microdelay(10);
-	}
+	for(j=10; j<=1000; j*=10)
+		for(i=0; i<10; i++){
+			if(canlock(lk))
+				return 1;
+			microdelay(j);
+		}
 	printed = 0;
 	for(;;){
 		if(canlock(lk))
@@ -295,7 +296,7 @@ lock(Lock *lk)
 		if(!printed++)
 			iprint("cpu%d deadlock? %p caller=%p\n",
 				m->machno, lk, getcallerpc(&lk));
-		microdelay(1000000);
+		microdelay(10000);
 	}
 	return 0;
 }

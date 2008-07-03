@@ -358,10 +358,6 @@ struct Psleep
 {
 	int init;
 	pthread_mutex_t mutex;
-	pthread_cond_t cond;
 	Pwaiter *waiter;
-	int fd[2];
-	vlong nread;
-	vlong nwrite;
 };
 

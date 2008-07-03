@@ -163,49 +163,7 @@ runproc(void)
 
 /*
  * Host OS process sleep and wakeup.
- * This is complicated.
- *
- * Ideally, we'd just use a single pthread_cond_t, have everyone
- * pthread_cond_wait on it, and use pthread_cond_signal
- * to wake people up.  Unfortunately, that fails miserably
- * on OS X: sometimes the wakeups just plain get missed.
- * Perhaps it has something to do with all the signals that
- * are flying around.
- *
- * To work around the OS X pthreads problems, there is a
- * second implementation turned on by #defining PIPES to 1.
- * This implementation uses a pipe and reads and writes bytes
- * from the pipe to implement sleep and wakeup.  Perhaps not
- * surprisingly, the naive implementation of this hangs:
- * reads miss writes.  Instead, the actual implementation uses
- * select to poll whether the read would succeed, and once a
- * second it tries the read even if select doesn't think it will.
- * This timeout lets us make progress when an event gets missed
- * (happens only rarely).  This is enough to get things going on
- * OS X.
- *
- * On my Athlon 64 running Linux,
- * time to run mk -a in /sys/src/9/pc:
- *
- * 	90s	default implementation (one pthread_cond_t)
- * 	85s	WAITERS (pthread_cond_t for each waiter)
- * 	88s	PIPES
- *
- * I implemented per-thread pthread_cond_t's to see if they
- * were any faster on non-OS X systems, but I can't see any
- * difference.  Running the WAITERS version on OS X causes
- * mysterious crashes.  I'm thoroughly confused.  
  */
-#define	PIPES	0
-#define	WAITERS	1
-
-#if 0
-#undef	PIPES
-#define	PIPES	1
-#undef	WAITERS
-#define	WAITERS	0
-#endif
-
 static pthread_mutex_t initmutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct Pwaiter
@@ -221,22 +179,17 @@ plock(Psleep *p)
 	int r;
 
 	if(!p->init){
-		pthread_mutex_lock(&initmutex);
+		if((r = pthread_mutex_lock(&initmutex)) != 0)
+			panic("pthread_mutex_lock initmutex: %d", r);
 		if(!p->init){
 			p->init = 1;
 			pthread_mutex_init(&p->mutex, nil);
-			pthread_cond_init(&p->cond, nil);
 		}
-		pthread_mutex_unlock(&initmutex);
+		if((r = pthread_mutex_unlock(&initmutex)) != 0)
+			panic("pthread_mutex_unlock initmutex: %d", r);
 	}
 	if((r = pthread_mutex_lock(&p->mutex)) != 0)
 		panic("pthread_mutex_lock: %d", r);
-#if PIPES
-	if(p->fd[1] == 0){
-		pipe(p->fd);
-		fcntl(p->fd[0], F_SETFL, fcntl(p->fd[0], F_GETFL)|O_NONBLOCK);
-	}
-#endif
 }
 
 void
@@ -252,21 +205,8 @@ void
 psleep(Psleep *p)
 {
 	int r;
-
-#if PIPES
-	p->nread++;
-	punlock(p);
-	char c;
-	while(read(p->fd[0], &c, 1) < 1){
-		struct pollfd pfd;
-		pfd.fd = p->fd[0];
-		pfd.events = POLLIN;
-		pfd.revents = 0;
-		poll(&pfd, 1, 1000);
-	}
-	plock(p);
-#elif WAITERS
 	Pwaiter w;
+
 	memset(&w, 0, sizeof w);
 	pthread_cond_init(&w.cond, nil);
 	w.next = p->waiter;
@@ -275,28 +215,12 @@ psleep(Psleep *p)
 		if((r = pthread_cond_wait(&w.cond, &p->mutex)) != 0)
 			panic("pthread_cond_wait: %d", r);
 	pthread_cond_destroy(&w.cond);
-#else
-	if((r = pthread_cond_wait(&p->cond, &p->mutex)) != 0)
-		panic("pthread_cond_wait: %d", r);
-#endif
 }
 
 void
 pwakeup(Psleep *p)
 {
 	int r;
-
-#if PIPES
-	char c = 0;
-	int nbad = 0;
-	if(p->nwrite < p->nread){
-		p->nwrite++;
-		while(write(p->fd[1], &c, 1) < 1){
-			if(++nbad%100 == 0)
-				iprint("pwakeup: write keeps failing\n");
-		}
-	}
-#elif WAITERS
 	Pwaiter *w;
 
 	w = p->waiter;
@@ -306,9 +230,5 @@ pwakeup(Psleep *p)
 		if((r = pthread_cond_signal(&w->cond)) != 0)
 			panic("pthread_cond_signal: %d", r);
 	}
-#else
-	if((r = pthread_cond_signal(&p->cond)) != 0)
-		panic("pthread_cond_signal: %d", r);
-#endif
 }
 

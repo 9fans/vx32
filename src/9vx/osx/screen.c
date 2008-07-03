@@ -410,6 +410,13 @@ kbdevent(EventRef event)
 			k = keycvt[code];
 		if(k >= 0)
 			latin1putc(k, kputc);
+		else{
+			UniChar uc;
+			GetEventParameter(event, kEventParamKeyUnicodes,
+				typeUnicodeText, nil, sizeof uc, nil, &uc);
+			if(uc >= 0)
+				kputc(uc);
+		}
 		break;
 
 	case kEventRawKeyModifiersChanged:

@@ -41,7 +41,6 @@ struct {
 	MenuRef vmenu;
 	WindowRef window;
 	CGImageRef image;
-	WindowGroupRef wingroup;
 	PasteboardRef snarf;
 } osx;
 
@@ -126,8 +125,6 @@ _screeninit(void)
 	or.bottom = Dy(osx.fullscreenr) - 200;
 	or.right = Dx(osx.fullscreenr);
 	CreateNewWindow(kDocumentWindowClass, WindowAttrs, &or, &osx.window);
-	CreateWindowGroup(0, &osx.wingroup);
-	SetWindowGroup(osx.window, osx.wingroup);
 	SetWindowTitleWithCFString(osx.window, CFSTR("Plan 9 VX"));
 	seticon();
 

@@ -917,10 +917,10 @@ disksize(int fd, struct stat *st)
 #elif defined(__APPLE__)
 
 static vlong
-disksize(int fd, int dev)
+disksize(int fd, struct stat *st)
 {
-	u64int bc;
-	u32int bs;
+	uvlong bc;
+	unsigned int bs;
 
 	bs = 0;
 	bc = 0;

@@ -17,7 +17,6 @@
 #include "u.h"
 #include <pthread.h>
 #include <sys/mman.h>
-#include "libvx32/vx32.h"
 #include "lib.h"
 #include "mem.h"
 #include "dat.h"
@@ -50,47 +49,6 @@ vx32sysr1(void)
 }
 
 /*
- * Vxnewproc is called at the end of newproc
- * to fill in vx32-specific entries in the Proc struct
- * before it gets used.
- */
-void
-vxnewproc(Proc *p)
-{
-	PMMU *pm;
-	
-	pm = &p->pmmu;
-
-	/*
-	 * Kernel procs don't need vxprocs; if this proc
-	 * already has one, take it away.  Also, give
-	 * kernel procs very large stacks so they can call
-	 * into non-thread-friendly routines like x11 
-	 * and getgrgid.
-	 */
-	if(p->kp){
-		if(pm->vxproc){
-			pm->vxproc->mem = nil;
-			vxproc_free(pm->vxproc);
-			pm->vxproc = nil;
-		}
-		free(p->kstack);
-		p->kstack = nil;
-		p->kstack = smalloc(512*1024);
-		return;
-	}
-
-	pm->lo = 0x80000000UL;
-	pm->hi = 0;
-	if(pm->vxproc == nil){
-		pm->vxproc = vxproc_alloc();
-		if(pm->vxproc == nil)
-			panic("vxproc_alloc");
-		pm->vxproc->mem = &thevxmem;
-	}
-}
-
-/*
  * Vx32 hooks to read, write, map, unmap, and check permissions
  * on user memory.  Normally these are more involved, but we're
  * using the processor to do everything.
@@ -98,29 +56,21 @@ vxnewproc(Proc *p)
 static ssize_t
 vmread(vxmem *vm, void *data, uint32_t addr, uint32_t len)
 {
-	memmove(data, uzero+addr, len);
+	memmove(data, vm->mapped->base+addr, len);
 	return len;
 }
 
 static ssize_t
 vmwrite(vxmem *vm, const void *data, uint32_t addr, uint32_t len)
 {
-	memmove(uzero+addr, data, len);
+	memmove(vm->mapped->base+addr, data, len);
 	return len;
 }
-
-static vxmmap thevxmmap =
-{
-	1,
-	(void*)-1,	/* to be filled in with user0 */
-	USTKTOP,
-};
 
 static vxmmap*
 vmmap(vxmem *vm, uint32_t flags)
 {
-	thevxmmap.base = uzero;
-	return &thevxmmap;
+	return vm->mapped;
 }
 
 static void
@@ -131,6 +81,14 @@ vmunmap(vxmem *vm, vxmmap *mm)
 static int
 vmcheckperm(vxmem *vm, uint32_t addr, uint32_t len, uint32_t perm, uint32_t *out_faultva)
 {
+	if(addr >= USTKTOP){
+		*out_faultva = addr;
+		return 0;
+	}
+	if(addr+len < addr || addr +len > USTKTOP){
+		*out_faultva = USTKTOP;
+		return 0;
+	}
 	/* All is allowed - handle faults as they happen. */
 	return 1;
 }
@@ -163,6 +121,50 @@ static vxmem thevxmem =
 	vmresize,
 	vmfree,
 };
+
+/*
+ * Vxnewproc is called at the end of newproc
+ * to fill in vx32-specific entries in the Proc struct
+ * before it gets used.
+ */
+void
+vxnewproc(Proc *p)
+{
+	PMMU *pm;
+	
+	pm = &p->pmmu;
+
+	/*
+	 * Kernel procs don't need vxprocs; if this proc
+	 * already has one, take it away.  Also, give
+	 * kernel procs very large stacks so they can call
+	 * into non-thread-friendly routines like x11 
+	 * and getgrgid.
+	 */
+	if(p->kp){
+		if(pm->vxproc){
+		//	vxunmap(p);
+			assert(pm->uzero == nil);
+			pm->vxproc->mem = nil;
+			vxproc_free(pm->vxproc);
+			pm->vxproc = nil;
+		}
+		free(p->kstack);
+		p->kstack = nil;
+		p->kstack = smalloc(512*1024);
+		return;
+	}
+
+	if(pm->vxproc == nil){
+		pm->vxproc = vxproc_alloc();
+		if(pm->vxproc == nil)
+			panic("vxproc_alloc");
+		pm->vxproc->mem = &pm->vxmem;
+		pm->vxmem = thevxmem;
+		pm->vxmem.mapped = &pm->vxmm;
+		memset(&pm->vxmm, 0, sizeof pm->vxmm);
+	}
+}
 
 static void
 setclock(int start)
@@ -224,7 +226,7 @@ touser(void *initsp)
 		 * Optimization: try to fault in code page and stack
 		 * page right now, since we're likely to need them.
 		 */
-		if(up->pmmu.hi == 0){
+		if(up->pmmu.us->hi == 0){
 			fault(vp->cpu->eip, 1);
 			fault(vp->cpu->reg[ESP], 0);
 		}
@@ -267,11 +269,11 @@ touser(void *initsp)
 			addr = (uchar*)vp->cpu->trapva;
 			if(traceprocs)
 				print("fault %p read=%d\n", addr, read);
-			if(isuaddr(addr) && fault(addr - uzero, read) >= 0)
+			if(isuaddr(addr) && fault(addr - up->pmmu.uzero, read) >= 0)
 				continue;
 			print("%ld %s: unhandled fault va=%lux [%lux] eip=%lux\n",
 				up->pid, up->text,
-				addr - uzero, vp->cpu->trapva, vp->cpu->eip);
+				addr - up->pmmu.uzero, vp->cpu->trapva, vp->cpu->eip);
 			proc2ureg(vp, &u);
 			dumpregs(&u);
 			if(doabort)

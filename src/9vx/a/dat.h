@@ -1,4 +1,5 @@
 #include <ucontext.h>
+#include "libvx32/vx32.h"
 
 typedef struct BIOS32si	BIOS32si;
 typedef struct Conf	Conf;
@@ -114,12 +115,14 @@ struct Conf
  *  MMU stuff in proc
  */
 #define NCOLOR 1
+typedef struct Uspace Uspace;
 struct PMMU
 {
-	ulong lo;	// Plan 9 VX
-	ulong hi;	// Plan 9 VX
 	struct vxproc *vxproc;	// Plan 9 VX
-	struct vxmmap *vxmm;	// Plan 9 VX
+	struct vxmem vxmem;
+	struct vxmmap vxmm;	// Plan 9 VX
+	Uspace *us;
+	uchar *uzero;
 };
 
 /*
@@ -348,7 +351,6 @@ struct DevConf
 // Plan 9 VX
 extern int traceprocs;
 extern int tracesyscalls;
-extern uchar *uzero;
 extern int doabort;
 
 /* Pthreads-based sleep and wakeup. */
@@ -359,5 +361,13 @@ struct Psleep
 	int init;
 	pthread_mutex_t mutex;
 	Pwaiter *waiter;
+};
+
+struct Uspace
+{
+	Proc *p;	// proc currently mapped
+	uchar *uzero;
+	ulong lo;
+	ulong hi;
 };
 

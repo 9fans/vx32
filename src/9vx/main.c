@@ -109,6 +109,9 @@ main(int argc, char **argv)
 	case 'S':
 		tracesyscalls++;
 		break;
+	case 'U':
+		nuspace = atoi(EARGF(usage()));
+		break;
 	case 'X':
 		vx32_debugxlate++;
 		break;
@@ -419,7 +422,9 @@ showexec(ulong sp)
 {
 	ulong *a, *argv;
 	int i, n;
+	uchar *uzero;
 	
+	uzero = up->pmmu.uzero;
 	iprint("showexec %p\n", sp);
 	if(sp >= USTKTOP || sp < USTKTOP-USTKSIZE)
 		panic("showexec: bad sp");
@@ -510,6 +515,7 @@ sigsegv(int signo, siginfo_t *info, void *v)
 	int read;
 	ulong addr, eip, esp;
 	ucontext_t *uc;
+	uchar *uzero;
 
 	if(m == nil)
 		panic("sigsegv: m == nil");
@@ -517,6 +523,8 @@ sigsegv(int signo, siginfo_t *info, void *v)
 		panic("sigsegv on cpu%d", m->machno);
 	if(up == nil)
 		panic("sigsegv: up == nil");
+
+	uzero = up->pmmu.uzero;
 
 	uc = v;
 #if defined(__APPLE__)

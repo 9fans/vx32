@@ -30,14 +30,19 @@ int tracemmu;
 
 static int pagefile;
 static char* pagebase;
-uchar *uzero;
+
+static Uspace uspace[16];
+static Uspace *ulist[nelem(uspace)];
+int nuspace = 1;
 
 int
 isuaddr(void *v)
 {
 	uchar *p;
+	uchar *uzero;
 	
 	p = v;
+	uzero = up->pmmu.uzero;
 	return uzero <= p && p < uzero+USTKTOP;
 }
 
@@ -46,7 +51,7 @@ isuaddr(void *v)
  * The point is to reserve the space so that
  * nothing else ends up there later.
  */
-static void
+static void*
 mapzero(void)
 {
 	int fd;
@@ -55,20 +60,16 @@ mapzero(void)
 	/* First try mmaping /dev/zero.  Some OS'es don't allow this. */
 	if((fd = open("/dev/zero", O_RDONLY)) >= 0){
 		v = mmap(nil, USTKTOP, PROT_NONE, MAP_PRIVATE, fd, 0);
-		if(v != MAP_FAILED){
-			uzero = v;
-			return;
-		}
+		if(v != MAP_FAILED)
+			return v;
 	}
 	
 	/* Next try an anonymous map. */
 	v = mmap(nil, USTKTOP, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-	if(v != MAP_FAILED){
-		uzero = v;
-		return;
-	}
-	
-	panic("mapzero: cannot reserve process address space");
+	if(v != MAP_FAILED)
+		return v;
+
+	return nil;
 }
 
 void
@@ -76,8 +77,8 @@ mmuinit(void)
 {
 	char tmp[] = "/var/tmp/9vx.pages.XXXXXX";
 	void *v;
-
-	mapzero();
+	int i;
+	
 	if((pagefile = mkstemp(tmp)) < 0)
 		panic("mkstemp: %r");
 	if(ftruncate(pagefile, MEMSIZE) < 0)
@@ -91,6 +92,17 @@ mmuinit(void)
 	if(v == MAP_FAILED)	
 		panic("mmap pagefile: %r");
 	pagebase = v;
+
+	if(nuspace <= 0)
+		nuspace = 1;
+	if(nuspace > nelem(uspace))
+		nuspace = nelem(uspace);
+	for(i=0; i<nuspace; i++){
+		uspace[i].uzero = mapzero();
+		if(uspace[i].uzero == nil)
+			panic("mmap address space %d", i);
+		ulist[i] = &uspace[i];
+	}
 
 	conf.mem[0].base = 0;
 	conf.mem[0].npage = MEMSIZE / BY2PG;
@@ -128,23 +140,15 @@ kunmap(KMap *k)
 }
 
 /*
- * The process whose address space we've got mapped.
- * We cache our own copy so that entering the scheduler
- * and coming back out running the same process doesn't
- * cause unnecessary unmapping and remapping.
- */
-static Proc *mmup;
-
-/*
  * Flush the current address space.
  */
 static void
-mmapflush(void)
+mmapflush(Uspace *us)
 {
 	m->flushmmu = 0;
 
 	/* Nothing mapped? */
-	if(mmup == nil || mmup->pmmu.lo > mmup->pmmu.hi)
+	if(us == nil || us->lo > us->hi || us->uzero == nil)
 		return;
 
 #ifdef __FreeBSD__
@@ -154,20 +158,20 @@ mmapflush(void)
 		 * tell whether a page is mapped, so we have to remap
 		 * something with no pages here. 
 		 */
-		if(mmap(uzero, mmup->pmmu.hi+BY2PG, PROT_NONE, 
+		if(mmap(us->uzero, us->hi+BY2PG, PROT_NONE, 
 				MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) == MAP_FAILED)
 			panic("mmapflush mmap: %r");
-		mmup->pmmu.lo = 0x80000000UL;
-		mmup->pmmu.hi = 0;
+		us->lo = 0x80000000UL;
+		us->hi = 0;
 		return;
 	}
 #endif
 
 	/* Clear only as much as got mapped. */
-	if(mprotect(uzero, mmup->pmmu.hi+BY2PG, PROT_NONE) < 0)
+	if(mprotect(us->uzero, us->hi+BY2PG, PROT_NONE) < 0)
 		panic("mmapflush mprotect: %r");
-	mmup->pmmu.lo = 0x80000000UL;
-	mmup->pmmu.hi = 0;
+	us->lo = 0x80000000UL;
+	us->hi = 0;
 }
 
 /*
@@ -178,13 +182,15 @@ void
 putmmu(ulong va, ulong pa, Page *p)
 {
 	int prot;
-	PMMU *pmmu;
+	Uspace *us;
 
 	if(tracemmu || (pa&~(PTEWRITE|PTEVALID)) != p->pa)
 		print("putmmu va %lux pa %lux p->pa %lux\n", va, pa, p->pa);
 
 	assert(p->pa < MEMSIZE && pa < MEMSIZE);
 	assert(up);
+	us = up->pmmu.us;
+	assert(us);
 
 	/* Map the page */
 	prot = PROT_READ;
@@ -192,21 +198,20 @@ putmmu(ulong va, ulong pa, Page *p)
 		prot |= PROT_WRITE;
 	pa &= ~(BY2PG-1);
 	va  &= ~(BY2PG-1);
-	if(mmap(uzero+va, BY2PG, prot, MAP_FIXED|MAP_SHARED,
+	if(mmap(us->uzero+va, BY2PG, prot, MAP_FIXED|MAP_SHARED,
 			pagefile, pa) == MAP_FAILED)
 		panic("putmmu");
 	
 	/* Record high and low address range for quick unmap. */
-	pmmu = &up->pmmu;
-	if(pmmu->lo > va)
-		pmmu->lo = va;
-	if(pmmu->hi < va)
-		pmmu->hi = va;
+	if(us->lo > va)
+		us->lo = va;
+	if(us->hi < va)
+		us->hi = va;
 //	printlinuxmaps();
 }
 
 /*
- * The memory maps have changed.  Flush all cached state.
+ * The memory maps have changed for up.  Flush all cached state.
  */
 void
 flushmmu(void)
@@ -214,9 +219,78 @@ flushmmu(void)
 	if(tracemmu)
 		print("flushmmu\n");
 
-	if(up)
+	if(up){
 		vxproc_flush(up->pmmu.vxproc);
-	mmapflush();
+		mmapflush(up->pmmu.us);
+	}
+}
+
+void
+usespace(Uspace *us)
+{
+	int i;
+	
+	for(i=0; i<nuspace; i++)
+		if(ulist[i] == us){
+			while(i > 0){
+				ulist[i] = ulist[i-1];
+				i--;
+			}
+			ulist[0] = us;
+			break;
+		}
+}
+
+Uspace*
+getspace(Proc *p)
+{
+	Uspace *us;
+	
+	us = ulist[nuspace-1];
+	if(us->p){
+		if(tracemmu)
+			print("^^^^^^^^^^ %ld %s [evict %d]\n", us->p->pid, us->p->text, us - uspace);
+		mmapflush(us);
+	}
+	us->p = p;
+	p->pmmu.vxmm.base = us->uzero;
+	p->pmmu.uzero = us->uzero;
+	p->pmmu.us = us;
+	usespace(us);
+	return us;
+}
+
+void
+takespace(Proc *p, Uspace *us)
+{
+	usespace(us);
+	if(us->p == p)
+		return;
+	if(tracemmu){
+		if(us->p)
+			print("^^^^^^^^^^ %ld %s [steal %d]\n", us->p->pid, us->p->text, us - uspace);
+	}
+	us->p = p;
+	mmapflush(us);
+}
+
+void
+putspace(Uspace *us)
+{
+	int i;
+
+	mmapflush(us);
+	us->p->pmmu.us = nil;
+	us->p->pmmu.uzero = nil;
+	us->p->pmmu.vxmm.base = nil;
+	us->p = nil;
+	for(i=0; i<nuspace; i++)
+		if(ulist[i] == us){
+			while(++i < nuspace)
+				ulist[i-1] = ulist[i];
+			ulist[i-1] = us;
+			break;
+		}
 }
 
 /*
@@ -231,15 +305,31 @@ mmuswitch(Proc *p)
 	 * one we were just in.  Also, kprocs don't count --
 	 * only the guys on cpu0 do.
 	 */
-	if(!p->kp && (mmup != p || p->newtlb || m->flushmmu)){
-		if(0) print("^^^^^^^^^^ %ld %s\n========== %ld %s\n",
-			mmup ? mmup->pid : 0, mmup? mmup->text : "",
-			p->pid, p->text);
-		/* No vxproc_flush - vxproc cache is okay */
-		mmapflush();
+	if(p->kp)
+		return;
+	
+	if(tracemmu)
+		print("mmuswitch %ld %s\n", p->pid, p->text);
+
+	if(p->pmmu.us && p->pmmu.us->p == p){
+		if(tracemmu) print("---------- %ld %s [%d]\n",
+			p->pid, p->text, p->pmmu.us - uspace);
+		usespace(p->pmmu.us);
+		if(!p->newtlb && !m->flushmmu){
+			usespace(p->pmmu.us);
+			return;
+		}
+		mmapflush(p->pmmu.us);
 		p->newtlb = 0;
-		mmup = p;
+		return;
 	}
+
+	if(p->pmmu.us == nil)
+		getspace(p);
+	else
+		takespace(p, p->pmmu.us);
+	if(tracemmu) print("========== %ld %s [%d]\n",
+		p->pid, p->text, p->pmmu.us - uspace);
 }
 
 /*
@@ -250,11 +340,16 @@ mmurelease(Proc *p)
 {
 	if(p->kp)
 		return;
+	if(tracemmu)
+		print("mmurelease %ld %s\n", p->pid, p->text);
 	if(p->pmmu.vxproc)
 		vxproc_flush(p->pmmu.vxproc);
-	if(p == mmup || m->flushmmu){
-		mmapflush();
-		mmup = nil;
+	if(p->pmmu.us){
+		if(tracemmu)
+			print("^^^^^^^^^^ %ld %s [release %d]\n", p->pid, p->text, p->pmmu.us - uspace);
+		putspace(p->pmmu.us);
+		if(m->flushmmu)
+			mmapflush(p->pmmu.us);
 	}
 }
 

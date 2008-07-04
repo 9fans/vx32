@@ -30,7 +30,7 @@ kexit(Ureg *ureg)
 	Tos *tos;
 
 	/* precise time accounting, kernel exit */
-	tos = (Tos*)(uzero+USTKTOP-sizeof(Tos));
+	tos = (Tos*)(up->pmmu.uzero+USTKTOP-sizeof(Tos));
 	cycles(&t);
 	tos->kcycles += t - up->kentry;
 	tos->pcycles = up->pcycles;
@@ -90,7 +90,7 @@ trap(Ureg *ureg)
 	
 	case VXTRAP_SOFT+0x40:	/* int $0x40 - system call */
 		if(tracesyscalls){
-			ulong *sp = (ulong*)(uzero + ureg->usp);
+			ulong *sp = (ulong*)(up->pmmu.uzero + ureg->usp);
 			print("%d [%s] %s %#lux %08lux %08lux %08lux %08lux\n",
 				up->pid, up->text,
 				sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
@@ -262,7 +262,7 @@ syscall(Ureg *ureg)
 	up->psstate = 0;
 
 	if(scallnr == NOTED)
-		noted(ureg, *(ulong*)(uzero + sp+BY2WD));
+		noted(ureg, *(ulong*)(up->pmmu.uzero + sp+BY2WD));
 
 	if(scallnr!=RFORK && (up->procctl || up->nnote)){
 		splhi();
@@ -335,6 +335,8 @@ notify(Ureg* ureg)
 		pexit("Suicide", 0);
 	}
 
+	uchar *uzero;
+	uzero = up->pmmu.uzero;
 	upureg = (void*)(uzero + sp);
 	memmove(upureg, ureg, sizeof(Ureg));
 	*(ulong*)(uzero + sp-BY2WD) = up->ureg;	/* word under Ureg is old up->ureg */
@@ -383,6 +385,8 @@ noted(Ureg* ureg, ulong arg0)
 		pexit("Suicide", 0);
 	}
 	
+	uchar *uzero;
+	uzero = up->pmmu.uzero;
 	oureg = up->ureg;
 	nureg = (Ureg*)(uzero + up->ureg);
 
@@ -442,11 +446,11 @@ execregs(ulong entry, ulong ssize, ulong nargs)
 	up->fpstate = FPinit;
 	fpoff();
 
-	sp = (ulong*)(uzero + USTKTOP - ssize);
+	sp = (ulong*)(up->pmmu.uzero + USTKTOP - ssize);
 	*--sp = nargs;
 
 	ureg = up->dbgreg;
-	ureg->usp = (uchar*)sp - uzero;
+	ureg->usp = (uchar*)sp - up->pmmu.uzero;
 //showexec(ureg->usp);
 	ureg->pc = entry;
 	return USTKTOP-sizeof(Tos);		/* address of kernel/user shared data */

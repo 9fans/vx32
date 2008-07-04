@@ -379,6 +379,8 @@ sysexec(ulong *arg)
 	/*
 	 * Top-of-stack structure.
 	 */
+	uchar *uzero;
+	uzero = up->pmmu.uzero;
 	Tos *tos;
 	ulong utos;
 	utos = USTKTOP - sizeof(Tos);

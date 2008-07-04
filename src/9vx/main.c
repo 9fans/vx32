@@ -36,7 +36,7 @@ extern Dev drawdevtab;
 extern Dev fsdevtab;
 extern Dev audiodevtab;
 
-int	doabort;
+int	doabort = 1;	// for now
 char*	argv0;
 char*	conffile = "9vx";
 Conf	conf;
@@ -49,6 +49,7 @@ static Mach mach0;
 extern char*	localroot;
 extern int	tracemmu;
 extern int tracekdev;
+extern int nuspace;
 static int singlethread;
 
 static void	bootinit(void);
@@ -108,6 +109,9 @@ main(int argc, char **argv)
 		break;
 	case 'S':
 		tracesyscalls++;
+		break;
+	case 'U':
+		nuspace = atoi(EARGF(usage()));
 		break;
 	case 'X':
 		vx32_debugxlate++;
@@ -419,7 +423,9 @@ showexec(ulong sp)
 {
 	ulong *a, *argv;
 	int i, n;
+	uchar *uzero;
 	
+	uzero = up->pmmu.uzero;
 	iprint("showexec %p\n", sp);
 	if(sp >= USTKTOP || sp < USTKTOP-USTKSIZE)
 		panic("showexec: bad sp");
@@ -510,6 +516,7 @@ sigsegv(int signo, siginfo_t *info, void *v)
 	int read;
 	ulong addr, eip, esp;
 	ucontext_t *uc;
+	uchar *uzero;
 
 	if(m == nil)
 		panic("sigsegv: m == nil");
@@ -517,6 +524,8 @@ sigsegv(int signo, siginfo_t *info, void *v)
 		panic("sigsegv on cpu%d", m->machno);
 	if(up == nil)
 		panic("sigsegv: up == nil");
+
+	uzero = up->pmmu.uzero;
 
 	uc = v;
 #if defined(__APPLE__)

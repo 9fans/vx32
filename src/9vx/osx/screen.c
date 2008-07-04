@@ -316,7 +316,7 @@ mouseevent(EventRef event)
 		return eventNotHandledErr;
 	}
 
-	mousetrack(osx.xy.x, osx.xy.y, osx.buttons|osx.kbuttons, msec());
+	mousetrack(osx.xy.x, osx.xy.y, osx.buttons|osx.kbuttons|wheel, msec());
 	return noErr;	
 }
 
@@ -407,6 +407,15 @@ kbdevent(EventRef event)
 			k = keycvt[code];
 		if(k >= 0)
 			latin1putc(k, kputc);
+		else{
+			UniChar uc;
+			OSStatus s;
+			
+			s = GetEventParameter(event, kEventParamKeyUnicodes,
+				typeUnicodeText, nil, sizeof uc, nil, &uc);
+			if(s == noErr)
+				kputc(uc);
+		}
 		break;
 
 	case kEventRawKeyModifiersChanged:
@@ -501,6 +510,7 @@ fullscreen(void)
 {
 	static Ptr restore;
 	static WindowRef oldwindow;
+	GDHandle device;
 
 	if(osx.isfullscreen){
 		EndFullScreen(restore, 0);
@@ -510,7 +520,8 @@ fullscreen(void)
 	}else{
 		HideWindow(osx.window);
 		oldwindow = osx.window;
-		BeginFullScreen(&restore, 0, 0, 0, &osx.window, 0, 0);
+		GetWindowGreatestAreaDevice(osx.window, kWindowTitleBarRgn, &device, nil);
+		BeginFullScreen(&restore, device, 0, 0, &osx.window, 0, 0);
 		osx.isfullscreen = 1;
 		osx.fullscreentime = msec();
 	}

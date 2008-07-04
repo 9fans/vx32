@@ -4,16 +4,23 @@
 #include	<grp.h>	/* going to regret this - getgrgid is a stack smasher */
 #include	<sys/socket.h>
 #include	<sys/un.h>
+
 #if defined(__FreeBSD__)
-#include <sys/disk.h>
-#include <sys/disklabel.h>
-#include <sys/ioctl.h>
+#include	<sys/disk.h>
+#include	<sys/disklabel.h>
+#include	<sys/ioctl.h>
 #endif
+
+#if defined(__APPLE__)
+#include	<sys/disk.h>
+#endif
+
 #if defined(__linux__)
-#include <linux/hdreg.h>
-#include <linux/fs.h>
-#include <sys/ioctl.h>
+#include	<linux/hdreg.h>
+#include	<linux/fs.h>
+#include	<sys/ioctl.h>
 #endif
+
 #include	"lib.h"
 #include	"mem.h"
 #include	"dat.h"
@@ -904,6 +911,23 @@ disksize(int fd, struct stat *st)
 	
 	if(ioctl(fd, DIOCGMEDIASIZE, &mediasize) >= 0)
 		return mediasize;
+	return 0;
+}
+
+#elif defined(__APPLE__)
+
+static vlong
+disksize(int fd, struct stat *st)
+{
+	uvlong bc;
+	unsigned int bs;
+
+	bs = 0;
+	bc = 0;
+	ioctl(fd, DKIOCGETBLOCKSIZE, &bs);
+	ioctl(fd, DKIOCGETBLOCKCOUNT, &bc);
+	if(bs >0 && bc > 0)
+		return bc*bs;
 	return 0;
 }
 

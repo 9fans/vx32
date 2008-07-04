@@ -343,7 +343,7 @@ okaddr(ulong addr, ulong len, int write)
 				continue;
 			}
 			qunlock(&s->lk);
-			return uzero+addr0;
+			return up->pmmu.uzero+addr0;
 		}
 	}
 	pprint("suicide: invalid address 0x%lux/%lud in sys call pc=0x%lux\n", addr, len, userpc());
@@ -400,7 +400,7 @@ vmemchr(void *s, int c, int n)
 		a += m_;
 		n -= m_;
 		if(isuaddr(a))
-			uvalidaddr(a-uzero, 1, 0);
+			uvalidaddr(a-up->pmmu.uzero, 1, 0);
 	}
 
 	/* fits in one page */

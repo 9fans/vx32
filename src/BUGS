@@ -9,6 +9,4 @@ need to do a better job mapping SIGFPE back to hardware floating-point errors
 ---
 gs spins on startup, cause unknown.  (run "gs", no arguments)
 
-blank line inserted when kernel terminal scrolls
-
 can cause sigsegv panic resizing the window, rarely

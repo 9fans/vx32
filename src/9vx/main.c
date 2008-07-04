@@ -49,6 +49,7 @@ static Mach mach0;
 extern char*	localroot;
 extern int	tracemmu;
 extern int tracekdev;
+extern int nuspace;
 static int singlethread;
 
 static void	bootinit(void);

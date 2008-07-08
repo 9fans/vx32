@@ -806,11 +806,11 @@ static int
 lookuphost(char *s, uchar *to)
 {
 	ulong ip;
+	char *p;
 
 	memset(to, 0, 4);
-	v4parseip(to, s);
-	ip = nhgetl(to);
-	if(ip != 0)
+	p = v4parseip(to, s);
+	if(p && *p == 0 && (ip = nhgetl(to)) != 0)
 		return 0;
 	if((s = hostlookup(s)) == nil)
 		return -1;

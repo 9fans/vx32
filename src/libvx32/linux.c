@@ -129,6 +129,7 @@ static void dumpsigcontext(struct sigcontext *ctx)
 
 #ifdef i386
 #define	VX32_BELIEVE_EIP	(ctx->ds == vs - 8)
+#define	ctxeip eip
 #else
 #define	VX32_BELIEVE_EIP	(ctx->cs == FLATCODE)
 
@@ -141,7 +142,7 @@ static void dumpsigcontext(struct sigcontext *ctx)
 #define	edi rdi
 #define	esp rsp
 #define	ebp rbp
-#define	eip rip
+#define	ctxeip rip
 #endif
 
 static void
@@ -177,7 +178,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		: "=r" (vs));
 	
 	if(0) vxprint("vx32_sighandler signo=%d eip=%#x esp=%#x vs=%#x\n",
-		signo, ctx->eip, ctx->esp, vs);
+		signo, ctx->ctxeip, ctx->esp, vs);
 
 	if ((vs & 15) != 15)	// 8 (emu), LDT, RPL=3
 		return 0;
@@ -204,7 +205,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	// dumpsigcontext(ctx);
 
 	if (VX32_BELIEVE_EIP)
-		trapeip = ctx->eip;
+		trapeip = ctx->ctxeip;
 	else
 		trapeip = 0xffffffff;
 

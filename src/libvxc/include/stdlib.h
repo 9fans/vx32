@@ -2,7 +2,7 @@
 #define STDLIB_H
 
 #include <stddef.h>
-
+#include <alloca.h>
 
 #define RAND_MAX	2147483646	// rand() returns values mod 2^31-1
 

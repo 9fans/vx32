@@ -1,7 +1,6 @@
 
 VORBIS_CFLAGS := -Ivxa/vorbis -Ivxa/vorbis/libogg/include \
-		-Ivxa/vorbis/libvorbis/include \
-		-DHAVE_ALLOCA_H
+		-Ivxa/vorbis/libvorbis/include
 
 VORBIS_HCFLAGS := $(VORBIS_CFLAGS)
 #VORBIS_HCFLAGS := $(VORBIS_CFLAGS) -msse2 -mfpmath=sse

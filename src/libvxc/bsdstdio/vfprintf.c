@@ -37,6 +37,8 @@
 #define FLOATING_POINT 1
 #include <math.h>
 
+extern int vx32_isnan(double);
+
 #if defined(LIBC_SCCS) && !defined(lint)
 static char *rcsid = "$OpenBSD: vfprintf.c,v 1.8 1998/08/14 21:39:42 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
@@ -484,7 +486,7 @@ reswitch:	switch (ch) {
 				size = 3;
 				break;
 			}
-			if (isnan(_double)) {
+			if (vx32_isnan(_double)) {
 				cp = "NaN";
 				size = 3;
 				break;

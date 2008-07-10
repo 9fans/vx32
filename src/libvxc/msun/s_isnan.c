@@ -31,16 +31,14 @@
 #include "math_private.h"
 
 /* Provided by libc */
-#if 0
 int
-isnan(double d)
+vx32_isnan(double d)
 {
 	union IEEEd2bits u;
 
 	u.d = d;
 	return (u.bits.exp == 2047 && (u.bits.manl != 0 || u.bits.manh != 0));
 }
-#endif
 
 int
 isnanf(float f)

@@ -8,6 +8,7 @@
 #undef _assert
 #define _assert __kassert
 #define rand _krand
+#define memrchr _kmemrchr
 
 void		_assert(char*);
 void		accounttime(void);

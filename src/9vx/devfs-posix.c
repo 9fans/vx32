@@ -113,11 +113,16 @@ fsattach(char *spec)
 		}
 	}
 
-	if(localroot == nil)
-		error("no #Zplan9 root without -r");
 
-	if(stat(localroot, &st) < 0)
-		oserror();
+	if(plan9){
+		if(localroot == nil)
+			error("no #Zplan9 root without -r");
+		if(stat(localroot, &st) < 0)
+			oserror();
+	}else{
+		if(stat("/", &st) < 0)
+			oserror();
+	}
 
 	c = devattach(FsChar, spec);
 	ufd = mallocz(sizeof(UnixFd), 1);

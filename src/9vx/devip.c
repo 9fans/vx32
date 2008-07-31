@@ -48,6 +48,7 @@ struct Conv
 	int	x;
 	Ref	r;
 	int	sfd;
+	int	eof;
 	int	perm;
 	char	owner[KNAMELEN];
 	char*	state;
@@ -406,6 +407,8 @@ ipread(Chan *ch, void *a, long n, vlong offset)
 			oserrstr();
 			nexterror();
 		}
+		if(r == 0 && ++c->eof > 3)
+			error(Ehungup);
 		return r;
 	}
 }
@@ -602,6 +605,7 @@ protoclone(Proto *p, char *user, int nfd)
 	c->sfd = nfd;
 	if(nfd == -1)
 		c->sfd = so_socket(p->stype);
+	c->eof = 0;
 
 	unlock(&c->r.lk);
 	unlock(&p->l);

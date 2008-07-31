@@ -32,6 +32,7 @@ enum {
 int nfaults;
 int traceprocs;
 int tracesyscalls;
+extern int abortonfault;
 extern char *sysctab[];
 extern void mathemu(Ureg*, void*);
 
@@ -276,7 +277,7 @@ touser(void *initsp)
 				addr - up->pmmu.uzero, vp->cpu->trapva, vp->cpu->eip);
 			proc2ureg(vp, &u);
 			dumpregs(&u);
-			if(doabort)
+			if(abortonfault)
 				abort();
 		}
 

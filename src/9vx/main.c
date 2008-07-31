@@ -37,6 +37,7 @@ extern Dev fsdevtab;
 extern Dev audiodevtab;
 
 int	doabort = 1;	// for now
+int	abortonfault;
 char*	argv0;
 char*	conffile = "9vx";
 Conf	conf;
@@ -94,6 +95,9 @@ main(int argc, char **argv)
 		break;
 	case 'A':
 		doabort++;
+		break;
+	case 'B':
+		abortonfault++;
 		break;
 	case 'K':
 		tracekdev++;

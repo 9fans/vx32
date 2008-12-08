@@ -2,8 +2,8 @@
 // Assembly-language runtime support for translated vx32 code.
 //
 
-#include "asm.h"
-#include "os.h"
+#include "libvx32/asm.h"
+#include "libvx32/os.h"
 
 
 // The method we use to get back out to host code differs for 32/64-bit hosts.

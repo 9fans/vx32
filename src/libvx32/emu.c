@@ -26,7 +26,7 @@
 
 // Special values for unused entries in entrypoint hash table
 #define NULLSRCEIP		((uint32_t)-1)
-#define NULLDSTEIP		((uint32_t)vxrun_nullfrag);
+#define NULLDSTEIP		((uint32_t)(uintptr_t)vxrun_nullfrag);
 
 int vx32_debugxlate = 0;
 
@@ -1904,6 +1904,6 @@ void vxprint(char *fmt, ...)
 	va_start(arg, fmt);
 	vsnprintf(buf, sizeof buf, fmt, arg);
 	va_end(arg);
-	write(2, buf, strlen(buf));
+	USED(write(2, buf, strlen(buf)));
 }
 

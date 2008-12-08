@@ -52,4 +52,3 @@ libvx32/libvx32.a: $(VX32_OBJS)
 
 $(prefix)/lib/libvx32.a: libvx32/libvx32.a
 	$(INSTALL) $< $@
-

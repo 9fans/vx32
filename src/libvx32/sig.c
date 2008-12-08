@@ -69,7 +69,7 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip)
 	// In vx32 runtime code (rts.S, run32/64.S), the registers are in flux.
 	// Single-step until we can get out; then they'll be safe to look at.
 	// This only makes sense if the trap is an external trap like a timer.
-	char *eip = (char*)trapeip;
+	char *eip = (char*)(uintptr_t)trapeip;
 	if ((emu->cpu_trap&VXTRAP_CATEGORY) != VXTRAP_CPU){
 		// The check for run32/64.S doesn't look for the entire file.
 		// Instead it looks for anywhere in the file except

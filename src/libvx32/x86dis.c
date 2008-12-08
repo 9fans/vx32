@@ -1700,11 +1700,11 @@ fmtarg(char *p, char *ep, xdarg *da, uint32_t npc)
 		break;
 	case DA_REL:
 		addr = da->disp + npc;
-		if (addr == (uint32_t)vxrun_gentrap)
+		if (addr == (uint32_t)(uintptr_t)vxrun_gentrap)
 			p += snprintf(p, ep-p, "vxrun_gentrap");
-		else if (addr == (uint32_t)vxrun_lookup_backpatch)
+		else if (addr == (uint32_t)(uintptr_t)vxrun_lookup_backpatch)
 			p += snprintf(p, ep-p, "vxrun_lookup_backpatch");
-		else if (addr == (uint32_t)vxrun_lookup_indirect)
+		else if (addr == (uint32_t)(uintptr_t)vxrun_lookup_indirect)
 			p += snprintf(p, ep-p, "vxrun_lookup_indirect");
 		else
 			p += snprintf(p, ep-p, "%#x", da->disp + npc);

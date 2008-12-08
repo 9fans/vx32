@@ -2,8 +2,8 @@
 // Assembly-language support code for vx32-to-x86-32 translation
 //
 
-#include "asm.h"
-#include "os.h"
+#include "libvx32/asm.h"
+#include "libvx32/os.h"
 
 	.text
 

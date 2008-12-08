@@ -153,10 +153,12 @@ static int elfloader(vxproc *proc,
 	// For "big mem" we need more than 1/2 GB, but 64-bit Linux
 	// has only about 1 GB of address space to give out with MAP_32BIT,
 	// and we've used up some of it for the vxemu structure.  
-	// Ask for (1<<30) - (1<<24), which should be close enough to 1GB
+	// Used to ask for (1<<30) - (1<<24), which should be close enough to 1GB
 	// to run the SPEC programs but leave enough for things like vxemu.
+	// On Ubuntu 8.10, I get intermittent ouf of memory errors from this
+	// mmap, so back off to 1<<29.
 	if (vx_elfbigmem)
-		size = (1<<30) - (1<<24);
+		size = (1<<29);
 
 	mm = NULL;
 

@@ -8,6 +8,7 @@
 #include <ucontext.h>
 #include <sys/ucontext.h>
 #include <asm/ldt.h>
+#include <errno.h>
 
 #include "vx32.h"
 #include "vx32impl.h"
@@ -19,6 +20,7 @@ int vxemu_map(vxemu *emu, vxmmap *mm)
 {
 	struct vxproc *vxp;
 	struct user_desc desc;
+	uint ldt[2];
 #ifdef __x86_64
 	static int didflat;
 #endif
@@ -73,13 +75,55 @@ int vxemu_map(vxemu *emu, vxmmap *mm)
 		desc.seg_not_present = 0;
 		desc.useable = 1;
 
-		desc.entry_number = emu->runptr.sel / 8;
+		desc.entry_number = FLATCODE / 8;
 		desc.base_addr = 0;
 		desc.limit = 0xfffff;
 		desc.contents = MODIFY_LDT_CONTENTS_CODE;
 		if (modify_ldt(1, &desc, sizeof(desc)) < 0)
 			return -1;
-	
+		
+		/*
+		 * Linux 2.6.27 has a bug: it does not load the L (long mode)
+		 * bit from desc.lm when copying desc into its own
+		 * copy of the LDT entry on the kernel stack.
+		 * Instead, it leaves L uninitialized, picking up whatever
+		 * random bit was left on the kernel stack by the
+		 * previous call sequence.  We need L to be 0.
+		 * If it ends up 1, the *ljmpq in run64.S will GP fault.
+		 * Luckily, we can look for this by asking to read
+		 * back the raw LDT bytes.  If we observe this problem,
+		 * try to fix it by doing a modify_ldt with base = limit = 0,
+		 * which clears the entire stack ldt structure, and then
+		 * quickly do another modify_ldt with desc, hoping that
+		 * the bit will still be zero when we get there for the
+		 * second modify_ldt.  I wish I were making this up.
+		 * This is fixed in Linus's git repository, but the Ubuntu
+		 * git repositories are still out of date.  See for example
+		 * 	http://swtch.com/go/ubuntu-ldt
+		 *	http://swtch.com/go/linus-ldt
+		 *
+		 * Remember, folks, Free Software is only free if your
+		 * time has no value.
+		 */
+		if(modify_ldt(0, ldt, sizeof ldt) < 0)
+			return -1;
+		if(ldt[1] & 0x00200000) {
+			if (vx32_debugxlate)
+				vxprint("FLATCODE LDT=%08x %08x; working around\n", ldt[0], ldt[1]);
+			desc.limit = 0;
+			modify_ldt(1, &desc, sizeof desc);
+			desc.limit = 0xfffff;
+			modify_ldt(1, &desc, sizeof desc);
+			modify_ldt(0, ldt, sizeof ldt);
+			if(ldt[1] & 0x00200000) {
+				vxprint("cannot work around Linux FLATCODE bug\n");
+				errno = EBADE;
+				return -1;
+			}
+			if (vx32_debugxlate)
+				vxprint("FLATCODE LDT=%08x %08x\n", ldt[0], ldt[1]);
+		}
+
 		desc.entry_number = FLATDATA / 8;
 		desc.base_addr = 0;
 		desc.limit = 0xfffff;
@@ -179,6 +223,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	
 	if(0) vxprint("vx32_sighandler signo=%d eip=%#x esp=%#x vs=%#x\n",
 		signo, ctx->ctxeip, ctx->esp, vs);
+	if(0) dumpsigcontext(ctx);
 
 	if ((vs & 15) != 15)	// 8 (emu), LDT, RPL=3
 		return 0;
@@ -325,8 +370,9 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		// But on a segmentation fault (as opposed to a paging fault),
 		// cr2 is not updated and the kernel sends an si_addr == 0.
 		// Be sure to use si_addr, not cr2.
-		emu->cpu.trapva = (uint32_t)si->si_addr;
-		memmove(mc->gregs, emu->trapenv->gregs, 19*4);
+		emu->cpu.trapva = (uint32_t)(uintptr_t)si->si_addr;
+		memmove(mc->gregs, emu->trapenv->gregs, sizeof emu->trapenv->gregs);
+		
 		return 1;
 	}
 

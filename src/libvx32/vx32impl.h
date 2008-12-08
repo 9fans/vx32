@@ -251,5 +251,7 @@ void	vxprint(char*, ...);
 int	vx32_sighandler(int, siginfo_t*, void*);
 int	vxemu_sighandler(vxemu*, uint32_t);
 
+#define USED(x) if(x){}	/* shut up gcc not-used warning */
+
 #endif  // VX32_IMPL_H
 

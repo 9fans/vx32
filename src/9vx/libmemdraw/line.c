@@ -50,7 +50,7 @@ horline1(Memimage *dst, Point p0, Point p1, int srcval, Rectangle clipr)
 
 	deltax = p1.x - p0.x;
 	deltay = p1.y - p0.y;
-	dd = dst->width*sizeof(ulong);
+	dd = dst->width*sizeof(u32int);
 	dy = 1;
 	if(deltay < 0){
 		dd = -dd;
@@ -117,7 +117,7 @@ verline1(Memimage *dst, Point p0, Point p1, int srcval, Rectangle clipr)
 			e += deltay;
 		}else
 			e += deltax;
-		d += dst->width*sizeof(ulong);
+		d += dst->width*sizeof(u32int);
 		m >>= bpp;
 		if(m == 0)
 			m = m0;

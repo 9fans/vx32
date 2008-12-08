@@ -730,7 +730,7 @@ pteflush(Pte *pte, int s, int e)
 }
 
 long
-syssegflush(ulong *arg)
+syssegflush(u32int *arg)
 {
 	Segment *s;
 	ulong addr, l;

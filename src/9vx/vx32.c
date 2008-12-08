@@ -223,6 +223,7 @@ touser(void *initsp)
 	 * User-mode execution loop.
 	 */
 	for(;;){
+iprint("X\n");
 		/*
 		 * Optimization: try to fault in code page and stack
 		 * page right now, since we're likely to need them.
@@ -267,7 +268,7 @@ touser(void *initsp)
 			int read;
 			nfaults++;
 			read = !(vp->cpu->traperr & 2);
-			addr = (uchar*)vp->cpu->trapva;
+			addr = (uchar*)(uintptr)vp->cpu->trapva;
 			if(traceprocs)
 				print("fault %p read=%d\n", addr, read);
 			if(isuaddr(addr) && fault(addr - up->pmmu.uzero, read) >= 0)
@@ -280,19 +281,36 @@ touser(void *initsp)
 			if(abortonfault)
 				abort();
 		}
+iprint("U\n");
 
 		up->dbgreg = &u;
+iprint("P\n");
+struct timeval tv;
+tv.tv_sec = 0;
+tv.tv_usec = 1000;
+select(0, 0, 0, 0, &tv);
+iprint("P1\n");
 		proc2ureg(vp, &u);
+iprint("Q\n");
 		u.trap = rc;
+iprint("T\n");
 		trap(&u);
 		ureg2proc(&u, vp);
 	}
 }
 
+static void 
+breakme(void)
+{
+}
+
 static void
 proc2ureg(vxproc *vp, Ureg *u)
 {
-	memset(u, 0, sizeof *u);
+static int x;
+iprint("proc2ureg %p %p %d\n", vp, u, ++x);
+if(x==1588) breakme();
+//	memset(u, 0, sizeof *u);
 	u->pc = vp->cpu->eip;
 	u->ax = vp->cpu->reg[EAX];
 	u->bx = vp->cpu->reg[EBX];
@@ -301,6 +319,7 @@ proc2ureg(vxproc *vp, Ureg *u)
 	u->si = vp->cpu->reg[ESI];
 	u->di = vp->cpu->reg[EDI];
 	u->usp = vp->cpu->reg[ESP];
+iprint("proc2ureg %p %p\n", vp, u);
 }
 
 static void

@@ -1,3 +1,4 @@
+#undef _FORTIFY_SOURCE	/* stupid ubuntu setting that warns about not checking the return value from write */
 #define _BSD_SOURCE 1
 #define _NETBSD_SOURCE 1	/* NetBSD */
 #define _SVID_SOURCE 1
@@ -51,10 +52,14 @@ typedef unsigned long ulong;
 typedef unsigned long long uvlong;
 typedef long long vlong;
 typedef ulong uintptr;
-typedef ulong u32int;
+typedef unsigned int u32int;
 typedef signed char schar;
 
 typedef unsigned short Rune;
 
-#define USED(x) ((void)(x))
+// gcc 4.3.2 is too smart - it warns about unused return values
+// for functions like write and fchmod, even if you cast
+// the result to (void).
+// #define USED(x) ((void)(x))
+#define USED(x) do{typeof(x) __tmp__ = (x); (void)__tmp__; } while(0)
 

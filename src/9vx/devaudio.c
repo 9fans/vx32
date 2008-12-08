@@ -351,9 +351,9 @@ audiowrite(Chan *c, void *vp, long n, vlong off)
 void
 audioswab(uchar *a, uint n)
 {
-	ulong *p, *ep, b;
+	u32int *p, *ep, b;
 
-	p = (ulong*)a;
+	p = (u32int*)a;
 	ep = p + (n>>2);
 	while(p < ep) {
 		b = *p;

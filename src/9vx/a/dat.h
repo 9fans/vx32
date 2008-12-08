@@ -23,6 +23,8 @@ typedef vlong		Tval;
 typedef struct Ureg	Ureg;
 typedef struct Vctl	Vctl;
 
+typedef unsigned long long uint64;
+
 
 #define MAXSYSARG	5	/* for mount(fd, afd, mpt, flag, arg) */
 
@@ -44,12 +46,16 @@ struct Lock
 
 struct Label
 {
-	ulong	bp;  // Plan 9 VX
-	ulong	bx;
-	ulong	si;
-	ulong	di;
-	ulong	sp;
-	ulong	pc;
+	uint64	bp;  // Plan 9 VX
+	uint64	bx;
+	uint64	si;
+	uint64	di;
+	uint64	sp;
+	uint64	pc;
+	uint64	r12;
+	uint64	r13;
+	uint64	r14;
+	uint64	r15;
 };
 
 

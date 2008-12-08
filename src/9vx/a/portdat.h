@@ -92,7 +92,7 @@ struct Alarms
 
 struct Sargs
 {
-	ulong	args[MAXSYSARG];
+	u32int	args[MAXSYSARG];
 };
 
 /*

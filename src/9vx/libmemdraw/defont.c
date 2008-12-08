@@ -18,7 +18,7 @@ getmemdefont(void)
 	/*
 	 * make sure data is word-aligned.  this is true with Plan 9 compilers
 	 * but not in general.  the byte order is right because the data is
-	 * declared as char*, not ulong*.
+	 * declared as char*, not u32int*.
 	 */
 	p = (char*)defontdata;
 	n = (uintptr)p & 3;
@@ -49,7 +49,7 @@ getmemdefont(void)
 		return nil;
 	}
 
-	hdr = p+Dy(r)*i->width*sizeof(ulong);
+	hdr = p+Dy(r)*i->width*sizeof(u32int);
 	n = atoi(hdr);
 	p = hdr+3*12;
 	fc = malloc(sizeof(Fontchar)*(n+1));

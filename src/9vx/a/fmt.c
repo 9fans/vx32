@@ -1893,7 +1893,7 @@ __fmtnullflush(Fmt *f)
 int
 fmtnullinit(Fmt *f)
 {
-	memset(&f, 0, sizeof *f);
+	memset(f, 0, sizeof *f);
 	f->runes = 1;
 	f->start = nullbuf;
 	f->to = nullbuf;

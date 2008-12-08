@@ -127,7 +127,7 @@ mod(long x, long y)
 	long z;
 
 	z = x%y;
-	if((long)(((ulong)z)^((ulong)y)) > 0 || z == 0)
+	if((long)(((u32int)z)^((u32int)y)) > 0 || z == 0)
 		return z;
 	return z + y;
 }
@@ -135,7 +135,7 @@ mod(long x, long y)
 static long
 sdiv(long x, long y)
 {
-	if((long)(((ulong)x)^((ulong)y)) >= 0 || x == 0)
+	if((long)(((u32int)x)^((u32int)y)) >= 0 || x == 0)
 		return x/y;
 
 	return (x+((y>>30)|1))/y-1;

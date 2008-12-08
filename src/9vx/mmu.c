@@ -54,20 +54,35 @@ isuaddr(void *v)
 static void*
 mapzero(void)
 {
-	int fd;
+	int fd, bit32;
 	void *v;
 	
+#ifdef i386
+	bit32 = 0;
+#else
+	bit32 = MAP_32BIT;
+#endif
 	/* First try mmaping /dev/zero.  Some OS'es don't allow this. */
 	if((fd = open("/dev/zero", O_RDONLY)) >= 0){
-		v = mmap(nil, USTKTOP, PROT_NONE, MAP_PRIVATE, fd, 0);
-		if(v != MAP_FAILED)
+		v = mmap(nil, USTKTOP, PROT_NONE, bit32|MAP_PRIVATE, fd, 0);
+		if(v != MAP_FAILED) {
+			if((uint32_t)(uintptr)v != (uintptr)v) {
+				iprint("mmap returned 64-bit pointer %p\n", v);
+				panic("mmap");
+			}
 			return v;
+		}
 	}
 	
 	/* Next try an anonymous map. */
-	v = mmap(nil, USTKTOP, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-	if(v != MAP_FAILED)
+	v = mmap(nil, USTKTOP, PROT_NONE, bit32|MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	if(v != MAP_FAILED) {
+		if((uint32_t)(uintptr)v != (uintptr)v) {
+			iprint("mmap returned 64-bit pointer %p\n", v);
+			panic("mmap");
+		}
 		return v;
+	}
 
 	return nil;
 }

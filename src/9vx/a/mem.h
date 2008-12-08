@@ -18,7 +18,7 @@
 #define	BLOCKALIGN	8
 
 #define	MAXMACH		128			/* max # cpus system can run */
-#define	KSTACK		(256*1024)			/* Size of kernel stack */
+#define	KSTACK		(1024*1024)			/* Size of kernel stack */
 
 /*
  * Time

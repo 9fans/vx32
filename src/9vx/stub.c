@@ -252,11 +252,20 @@ tas(void *x)
 {
 	int     v;
 
+#ifdef i386
 	__asm__(	"movl   $1, %%eax\n\t"
 			"xchgl  %%eax,(%%ecx)"
 			: "=a" (v)
 			: "c" (x)
 	);
+#else
+	__asm__(	"movl   $1, %%eax\n\t"
+			"xchgl  %%eax,(%%rcx)"
+			: "=a" (v)
+			: "c" (x)
+	);
+#endif
+
 	switch(v) {
 	case 0:
 	case 1:
@@ -472,7 +481,7 @@ iprint(char *fmt, ...)
 	va_start(arg, fmt);
 	n = vseprint(buf, buf+sizeof(buf), fmt, arg) - buf;
 	va_end(arg);
-	write(2, buf, n);
+	USED(write(2, buf, n));
 	return n;
 }
 
@@ -496,7 +505,7 @@ panic(char *fmt, ...)
 	n = vseprint(buf+strlen(buf), buf+sizeof(buf), fmt, arg) - buf;
 	va_end(arg);
 	buf[n] = '\n';
-	write(2, buf, n+1);
+	USED(write(2, buf, n+1));
 	if(doabort){
 #ifdef __APPLE__
 		fprint(2, "sleeping, so you can attach gdb to pid %d\n", (int)getpid());

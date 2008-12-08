@@ -15,14 +15,14 @@ extern void checkpages(void);
 extern void checkpagerefs(void);
 
 long
-sysr1(ulong *x)
+sysr1(u32int *x)
 {
 	vx32sysr1();
 	return 0;
 }
 
 long
-sysrfork(ulong *arg)
+sysrfork(u32int *arg)
 {
 	Proc *p;
 	int n, i;
@@ -205,8 +205,8 @@ sysrfork(ulong *arg)
 	return pid;
 }
 
-static ulong
-l2be(long l)
+static u32int
+l2be(u32int l)
 {
 	uchar *cp;
 
@@ -217,7 +217,7 @@ l2be(long l)
 static char Echanged[] = "exec arguments changed underfoot";
 
 long
-sysexec(ulong *arg)
+sysexec(u32int *arg)
 {
 	char *volatile elem, *volatile file, *ufile;
 	Chan *volatile tc;
@@ -238,10 +238,12 @@ sysexec(ulong *arg)
 		nexterror();
 	}
 
+iprint("sysexec %p %p\n", (void*)arg[0], (void*)arg[1]);
 	ufile = uvalidaddr(arg[0], 1, 0);
 	file = validnamedup(ufile, 1);
 	tc = namec(file, Aopen, OEXEC, 0);
 	kstrdup((char**)&elem, up->genbuf);
+iprint("sysexec %s %p\n", file, (void*)arg[1]);
 
 	/*
 	 * Read the header.  If it's a #!, fill in progarg[] with info and repeat.
@@ -283,7 +285,7 @@ sysexec(ulong *arg)
 	/* 
 	 * #! has had its chance, now we need a real binary
 	 */
-	ulong magic, entry, text, etext, data, edata, bss, ebss;
+	u32int magic, entry, text, etext, data, edata, bss, ebss;
 
 	magic = l2be(exec.magic);
 	if(n != sizeof(Exec) || l2be(exec.magic) != AOUT_MAGIC)
@@ -315,7 +317,7 @@ sysexec(ulong *arg)
 	 * Pass 1: count number of arguments, string bytes.
 	 */
 	int nargv, strbytes;
-	ulong argp, ssize, spage;
+	u32int argp, ssize, spage;
 
 	strbytes = 0;
 	for(i=0; i<nprogarg; i++)
@@ -323,10 +325,11 @@ sysexec(ulong *arg)
 
 	argp = arg[1];
 	for(nargv=0;; nargv++, argp += BY2WD){
-		ulong a;
+		u32int a;
 		char *str;
 
-		a = *(ulong*)uvalidaddr(argp, BY2WD, 0);
+		a = *(u32int*)uvalidaddr(argp, BY2WD, 0);
+iprint("a%d = %p = %p\n", nargv, (void*)argp, (void*)a);
 		if(a == 0)
 			break;
 		str = uvalidaddr(a, 1, 0);
@@ -382,7 +385,7 @@ sysexec(ulong *arg)
 	uchar *uzero;
 	uzero = up->pmmu.uzero;
 	Tos *tos;
-	ulong utos;
+	u32int utos;
 	utos = USTKTOP - sizeof(Tos);
 	tos = (Tos*)(uzero + utos + TSTKTOP - USTKTOP);
 	tos->cyclefreq = m->cyclefreq;
@@ -395,15 +398,15 @@ sysexec(ulong *arg)
 	 * Argument pointers and strings, together.
 	 */
 	char *bp, *ep;
-	ulong *targp;
-	ulong ustrp, uargp;
+	u32int *targp;
+	u32int ustrp, uargp;
 
 	ustrp = utos - ROUND(strbytes, BY2WD);
 	uargp = ustrp - BY2WD*((nprogarg+nargv)+1);
 	bp = (char*)(uzero + ustrp + TSTKTOP - USTKTOP);
 	ep = bp + strbytes;
 	p = bp;
-	targp = (ulong*)(uzero + uargp + TSTKTOP - USTKTOP);
+	targp = (u32int*)(uzero + uargp + TSTKTOP - USTKTOP);
 	
 	/* #! args are trusted */
 	for(i=0; i<nprogarg; i++){
@@ -419,10 +422,10 @@ sysexec(ulong *arg)
 	/* the rest are not */
 	argp = arg[1];
 	for(i=0; i<nargv; i++){
-		ulong a;
+		u32int a;
 		char *str;
 		
-		a = *(ulong*)uvalidaddr(argp, BY2WD, 0);
+		a = *(u32int*)uvalidaddr(argp, BY2WD, 0);
 		argp += BY2WD;
 		
 		str = uvalidaddr(a, 1, 0);
@@ -435,7 +438,7 @@ sysexec(ulong *arg)
 		ustrp += n;
 	}
 
-	if(*(ulong*)uvalidaddr(argp, BY2WD, 0) != 0)
+	if(*(u32int*)uvalidaddr(argp, BY2WD, 0) != 0)
 		error(Echanged);	
 	*targp = 0;
 
@@ -603,7 +606,7 @@ return0(void *v)
 }
 
 long
-syssleep(ulong *arg)
+syssleep(u32int *arg)
 {
 
 	int n;
@@ -620,13 +623,13 @@ syssleep(ulong *arg)
 }
 
 long
-sysalarm(ulong *arg)
+sysalarm(u32int *arg)
 {
 	return procalarm(arg[0]);
 }
 
 long
-sysexits(ulong *arg)
+sysexits(u32int *arg)
 {
 	char *status;
 	char *inval = "invalid exit string";
@@ -651,7 +654,7 @@ sysexits(ulong *arg)
 }
 
 long
-sys_wait(ulong *arg)
+sys_wait(u32int *arg)
 {
 	int pid;
 	Waitmsg w;
@@ -675,12 +678,12 @@ sys_wait(ulong *arg)
 }
 
 long
-sysawait(ulong *arg)
+sysawait(u32int *arg)
 {
 	int i;
 	int pid;
 	Waitmsg w;
-	ulong n;
+	u32int n;
 	char *buf;
 
 	n = arg[1];
@@ -710,7 +713,7 @@ werrstr(char *fmt, ...)
 }
 
 static long
-generrstr(ulong addr, uint nbuf)
+generrstr(u32int addr, uint nbuf)
 {
 	char tmp[ERRMAX];
 	char *buf;
@@ -731,20 +734,20 @@ generrstr(ulong addr, uint nbuf)
 }
 
 long
-syserrstr(ulong *arg)
+syserrstr(u32int *arg)
 {
 	return generrstr(arg[0], arg[1]);
 }
 
 /* compatibility for old binaries */
 long
-sys_errstr(ulong *arg)
+sys_errstr(u32int *arg)
 {
 	return generrstr(arg[0], 64);
 }
 
 long
-sysnotify(ulong *arg)
+sysnotify(u32int *arg)
 {
 	if(arg[0] != 0)
 		uvalidaddr(arg[0], 1, 0);
@@ -753,7 +756,7 @@ sysnotify(ulong *arg)
 }
 
 long
-sysnoted(ulong *arg)
+sysnoted(u32int *arg)
 {
 	if(arg[0]!=NRSTR && !up->notified)
 		error(Egreg);
@@ -761,10 +764,10 @@ sysnoted(ulong *arg)
 }
 
 long
-syssegbrk(ulong *arg)
+syssegbrk(u32int *arg)
 {
 	int i;
-	ulong addr;
+	u32int addr;
 	Segment *s;
 
 	addr = arg[0];
@@ -787,16 +790,16 @@ syssegbrk(ulong *arg)
 }
 
 long
-syssegattach(ulong *arg)
+syssegattach(u32int *arg)
 {
 	return segattach(up, arg[0], uvalidaddr(arg[1], 1, 0), arg[2], arg[3]);
 }
 
 long
-syssegdetach(ulong *arg)
+syssegdetach(u32int *arg)
 {
 	int i;
-	ulong addr;
+	u32int addr;
 	Segment *s;
 
 	qlock(&up->seglock);
@@ -838,10 +841,10 @@ found:
 }
 
 long
-syssegfree(ulong *arg)
+syssegfree(u32int *arg)
 {
 	Segment *s;
-	ulong from, to;
+	u32int from, to;
 
 	from = arg[0];
 	s = seg(up, from, 1);
@@ -864,13 +867,13 @@ syssegfree(ulong *arg)
 
 /* For binary compatibility */
 long
-sysbrk_(ulong *arg)
+sysbrk_(u32int *arg)
 {
 	return ibrk(arg[0], BSEG);
 }
 
 long
-sysrendezvous(ulong *arg)
+sysrendezvous(u32int *arg)
 {
 	uintptr tag, val;
 	Proc *p, **l;
@@ -1103,7 +1106,7 @@ semacquire(Segment *s, long *addr, int block)
 }
 
 long
-syssemacquire(ulong *arg)
+syssemacquire(u32int *arg)
 {
 	int block;
 	long *addr;
@@ -1121,7 +1124,7 @@ syssemacquire(ulong *arg)
 }
 
 long
-syssemrelease(ulong *arg)
+syssemrelease(u32int *arg)
 {
 	long *addr, delta;
 	Segment *s;

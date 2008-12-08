@@ -40,6 +40,7 @@ _xallocmemimage(Rectangle r, u32int chan, int pixmap)
 
 	xm = mallocz(sizeof(Xmem), 1);
 	if(xm == nil){
+		iprint("mallocz failed\n");
 		freememimage(m);
 		return nil;
 	}
@@ -73,6 +74,7 @@ _xallocmemimage(Rectangle r, u32int chan, int pixmap)
 		ZPixmap, 0, (char*)m->data->bdata, Dx(r), Dy(r),
 		32, m->width*sizeof(u32int));
 	if(xi == nil){
+		iprint("XCreateImage %R %d %d failed\n", r, m->width, m->depth);
 		freememimage(m);
 		if(xm->pixmap != pixmap)
 			XFreePixmap(_x.display, xm->pixmap);
@@ -452,7 +454,7 @@ unloadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 	return _unloadmemimage(i, r, data, ndata);
 }
 
-ulong
+u32int
 pixelbits(Memimage *m, Point p)
 {
 	if(m->x)

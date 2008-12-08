@@ -399,6 +399,8 @@ _xattach(char *label, char *winsize)
 	_x.screenpm = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
 	_x.nextscreenpm = _x.screenpm;
 	_x.screenimage = _xallocmemimage(r, _x.chan, _x.screenpm);
+	if(_x.screenimage == nil)
+		panic("_xallocmemimage failed");
 
 	/*
 	 * Figure out physical window location.

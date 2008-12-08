@@ -401,7 +401,7 @@ bootargs(void *base)
 {
  	int i, ac;
 	uchar *av[32];
-	uchar **lsp;
+	u32int *lsp;
 
 	sp = (uchar*)base + BY2PG - MAXSYSARG*BY2WD - sizeof(Tos);
 
@@ -410,14 +410,14 @@ bootargs(void *base)
 	/* TODO: could use command line argc, argv here if it was useful */
 
 	/* 4 byte word align stack */
-	sp = (uchar*)((ulong)sp & ~3);
+	sp = (uchar*)((uintptr)sp & ~3);
 
 	/* build argc, argv on stack */
-	sp -= (ac+2)*sizeof(sp);
-	lsp = (uchar**)sp;
-	*lsp++ = (uchar*)ac;
+	sp -= (ac+2)*sizeof(u32int);
+	lsp = (u32int*)sp;
+	*lsp++ = ac;
 	for(i = 0; i < ac; i++)
-		*lsp++ = av[i] + ((USTKTOP - BY2PG) - (ulong)base);
+		*lsp++ = (u32int)(uintptr)(av[i] + ((USTKTOP - BY2PG) - (ulong)base));
 	*lsp = 0;
 	sp += (USTKTOP - BY2PG) - (ulong)base;
 }
@@ -425,21 +425,21 @@ bootargs(void *base)
 void
 showexec(ulong sp)
 {
-	ulong *a, *argv;
+	u32int *a, *argv;
 	int i, n;
 	uchar *uzero;
 	
 	uzero = up->pmmu.uzero;
-	iprint("showexec %p\n", sp);
+	iprint("showexec %p\n", (uintptr)sp);
 	if(sp >= USTKTOP || sp < USTKTOP-USTKSIZE)
 		panic("showexec: bad sp");
-	a = (ulong*)(uzero + sp);
+	a = (u32int*)(uzero + sp);
 	n = *a++;
 	iprint("argc=%d\n", n);
 	argv = a;
 	iprint("argv=%p\n", argv);
 	for(i=0; i<n; i++){
-		iprint("argv[%d]=%p\n", i, argv[i]);
+		iprint("argv[%d]=%p\n", i, (uintptr)argv[i]);
 		iprint("\t%s\n", (uzero + argv[i]));
 	}
 	iprint("argv[%d]=%p\n", i, argv[i]);
@@ -502,7 +502,7 @@ init0(void)
 
 	poperror();
 
-//showexec((ulong)sp);
+//showexec(sp);
 	touser(sp);	/* infinity, and beyond. */
 }
 
@@ -546,8 +546,13 @@ sigsegv(int signo, siginfo_t *info, void *v)
 	ctx = (struct sigcontext*)mc;
 	addr = (ulong)info->si_addr;
 	read = !(ctx->err&2);
+#ifdef i386
 	eip = ctx->eip;
 	esp = ctx->esp;
+#else
+	eip = ctx->rip;
+	esp = ctx->rsp;
+#endif
 #elif defined(__FreeBSD__)
 	mcontext_t *mc;
 	mc = &uc->uc_mcontext;
@@ -606,7 +611,7 @@ sigsegv(int signo, siginfo_t *info, void *v)
 	 * we screwed up.
 	 */
 	if(!isuaddr((uchar*)addr) || fault((uchar*)addr - uzero, read) < 0)
-		panic("kernel fault: signo=%d addr=%p[%p] %d", signo, addr, (uchar*)addr-uzero, read);
+		panic("kernel fault: signo=%d addr=%p[%p] %d eip=%p esp=%p", signo, addr, (uchar*)addr-uzero, read, eip, esp);
 }
 
 /*

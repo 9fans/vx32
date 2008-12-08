@@ -1,11 +1,7 @@
-# For now Linux32 only.  Should work elsewhere but untested.
 ifeq ($(OS),linux)
-ifeq ($(ARCH),x86_64)
-else
 PLAN9VX=1
 PLAN9GUI=x11
 PLAN9AUDIO=unix
-endif
 endif
 
 ifeq ($(OS),darwin)

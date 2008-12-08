@@ -27,7 +27,7 @@ eipfmt(Fmt *f)
 	static char *efmt = "%.2ux%.2ux%.2ux%.2ux%.2ux%.2ux";
 	static char *ifmt = "%d.%d.%d.%d";
 	uchar *p, ip[16];
-	ulong *lp;
+	u32int *lp;
 	ushort s;
 	int i, j, n, eln, eli;
 
@@ -73,7 +73,7 @@ common:
 		return fmtstrcpy(f, buf);
 
 	case 'i':		/* v6 address as 4 longs */
-		lp = va_arg(f->args, ulong*);
+		lp = va_arg(f->args, u32int*);
 		for(i = 0; i < 4; i++)
 			hnputl(ip+4*i, *lp++);
 		p = ip;

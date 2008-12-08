@@ -90,17 +90,17 @@ trap(Ureg *ureg)
 	
 	case VXTRAP_SOFT+0x40:	/* int $0x40 - system call */
 		if(tracesyscalls){
-			ulong *sp = (ulong*)(up->pmmu.uzero + ureg->usp);
-			print("%d [%s] %s %#lux %08lux %08lux %08lux %08lux\n",
+			u32int *sp = (u32int*)(up->pmmu.uzero + ureg->usp);
+			iprint("%d [%s] %s %#ux %08ux %08ux %08ux %08ux\n",
 				up->pid, up->text,
 				sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 		}
 		syscall(ureg);
 		if(tracesyscalls){
 			if(ureg->ax == -1)
-				print("%d [%s] -> %s\n", up->pid, up->text, up->syserrstr);
+				iprint("%d [%s] -> %s\n", up->pid, up->text, up->syserrstr);
 			else
-				print("%d [%s] -> %#ux\n", up->pid, up->text, ureg->ax);
+				iprint("%d [%s] -> %#ux\n", up->pid, up->text, ureg->ax);
 		}
 		return;
 	
@@ -262,7 +262,7 @@ syscall(Ureg *ureg)
 	up->psstate = 0;
 
 	if(scallnr == NOTED)
-		noted(ureg, *(ulong*)(up->pmmu.uzero + sp+BY2WD));
+		noted(ureg, *(u32int*)(up->pmmu.uzero + sp+BY2WD));
 
 	if(scallnr!=RFORK && (up->procctl || up->nnote)){
 		splhi();
@@ -285,6 +285,9 @@ notify(Ureg* ureg)
 	ulong s, sp;
 	Note *n;
 	Ureg *upureg;
+
+	if(tracesyscalls)
+		iprint("notify\n");
 
 	if(up->procctl)
 		procctl(up);
@@ -339,14 +342,14 @@ notify(Ureg* ureg)
 	uzero = up->pmmu.uzero;
 	upureg = (void*)(uzero + sp);
 	memmove(upureg, ureg, sizeof(Ureg));
-	*(ulong*)(uzero + sp-BY2WD) = up->ureg;	/* word under Ureg is old up->ureg */
+	*(u32int*)(uzero + sp-BY2WD) = up->ureg;	/* word under Ureg is old up->ureg */
 	up->ureg = sp;
 	sp -= BY2WD+ERRMAX;
 	memmove((char*)(uzero + sp), up->note[0].msg, ERRMAX);
 	sp -= 3*BY2WD;
-	*(ulong*)(uzero + sp+2*BY2WD) = sp+3*BY2WD;		/* arg 2 is string */
-	*(ulong*)(uzero + sp+1*BY2WD) = up->ureg;	/* arg 1 is ureg* */
-	*(ulong*)(uzero + sp+0*BY2WD) = 0;			/* arg 0 is pc */
+	*(u32int*)(uzero + sp+2*BY2WD) = sp+3*BY2WD;		/* arg 2 is string */
+	*(u32int*)(uzero + sp+1*BY2WD) = up->ureg;	/* arg 1 is ureg* */
+	*(u32int*)(uzero + sp+0*BY2WD) = 0;			/* arg 0 is pc */
 	ureg->usp = sp;
 	ureg->pc = up->notify;
 	up->notified = 1;
@@ -403,7 +406,7 @@ noted(Ureg* ureg, ulong arg0)
 			pprint("suicide: trap in noted\n");
 			pexit("Suicide", 0);
 		}
-		up->ureg = *(ulong*)(uzero+oureg-BY2WD);
+		up->ureg = *(u32int*)(uzero+oureg-BY2WD);
 		qunlock(&up->debug);
 		break;
 
@@ -418,8 +421,8 @@ noted(Ureg* ureg, ulong arg0)
 		sp = oureg-4*BY2WD-ERRMAX;
 		splhi();
 		ureg->sp = sp;
-		((ulong*)(uzero+sp))[1] = oureg;	/* arg 1 0(FP) is ureg* */
-		((ulong*)(uzero+sp))[0] = 0;		/* arg 0 is pc */
+		((u32int*)(uzero+sp))[1] = oureg;	/* arg 1 0(FP) is ureg* */
+		((u32int*)(uzero+sp))[0] = 0;		/* arg 0 is pc */
 		break;
 
 	default:
@@ -440,13 +443,13 @@ noted(Ureg* ureg, ulong arg0)
 long
 execregs(ulong entry, ulong ssize, ulong nargs)
 {
-	ulong *sp;
+	u32int *sp;
 	Ureg *ureg;
 
 	up->fpstate = FPinit;
 	fpoff();
 
-	sp = (ulong*)(up->pmmu.uzero + USTKTOP - ssize);
+	sp = (u32int*)(up->pmmu.uzero + USTKTOP - ssize);
 	*--sp = nargs;
 
 	ureg = up->dbgreg;

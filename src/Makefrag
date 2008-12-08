@@ -21,12 +21,14 @@ HOST_CFLAGS	:= $(COMMON_CFLAGS)
 # VX32_AR		:= vx32-ar
 # VX32_OBJCOPY	:= vx32-objcopy
 VX32_CC		:= gcc -m32
-VX32_LD		:= ld
+VX32_LD		:= ld -melf_i386
 VX32_AR		:= ar
 VX32_OBJCOPY	:= objcopy
 
 VX32_CFLAGS := -nostdinc -Ilibvxc/include $(COMMON_CFLAGS)
-VX32_LDFLAGS := -Llibvxc -L$(dir $(shell vx32-gcc -print-libgcc-file-name)) \
+VX32_CFLAGS += $(shell $(VX32_CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+
+VX32_LDFLAGS := -Llibvxc -L$(dir $(shell $(VX32_CC) -print-libgcc-file-name)) \
 		$(COMMON_LDFLAGS) libvxc/vx32/crt0.o
 VX32_LDLIBS := -lc -lgcc
 

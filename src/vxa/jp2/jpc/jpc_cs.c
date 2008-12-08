@@ -405,9 +405,9 @@ void jpc_ms_dump(jpc_ms_t *ms, FILE *out)
 {
 	jpc_mstabent_t *mstabent;
 	mstabent = jpc_mstab_lookup(ms->id);
-	fprintf(out, "type = 0x%04x (%s);", ms->id, mstabent->name);
+	fprintf(out, "type = 0x%04x (%s);", (int)ms->id, mstabent->name);
 	if (JPC_MS_HASPARMS(ms->id)) {
-		fprintf(out, " len = %d;", ms->len + 2);
+		fprintf(out, " len = %d;", (int)ms->len + 2);
 		if (ms->ops->dumpparms) {
 			(*ms->ops->dumpparms)(ms, out);
 		} else {
@@ -461,7 +461,7 @@ static int jpc_sot_dumpparms(jpc_ms_t *ms, FILE *out)
 {
 	jpc_sot_t *sot = &ms->parms.sot;
 	fprintf(out, "tileno = %d; len = %d; partno = %d; numparts = %d\n",
-	  sot->tileno, sot->len, sot->partno, sot->numparts);
+	  (int)sot->tileno, (int)sot->len, (int)sot->partno, (int)sot->numparts);
 	return 0;
 }
 
@@ -560,12 +560,12 @@ static int jpc_siz_dumpparms(jpc_ms_t *ms, FILE *out)
 {
 	jpc_siz_t *siz = &ms->parms.siz;
 	unsigned int i;
-	fprintf(out, "caps = 0x%02x;\n", siz->caps);
+	fprintf(out, "caps = 0x%02x;\n", (int)siz->caps);
 	fprintf(out, "width = %d; height = %d; xoff = %d; yoff = %d;\n",
-	  siz->width, siz->height, siz->xoff, siz->yoff);
+	  (int)siz->width, (int)siz->height, (int)siz->xoff, (int)siz->yoff);
 	fprintf(out, "tilewidth = %d; tileheight = %d; tilexoff = %d; "
-	  "tileyoff = %d;\n", siz->tilewidth, siz->tileheight, siz->tilexoff,
-	  siz->tileyoff);
+	  "tileyoff = %d;\n", (int)siz->tilewidth, (int)siz->tileheight, (int)siz->tilexoff,
+	  (int)siz->tileyoff);
 	for (i = 0; i < siz->numcomps; ++i) {
 		fprintf(out, "prec[%d] = %d; sgnd[%d] = %d; hsamp[%d] = %d; "
 		  "vsamp[%d] = %d\n", i, siz->comps[i].prec, i,
@@ -633,7 +633,7 @@ static int jpc_cod_dumpparms(jpc_ms_t *ms, FILE *out)
 	fprintf(out, "numdlvls = %d; qmfbid = %d; mctrans = %d\n",
 	  cod->compparms.numdlvls, cod->compparms.qmfbid, cod->mctrans);
 	fprintf(out, "prg = %d; numlyrs = %d;\n",
-	  cod->prg, cod->numlyrs);
+	  (int)cod->prg, (int)cod->numlyrs);
 	fprintf(out, "cblkwidthval = %d; cblkheightval = %d; "
 	  "cblksty = 0x%02x;\n", cod->compparms.cblkwidthval, cod->compparms.cblkheightval,
 	  cod->compparms.cblksty);
@@ -711,7 +711,7 @@ static int jpc_coc_dumpparms(jpc_ms_t *ms, FILE *out)
 {
 	jpc_coc_t *coc = &ms->parms.coc;
 	fprintf(out, "compno = %d; csty = 0x%02x; numdlvls = %d;\n",
-	  coc->compno, coc->compparms.csty, coc->compparms.numdlvls);
+	  (int)coc->compno, (int)coc->compparms.csty, (int)coc->compparms.numdlvls);
 	fprintf(out, "cblkwidthval = %d; cblkheightval = %d; "
 	  "cblksty = 0x%02x; qmfbid = %d;\n", coc->compparms.cblkwidthval,
 	  coc->compparms.cblkheightval, coc->compparms.cblksty, coc->compparms.qmfbid);
@@ -842,7 +842,7 @@ static int jpc_rgn_dumpparms(jpc_ms_t *ms, FILE *out)
 {
 	jpc_rgn_t *rgn = &ms->parms.rgn;
 	fprintf(out, "compno = %d; roisty = %d; roishift = %d\n",
-	  rgn->compno, rgn->roisty, rgn->roishift);
+	  (int)rgn->compno, (int)rgn->roisty, (int)rgn->roishift);
 	return 0;
 }
 
@@ -935,8 +935,8 @@ static int jpc_qcc_dumpparms(jpc_ms_t *ms, FILE *out)
 	jpc_qcc_t *qcc = &ms->parms.qcc;
 	int i;
 	fprintf(out, "compno = %d; qntsty = %d; numguard = %d; "
-	  "numstepsizes = %d\n", qcc->compno, qcc->compparms.qntsty, qcc->compparms.numguard,
-	  qcc->compparms.numstepsizes);
+	  "numstepsizes = %d\n", (int)qcc->compno, qcc->compparms.qntsty, qcc->compparms.numguard,
+	  (int)qcc->compparms.numstepsizes);
 	for (i = 0; i < qcc->compparms.numstepsizes; ++i) {
 		fprintf(out, "expn[%d] = 0x%04x; mant[%d] = 0x%04x;\n",
 		  i, (unsigned) JPC_QCX_GETEXPN(qcc->compparms.stepsizes[i]),
@@ -1058,7 +1058,7 @@ static int jpc_sop_putparms(jpc_ms_t *ms, jpc_cstate_t *cstate, jas_stream_t *ou
 static int jpc_sop_dumpparms(jpc_ms_t *ms, FILE *out)
 {
 	jpc_sop_t *sop = &ms->parms.sop;
-	fprintf(out, "seqno = %d;\n", sop->seqno);
+	fprintf(out, "seqno = %d;\n", (int)sop->seqno);
 	return 0;
 }
 
@@ -1124,7 +1124,7 @@ static int jpc_ppm_putparms(jpc_ms_t *ms, jpc_cstate_t *cstate, jas_stream_t *ou
 static int jpc_ppm_dumpparms(jpc_ms_t *ms, FILE *out)
 {
 	jpc_ppm_t *ppm = &ms->parms.ppm;
-	fprintf(out, "ind=%d; len = %d;\n", ppm->ind, ppm->len);
+	fprintf(out, "ind=%d; len = %d;\n", (int)ppm->ind, (int)ppm->len);
 	if (ppm->len > 0) {
 		fprintf(out, "data =\n");
 		jas_memdump(out, ppm->data, ppm->len);
@@ -1196,7 +1196,7 @@ static int jpc_ppt_putparms(jpc_ms_t *ms, jpc_cstate_t *cstate, jas_stream_t *ou
 static int jpc_ppt_dumpparms(jpc_ms_t *ms, FILE *out)
 {
 	jpc_ppt_t *ppt = &ms->parms.ppt;
-	fprintf(out, "ind=%d; len = %d;\n", ppt->ind, ppt->len);
+	fprintf(out, "ind=%d; len = %d;\n", (int)ppt->ind, (int)ppt->len);
 	if (ppt->len > 0) {
 		fprintf(out, "data =\n");
 		jas_memdump(out, ppt->data, ppt->len);
@@ -1303,10 +1303,10 @@ static int jpc_poc_dumpparms(jpc_ms_t *ms, FILE *out)
 	  ++pchgno, ++pchg) {
 		fprintf(out, "po[%d] = %d; ", pchgno, pchg->prgord);
 		fprintf(out, "cs[%d] = %d; ce[%d] = %d; ",
-		  pchgno, pchg->compnostart, pchgno, pchg->compnoend);
+		  (int)pchgno, (int)pchg->compnostart, (int)pchgno, (int)pchg->compnoend);
 		fprintf(out, "rs[%d] = %d; re[%d] = %d; ",
 		  pchgno, pchg->rlvlnostart, pchgno, pchg->rlvlnoend);
-		fprintf(out, "le[%d] = %d\n", pchgno, pchg->lyrnoend);
+		fprintf(out, "le[%d] = %d\n", pchgno, (int)pchg->lyrnoend);
 	}
 	return 0;
 }
@@ -1370,7 +1370,7 @@ static int jpc_crg_dumpparms(jpc_ms_t *ms, FILE *out)
 	for (compno = 0, comp = crg->comps; compno < crg->numcomps; ++compno,
 	  ++comp) {
 		fprintf(out, "hoff[%d] = %d; voff[%d] = %d\n", compno,
-		  comp->hoff, compno, comp->voff);
+		  (int)comp->hoff, compno, (int)comp->voff);
 	}
 	return 0;
 }
@@ -1432,7 +1432,7 @@ static int jpc_com_dumpparms(jpc_ms_t *ms, FILE *out)
 	jpc_com_t *com = &ms->parms.com;
 	unsigned int i;
 	int printable;
-	fprintf(out, "regid = %d;\n", com->regid);
+	fprintf(out, "regid = %d;\n", (int)com->regid);
 	printable = 1;
 	for (i = 0; i < com->len; ++i) {
 		if (!isprint(com->data[i])) {
@@ -1442,7 +1442,7 @@ static int jpc_com_dumpparms(jpc_ms_t *ms, FILE *out)
 	}
 	if (printable) {
 		fprintf(out, "data = ");
-		fwrite(com->data, sizeof(char), com->len, out);
+		if(fwrite(com->data, sizeof(char), (int)com->len, out)){}
 		fprintf(out, "\n");
 	}
 	return 0;

@@ -2010,8 +2010,8 @@ static int jpc_dec_dump(jpc_dec_t *dec, FILE *out)
 			  tcomp->numrlvls; ++rlvlno, ++rlvl) {
 fprintf(out, "RESOLUTION LEVEL %d\n", rlvlno);
 fprintf(out, "xs =%d, ys = %d, xe = %d, ye = %d, w = %d, h = %d\n",
-  rlvl->xstart, rlvl->ystart, rlvl->xend, rlvl->yend, rlvl->xend -
-  rlvl->xstart, rlvl->yend - rlvl->ystart);
+  (int)rlvl->xstart, (int)rlvl->ystart,(int) rlvl->xend, (int)rlvl->yend, (int)rlvl->xend -
+  (int)rlvl->xstart, (int)rlvl->yend - (int)rlvl->ystart);
 				for (bandno = 0, band = rlvl->bands;
 				  bandno < rlvl->numbands; ++bandno, ++band) {
 fprintf(out, "BAND %d\n", bandno);
@@ -2024,8 +2024,8 @@ fprintf(out, "xs =%d, ys = %d, xe = %d, ye = %d, w = %d, h = %d\n",
 					  ++prc) {
 fprintf(out, "CODE BLOCK GROUP %d\n", prcno);
 fprintf(out, "xs =%d, ys = %d, xe = %d, ye = %d, w = %d, h = %d\n",
-  prc->xstart, prc->ystart, prc->xend, prc->yend, prc->xend -
-  prc->xstart, prc->yend - prc->ystart);
+  (int)prc->xstart, (int)prc->ystart, (int)prc->xend, (int)prc->yend, (int)prc->xend -
+  (int)prc->xstart, (int)prc->yend - (int)prc->ystart);
 						for (cblkno = 0, cblk =
 						  prc->cblks; cblkno <
 						  prc->numcblks; ++cblkno,

@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <sys/stat.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "FLAC/file_decoder.h"
 #include "src/flac/decode.h"

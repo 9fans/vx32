@@ -18,6 +18,8 @@
 #define syscall xxxsyscall // FIXME
 #include "libvxc/syscall.h"
 
+#define V (void*)(uintptr_t)
+
 const char *argv0;
 
 extern int vx_elfbigmem;
@@ -169,14 +171,14 @@ static void dosyscall(vxproc *proc)
 		if (addr > m->size)
 			ret = vxmem_resize(proc->mem, addr);
 		if (trace)
-			fprintf(stderr, "sbrk %p -> %p / %p; %d\n", oaddr, addr, ARG1, ret);
+			fprintf(stderr, "sbrk %p -> %p / %p; %d\n", V oaddr, V addr, V ARG1, ret);
 		if (ret < 0)
 			fprintf(stderr, "warning: sbrk failed. caller will be unhappy!\n");
 		if (ret >= 0) {
 			if (addr > oaddr)
 				ret = vxmem_setperm(proc->mem, oaddr, addr - oaddr, VXPERM_READ|VXPERM_WRITE);
 			if(ret < 0)
-				fprintf(stderr, "setperm is failing! %lx + %lx > %lx ? \n", oaddr, addr - oaddr, m->size);
+				fprintf(stderr, "setperm is failing! %p + %p > %p ? \n", V oaddr, V(addr - oaddr), V m->size);
 		}
 		break;
 
@@ -395,7 +397,7 @@ convertargs(vxproc *proc, char *base, uint32_t args)
 	for (a=args;; a+=4) {
 		if (!vxmem_checkperm(proc->mem, a, 4, VXPERM_READ, NULL)){
 			if(trace)
-				fprintf(stderr, "bad args addr %p\n", a);
+				fprintf(stderr, "bad args addr %p\n", V a);
 			return NULL;
 		}
 		s = *(uint32_t*)(base+a);
@@ -403,7 +405,7 @@ convertargs(vxproc *proc, char *base, uint32_t args)
 			break;
 		if (!checkstring(proc->mem, base, s)){
 			if(trace)
-				fprintf(stderr, "bad arg string %p\n", s);
+				fprintf(stderr, "bad arg string %p\n", V s);
 			return NULL;
 		}
 	}
@@ -429,7 +431,7 @@ doexec(vxproc *proc, char *base, uint32_t exe, uint32_t args, uint32_t envs)
 
 	if(!checkstring(proc->mem, base, exe)){
 		if(trace)
-			fprintf(stderr, "exec [bad string %p]\n", exe);
+			fprintf(stderr, "exec [bad string %p]\n", V exe);
 	einval:
 		errno = EINVAL;
 		return -1;

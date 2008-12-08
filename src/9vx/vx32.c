@@ -223,7 +223,6 @@ touser(void *initsp)
 	 * User-mode execution loop.
 	 */
 	for(;;){
-iprint("X\n");
 		/*
 		 * Optimization: try to fault in code page and stack
 		 * page right now, since we're likely to need them.
@@ -256,6 +255,7 @@ iprint("X\n");
 		if(rc < 0)
 			panic("vxproc_run: %r");
 
+if(rc == 0x240 && vp->cpu->reg[EAX] == 4) { xxclose(); }
 		if(traceprocs)
 			iprint("-vx32 %p %p %s eip=%lux esp=%lux rc=%#x\n",
 				m, up, up->text, vp->cpu->eip, vp->cpu->reg[ESP], rc);
@@ -281,19 +281,10 @@ iprint("X\n");
 			if(abortonfault)
 				abort();
 		}
-iprint("U\n");
 
 		up->dbgreg = &u;
-iprint("P\n");
-struct timeval tv;
-tv.tv_sec = 0;
-tv.tv_usec = 1000;
-select(0, 0, 0, 0, &tv);
-iprint("P1\n");
 		proc2ureg(vp, &u);
-iprint("Q\n");
 		u.trap = rc;
-iprint("T\n");
 		trap(&u);
 		ureg2proc(&u, vp);
 	}
@@ -307,10 +298,9 @@ breakme(void)
 static void
 proc2ureg(vxproc *vp, Ureg *u)
 {
-static int x;
-iprint("proc2ureg %p %p %d\n", vp, u, ++x);
-if(x==1588) breakme();
-//	memset(u, 0, sizeof *u);
+XXX this memset runs backward because the direction bit 
+is set wrong on entry!
+	memset(u, 0, sizeof *u);
 	u->pc = vp->cpu->eip;
 	u->ax = vp->cpu->reg[EAX];
 	u->bx = vp->cpu->reg[EBX];
@@ -319,7 +309,6 @@ if(x==1588) breakme();
 	u->si = vp->cpu->reg[ESI];
 	u->di = vp->cpu->reg[EDI];
 	u->usp = vp->cpu->reg[ESP];
-iprint("proc2ureg %p %p\n", vp, u);
 }
 
 static void

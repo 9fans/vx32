@@ -116,7 +116,7 @@ size_t strftime(char  *buf, size_t maxsize, const char *fmt, const struct tm *tm
 			sprintf(tmp, "%02d", tm->tm_sec);
 			break;
 		case 's':
-			sprintf(tmp, "%d", mktime(tm));
+			sprintf(tmp, "%d", (int)mktime(tm));
 			break;
 		case 'T':
 			strftime(tmp, sizeof tmp, "%H:%M:%S", tm);

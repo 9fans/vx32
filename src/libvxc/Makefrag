@@ -285,6 +285,7 @@ CLIB_OBJS = \
 		w_y0.o		w_y0f.o		\
 		w_y1.o		w_y1f.o		\
 		w_yn.o		w_ynf.o		\
+		sincos.o	sincosf.o \
 	)
 
 # Use these optimized transcendental math library functions

@@ -29,6 +29,7 @@ src/9vx/a/errstr.h
 src/9vx/kerndate.h
 src/9vx/factotum.S
 src/libvx32/asm-sym.[cs]
+src/libvx32/asm.h
 src/9vx/data2s
 src/9vx/9vx
 src/test/loop

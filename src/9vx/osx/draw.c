@@ -4,7 +4,7 @@
 #include "memdraw.h"
 
 Memimage*
-allocmemimage(Rectangle r, ulong chan)
+allocmemimage(Rectangle r, uint32 chan)
 {
 	return _allocmemimage(r, chan);
 }
@@ -16,7 +16,7 @@ freememimage(Memimage *i)
 }
 
 void
-memfillcolor(Memimage *i, ulong val)
+memfillcolor(Memimage *i, uint32 val)
 {
 	_memfillcolor(i, val);
 }
@@ -34,7 +34,7 @@ memimagedraw(Memimage *dst, Rectangle r, Memimage *src, Point sp, Memimage *mask
 	_memimagedraw(_memimagedrawsetup(dst, r, src, sp, mask, mp, op));
 }
 
-ulong
+uint32
 pixelbits(Memimage *m, Point p)
 {
 	return _pixelbits(m, p);

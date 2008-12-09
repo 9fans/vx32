@@ -100,19 +100,19 @@ fsattach(char *spec)
 	struct stat st;
 	Chan *c;
 	UnixFd *ufd;
-	static int nattach;
-	int plan9;
-
+	int plan9, dev;
+	
+	dev = 1;
 	plan9 = 0;
 	if(spec && spec[0]){
-		if(strcmp(spec, "plan9") == 0)
+		if(strcmp(spec, "plan9") == 0) {
 			plan9 = 1;
-		else{
+			dev = 2;
+		} else{
 			snprint(up->genbuf, sizeof up->genbuf, "no file system #%C%s", FsChar, spec);
 			error(up->genbuf);
 		}
 	}
-
 
 	if(plan9){
 		if(localroot == nil)
@@ -131,7 +131,7 @@ fsattach(char *spec)
 	ufd->fd = -1;
 
 	c->aux = ufd;
-	c->dev = nattach++;
+	c->dev = dev;
 	c->qid = fsqid(&st);
 	
 	if(Trace)
@@ -300,7 +300,11 @@ fsdirstat(char *path, int dev, Dir *d)
 		d->length = disksize(fd, &st);
 		close(fd);
 	}
-	d->type = FsChar;
+	
+	// devmnt leaves 1-9 unused so that we can steal them.
+	// it is easier for all involved if #Z shows M as the file type instead of Z.
+	// dev is c->dev, either 1 (#Z) or 2 (#Zplan9).
+	d->type = 'M';
 	d->dev = dev;
 	return 0;
 }

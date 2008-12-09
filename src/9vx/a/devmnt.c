@@ -81,7 +81,7 @@ void (*mntstats)(int, Chan*, uvlong, ulong);
 static void
 mntreset(void)
 {
-	mntalloc.id = 1;
+	mntalloc.id = 10;	/* 1-9 are reserved for devfs */
 	mntalloc.tagmask[0] = 1;			/* don't allow 0 as a tag */
 	mntalloc.tagmask[NMASK-1] = 0x80000000UL;	/* don't allow NOTAG */
 	fmtinstall('F', fcallfmt);

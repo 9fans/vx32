@@ -401,7 +401,7 @@ bootargs(void *base)
 {
  	int i, ac;
 	uchar *av[32];
-	u32int *lsp;
+	uint32 *lsp;
 
 	sp = (uchar*)base + BY2PG - MAXSYSARG*BY2WD - sizeof(Tos);
 
@@ -413,11 +413,11 @@ bootargs(void *base)
 	sp = (uchar*)((uintptr)sp & ~3);
 
 	/* build argc, argv on stack */
-	sp -= (ac+2)*sizeof(u32int);
-	lsp = (u32int*)sp;
+	sp -= (ac+2)*sizeof(uint32);
+	lsp = (uint32*)sp;
 	*lsp++ = ac;
 	for(i = 0; i < ac; i++)
-		*lsp++ = (u32int)(uintptr)(av[i] + ((USTKTOP - BY2PG) - (ulong)base));
+		*lsp++ = (uint32)(uintptr)(av[i] + ((USTKTOP - BY2PG) - (ulong)base));
 	*lsp = 0;
 	sp += (USTKTOP - BY2PG) - (ulong)base;
 }
@@ -425,7 +425,7 @@ bootargs(void *base)
 void
 showexec(ulong sp)
 {
-	u32int *a, *argv;
+	uint32 *a, *argv;
 	int i, n;
 	uchar *uzero;
 	
@@ -433,7 +433,7 @@ showexec(ulong sp)
 	iprint("showexec %p\n", (uintptr)sp);
 	if(sp >= USTKTOP || sp < USTKTOP-USTKSIZE)
 		panic("showexec: bad sp");
-	a = (u32int*)(uzero + sp);
+	a = (uint32*)(uzero + sp);
 	n = *a++;
 	iprint("argc=%d\n", n);
 	argv = a;

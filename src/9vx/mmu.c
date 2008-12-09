@@ -200,7 +200,7 @@ putmmu(ulong va, ulong pa, Page *p)
 	Uspace *us;
 
 	if(tracemmu || (pa&~(PTEWRITE|PTEVALID)) != p->pa)
-		print("putmmu va %lux pa %lux p->pa %lux\n", va, pa, p->pa);
+		iprint("putmmu va %lux pa %lux p->pa %lux\n", va, pa, p->pa);
 
 	assert(p->pa < MEMSIZE && pa < MEMSIZE);
 	assert(up);
@@ -232,7 +232,7 @@ void
 flushmmu(void)
 {
 	if(tracemmu)
-		print("flushmmu\n");
+		iprint("flushmmu\n");
 
 	if(up){
 		vxproc_flush(up->pmmu.vxproc);
@@ -264,7 +264,7 @@ getspace(Proc *p)
 	us = ulist[nuspace-1];
 	if(us->p){
 		if(tracemmu)
-			print("^^^^^^^^^^ %ld %s [evict %d]\n", us->p->pid, us->p->text, us - uspace);
+			iprint("^^^^^^^^^^ %ld %s [evict %d]\n", us->p->pid, us->p->text, us - uspace);
 		mmapflush(us);
 	}
 	us->p = p;
@@ -283,7 +283,7 @@ takespace(Proc *p, Uspace *us)
 		return;
 	if(tracemmu){
 		if(us->p)
-			print("^^^^^^^^^^ %ld %s [steal %d]\n", us->p->pid, us->p->text, us - uspace);
+			iprint("^^^^^^^^^^ %ld %s [steal %d]\n", us->p->pid, us->p->text, us - uspace);
 	}
 	us->p = p;
 	mmapflush(us);
@@ -324,10 +324,10 @@ mmuswitch(Proc *p)
 		return;
 	
 	if(tracemmu)
-		print("mmuswitch %ld %s\n", p->pid, p->text);
+		iprint("mmuswitch %ld %s\n", p->pid, p->text);
 
 	if(p->pmmu.us && p->pmmu.us->p == p){
-		if(tracemmu) print("---------- %ld %s [%d]\n",
+		if(tracemmu) iprint("---------- %ld %s [%d]\n",
 			p->pid, p->text, p->pmmu.us - uspace);
 		usespace(p->pmmu.us);
 		if(!p->newtlb && !m->flushmmu){
@@ -343,7 +343,7 @@ mmuswitch(Proc *p)
 		getspace(p);
 	else
 		takespace(p, p->pmmu.us);
-	if(tracemmu) print("========== %ld %s [%d]\n",
+	if(tracemmu) iprint("========== %ld %s [%d]\n",
 		p->pid, p->text, p->pmmu.us - uspace);
 }
 
@@ -356,12 +356,12 @@ mmurelease(Proc *p)
 	if(p->kp)
 		return;
 	if(tracemmu)
-		print("mmurelease %ld %s\n", p->pid, p->text);
+		iprint("mmurelease %ld %s\n", p->pid, p->text);
 	if(p->pmmu.vxproc)
 		vxproc_flush(p->pmmu.vxproc);
 	if(p->pmmu.us){
 		if(tracemmu)
-			print("^^^^^^^^^^ %ld %s [release %d]\n", p->pid, p->text, p->pmmu.us - uspace);
+			iprint("^^^^^^^^^^ %ld %s [release %d]\n", p->pid, p->text, p->pmmu.us - uspace);
 		putspace(p->pmmu.us);
 		if(m->flushmmu)
 			mmapflush(p->pmmu.us);

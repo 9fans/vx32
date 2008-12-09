@@ -18,14 +18,14 @@ memimagemove(void *from, void *to)
 	md->base = to;
 
 	/* if allocmemimage changes this must change too */
-	md->bdata = (uchar*)md->base+sizeof(Memdata*)+sizeof(u32int);
+	md->bdata = (uchar*)md->base+sizeof(Memdata*)+sizeof(uint32);
 }
 
 Memimage*
-allocmemimaged(Rectangle r, u32int chan, Memdata *md, void *X)
+allocmemimaged(Rectangle r, uint32 chan, Memdata *md, void *X)
 {
 	int d;
-	u32int l;
+	uint32 l;
 	Memimage *i;
 
 	if(Dx(r) <= 0 || Dy(r) <= 0){
@@ -45,7 +45,7 @@ allocmemimaged(Rectangle r, u32int chan, Memdata *md, void *X)
 
 	i->data = md;
 	i->x = X;
-	i->zero = sizeof(u32int)*l*r.min.y;
+	i->zero = sizeof(uint32)*l*r.min.y;
 	
 	if(r.min.x >= 0)
 		i->zero += (r.min.x*d)/8;
@@ -66,11 +66,11 @@ allocmemimaged(Rectangle r, u32int chan, Memdata *md, void *X)
 }
 
 Memimage*
-_allocmemimage(Rectangle r, u32int chan)
+_allocmemimage(Rectangle r, uint32 chan)
 {
 	int d;
 	uchar *p;
-	u32int l, nw;
+	uint32 l, nw;
 	Memdata *md;
 	Memimage *i;
 
@@ -86,7 +86,7 @@ _allocmemimage(Rectangle r, u32int chan)
 		return nil;
 
 	md->ref = 1;
-	md->base = poolalloc(imagmem, sizeof(Memdata*)+(1+nw)*sizeof(u32int));
+	md->base = poolalloc(imagmem, sizeof(Memdata*)+(1+nw)*sizeof(uint32));
 	if(md->base == nil){
 		free(md);
 		return nil;
@@ -96,8 +96,8 @@ _allocmemimage(Rectangle r, u32int chan)
 	*(Memdata**)p = md;
 	p += sizeof(Memdata*);
 
-	*(u32int*)p = getcallerpc(&r);
-	p += sizeof(u32int);
+	*(uint32*)p = getcallerpc(&r);
+	p += sizeof(uint32);
 
 	/* if this changes, memimagemove must change too */
 	md->bdata = p;
@@ -129,10 +129,10 @@ _freememimage(Memimage *i)
 /*
  * Wordaddr is deprecated.
  */
-u32int*
+uint32*
 wordaddr(Memimage *i, Point p)
 {
-	return (u32int*) ((uintptr)byteaddr(i, p) & ~(sizeof(u32int)-1));
+	return (uint32*) ((uintptr)byteaddr(i, p) & ~(sizeof(uint32)-1));
 }
 
 uchar*
@@ -140,7 +140,7 @@ byteaddr(Memimage *i, Point p)
 {
 	uchar *a;
 
-	a = i->data->bdata+i->zero+sizeof(u32int)*p.y*i->width;
+	a = i->data->bdata+i->zero+sizeof(uint32)*p.y*i->width;
 
 	if(i->depth < 8){
 		/*
@@ -159,11 +159,11 @@ byteaddr(Memimage *i, Point p)
 }
 
 int
-memsetchan(Memimage *i, u32int chan)
+memsetchan(Memimage *i, uint32 chan)
 {
 	int d;
 	int t, j, k;
-	u32int cc;
+	uint32 cc;
 	int bytes;
 
 	if((d = chantodepth(chan)) == 0) {

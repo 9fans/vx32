@@ -570,7 +570,7 @@ setupcmap(XWindow w)
 {
 	char buf[30];
 	int i;
-	u32int p, pp;
+	uint32 p, pp;
 	XColor c;
 
 	if(_x.depth <= 1)

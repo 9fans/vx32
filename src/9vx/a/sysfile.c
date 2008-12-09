@@ -171,7 +171,7 @@ openmode(ulong o)
 }
 
 long
-sysfd2path(u32int *arg)
+sysfd2path(uint32 *arg)
 {
 	Chan *c;
 	char *buf;
@@ -185,7 +185,7 @@ sysfd2path(u32int *arg)
 }
 
 long
-syspipe(u32int *arg)
+syspipe(uint32 *arg)
 {
 	int fd[2];
 	Chan *c[2];
@@ -224,7 +224,7 @@ syspipe(u32int *arg)
 }
 
 long
-sysdup(u32int *arg)
+sysdup(uint32 *arg)
 {
 	int fd;
 	Chan *c, *oc;
@@ -265,7 +265,7 @@ sysdup(u32int *arg)
 }
 
 long
-sysopen(u32int *arg)
+sysopen(uint32 *arg)
 {
 	int fd;
 	Chan *c = 0;
@@ -315,7 +315,7 @@ fdclose(int fd, int flag)
 }
 
 long
-sysclose(u32int *arg)
+sysclose(uint32 *arg)
 {
 	fdtochan(arg[0], -1, 0, 0);
 	fdclose(arg[0], 0);
@@ -628,7 +628,7 @@ mountfix(Chan *c, uchar *op, long n, long maxn)
 }
 
 static long
-doread(u32int *arg, vlong *offp)
+doread(uint32 *arg, vlong *offp)
 {
 	int dir;
 	long n, nn, nnn;
@@ -696,13 +696,13 @@ doread(u32int *arg, vlong *offp)
 }
 
 long
-sys_read(u32int *arg)
+sys_read(uint32 *arg)
 {
 	return doread(arg, nil);
 }
 
 long
-syspread(u32int *arg)
+syspread(uint32 *arg)
 {
 	vlong v;
 
@@ -716,7 +716,7 @@ syspread(u32int *arg)
 }
 
 static long
-dowrite(u32int *arg, vlong *offp)
+dowrite(uint32 *arg, vlong *offp)
 {
 	Chan *c;
 	long m, n;
@@ -767,13 +767,13 @@ dowrite(u32int *arg, vlong *offp)
 }
 
 long
-sys_write(u32int *arg)
+sys_write(uint32 *arg)
 {
 	return dowrite(arg, nil);
 }
 
 long
-syspwrite(u32int *arg)
+syspwrite(uint32 *arg)
 {
 	vlong v;
 
@@ -787,7 +787,7 @@ syspwrite(u32int *arg)
 }
 
 static void
-sseek(vlong *ret, u32int *arg)
+sseek(vlong *ret, uint32 *arg)
 {
 	Chan *c;
 	uchar buf[sizeof(Dir)+100];
@@ -796,7 +796,7 @@ sseek(vlong *ret, u32int *arg)
 	vlong off;
 	union {
 		vlong v;
-		u32int u[2];
+		uint32 u[2];
 	} o;
 
 	c = fdtochan(arg[1], -1, 1, 1);
@@ -856,20 +856,20 @@ sseek(vlong *ret, u32int *arg)
 }
 
 long
-sysseek(u32int *arg)
+sysseek(uint32 *arg)
 {
 	sseek(uvalidaddr(arg[0], BY2V, 1), arg);
 	return 0;
 }
 
 long
-sysoseek(u32int *arg)
+sysoseek(uint32 *arg)
 {
 	union {
 		vlong v;
-		u32int u[2];
+		uint32 u[2];
 	} o;
-	u32int a[5];
+	uint32 a[5];
 
 	o.v = (long)arg[1];
 	a[0] = 0;
@@ -924,7 +924,7 @@ pathlast(Path *p)
 }
 
 long
-sysfstat(u32int *arg)
+sysfstat(uint32 *arg)
 {
 	Chan *c;
 	uint l;
@@ -944,7 +944,7 @@ sysfstat(u32int *arg)
 }
 
 long
-sysstat(u32int *arg)
+sysstat(uint32 *arg)
 {
 	char *name;
 	Chan *c;
@@ -970,7 +970,7 @@ sysstat(u32int *arg)
 }
 
 long
-syschdir(u32int *arg)
+syschdir(uint32 *arg)
 {
 	Chan *c;
 	char *name;
@@ -1068,25 +1068,25 @@ bindmount(int ismount, int fd, int afd, char* arg0, char* arg1, ulong flag, char
 }
 
 long
-sysbind(u32int *arg)
+sysbind(uint32 *arg)
 {
 	return bindmount(0, -1, -1, uvalidaddr(arg[0], 1, 0), uvalidaddr(arg[1], 1, 0), arg[2], nil);
 }
 
 long
-sysmount(u32int *arg)
+sysmount(uint32 *arg)
 {
 	return bindmount(1, arg[0], arg[1], nil, uvalidaddr(arg[2], 1, 0), arg[3], uvalidaddr(arg[4], 1, 0));
 }
 
 long
-sys_mount(u32int *arg)
+sys_mount(uint32 *arg)
 {
 	return bindmount(1, arg[0], -1, nil, uvalidaddr(arg[1], 1, 0), arg[2], uvalidaddr(arg[3], 1, 0));
 }
 
 long
-sysunmount(u32int *arg)
+sysunmount(uint32 *arg)
 {
 	Chan *cmount, *cmounted;
 	char *mount, *mounted;
@@ -1128,7 +1128,7 @@ sysunmount(u32int *arg)
 }
 
 long
-syscreate(u32int *arg)
+syscreate(uint32 *arg)
 {
 	int fd;
 	Chan *c = 0;
@@ -1150,7 +1150,7 @@ syscreate(u32int *arg)
 }
 
 long
-sysremove(u32int *arg)
+sysremove(uint32 *arg)
 {
 	Chan *c;
 	char *name;
@@ -1207,7 +1207,7 @@ wstat(Chan *c, uchar *d, int nd)
 }
 
 long
-syswstat(u32int *arg)
+syswstat(uint32 *arg)
 {
 	Chan *c;
 	uint l;
@@ -1223,7 +1223,7 @@ syswstat(u32int *arg)
 }
 
 long
-sysfwstat(u32int *arg)
+sysfwstat(uint32 *arg)
 {
 	Chan *c;
 	uint l;
@@ -1271,7 +1271,7 @@ packoldstat(uchar *buf, Dir *d)
 }
 
 long
-sys_stat(u32int *arg)
+sys_stat(uint32 *arg)
 {
 	Chan *c;
 	uint l;
@@ -1306,7 +1306,7 @@ sys_stat(u32int *arg)
 }
 
 long
-sys_fstat(u32int *arg)
+sys_fstat(uint32 *arg)
 {
 	Chan *c;
 	char *name;
@@ -1341,14 +1341,14 @@ sys_fstat(u32int *arg)
 }
 
 long
-sys_wstat(u32int *u)
+sys_wstat(uint32 *u)
 {
 	error("old wstat system call - recompile");
 	return -1;
 }
 
 long
-sys_fwstat(u32int *u)
+sys_fwstat(uint32 *u)
 {
 	error("old fwstat system call - recompile");
 	return -1;
@@ -1362,7 +1362,7 @@ kbind(char *new, char *old, int flag)
 }
 
 long
-syspassfd(u32int *u)
+syspassfd(uint32 *u)
 {
 	error("passfd unimplemented");
 	return -1;

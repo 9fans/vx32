@@ -255,7 +255,6 @@ touser(void *initsp)
 		if(rc < 0)
 			panic("vxproc_run: %r");
 
-if(rc == 0x240 && vp->cpu->reg[EAX] == 4) { xxclose(); }
 		if(traceprocs)
 			iprint("-vx32 %p %p %s eip=%lux esp=%lux rc=%#x\n",
 				m, up, up->text, vp->cpu->eip, vp->cpu->reg[ESP], rc);
@@ -290,16 +289,9 @@ if(rc == 0x240 && vp->cpu->reg[EAX] == 4) { xxclose(); }
 	}
 }
 
-static void 
-breakme(void)
-{
-}
-
 static void
 proc2ureg(vxproc *vp, Ureg *u)
 {
-XXX this memset runs backward because the direction bit 
-is set wrong on entry!
 	memset(u, 0, sizeof *u);
 	u->pc = vp->cpu->eip;
 	u->ax = vp->cpu->reg[EAX];

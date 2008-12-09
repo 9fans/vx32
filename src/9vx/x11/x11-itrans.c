@@ -361,7 +361,7 @@ _xgetsnarffrom(XWindow w, Atom clipboard, Atom target, int timeout0, int timeout
 
 	/* get the property */
 	xdata = nil;
-	XGetWindowProperty(_x.display, _x.drawable, prop, 0, SnarfSize/sizeof(u32int), 0, 
+	XGetWindowProperty(_x.display, _x.drawable, prop, 0, SnarfSize/sizeof(uint32), 0, 
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
 	if((type != target && type != XA_STRING && type != _x.utf8string) || len == 0){
 		if(xdata)

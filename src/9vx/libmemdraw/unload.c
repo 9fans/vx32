@@ -18,7 +18,7 @@ _unloadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 	q = byteaddr(i, r.min);
 	for(y=r.min.y; y<r.max.y; y++){
 		memmove(data, q, l);
-		q += i->width*sizeof(u32int);
+		q += i->width*sizeof(uint32);
 		data += l;
 	}
 	return ndata;

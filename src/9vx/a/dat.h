@@ -23,9 +23,6 @@ typedef vlong		Tval;
 typedef struct Ureg	Ureg;
 typedef struct Vctl	Vctl;
 
-typedef unsigned long long uint64;
-
-
 #define MAXSYSARG	5	/* for mount(fd, afd, mpt, flag, arg) */
 
 /*

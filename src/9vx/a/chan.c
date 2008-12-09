@@ -1314,7 +1314,7 @@ namec(char *aname, int amode, int omode, ulong perm)
 		nexterror();
 	}
 if(tracesyscalls)
-	print("\tnamec %s\n", aname);
+	iprint("\tnamec %s\n", aname);
 
 	DBG("namec %s %d %d\n", aname, amode, omode);
 	name = aname;

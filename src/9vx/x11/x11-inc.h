@@ -45,7 +45,7 @@ struct Xmem
 
 typedef struct Xprivate Xprivate;
 struct Xprivate {
-	u32int		chan;
+	uint32		chan;
 	XColormap	cmap;
 	XCursor		cursor;
 	XDisplay	*display;
@@ -60,23 +60,23 @@ struct Xprivate {
 	XGC		gccopy;
 	XGC		gccopy0;
 	XGC		gcfill;
-	u32int		gcfillcolor;
+	uint32		gcfillcolor;
 	XGC		gcfill0;
-	u32int		gcfill0color;
+	uint32		gcfill0color;
 	XGC		gcreplsrc;
-	u32int		gcreplsrctile;
+	uint32		gcreplsrctile;
 	XGC		gcreplsrc0;
-	u32int		gcreplsrc0tile;
+	uint32		gcreplsrc0tile;
 	XGC		gcsimplesrc;
-	u32int		gcsimplesrccolor;
-	u32int		gcsimplesrcpixmap;
+	uint32		gcsimplesrccolor;
+	uint32		gcsimplesrcpixmap;
 	XGC		gcsimplesrc0;
-	u32int		gcsimplesrc0color;
-	u32int		gcsimplesrc0pixmap;
+	uint32		gcsimplesrc0color;
+	uint32		gcsimplesrc0pixmap;
 	XGC		gczero;
-	u32int		gczeropixmap;
+	uint32		gczeropixmap;
 	XGC		gczero0;
-	u32int		gczero0pixmap;
+	uint32		gczero0pixmap;
 	Rectangle	newscreenr;
 	Memimage*	screenimage;
 	QLock		screenlock;
@@ -104,10 +104,10 @@ struct Xprivate {
 
 extern Xprivate _x;
 
-extern Memimage *_xallocmemimage(Rectangle, u32int, int);
+extern Memimage *_xallocmemimage(Rectangle, uint32, int);
 extern XImage	*_xallocxdata(Memimage*, Rectangle);
 extern void	_xdirtyxdata(Memimage*, Rectangle);
-extern void	_xfillcolor(Memimage*, Rectangle, u32int);
+extern void	_xfillcolor(Memimage*, Rectangle, uint32);
 extern void	_xfreexdata(Memimage*);
 extern XImage	*_xgetxdata(Memimage*, Rectangle);
 extern void	_xputxdata(Memimage*, Rectangle);

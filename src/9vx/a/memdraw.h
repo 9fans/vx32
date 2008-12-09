@@ -17,7 +17,7 @@ typedef struct	Memdrawparam	Memdrawparam;
 
 struct Memdata
 {
-	u32int	*base;	/* allocated data pointer */
+	uint32	*base;	/* allocated data pointer */
 	uchar	*bdata;	/* pointer to first byte of actual data; word-aligned */
 	int		ref;		/* number of Memimages using this data */
 	void*	imref;
@@ -39,14 +39,14 @@ struct Memimage
 	Rectangle	clipr;		/* clipping region */
 	int		depth;	/* number of bits of storage per pixel */
 	int		nchan;	/* number of channels */
-	u32int	chan;	/* channel descriptions */
+	uint32	chan;	/* channel descriptions */
 	Memcmap	*cmap;
 
 	Memdata	*data;	/* pointer to data; shared by windows in this image */
 	int		zero;		/* data->bdata+zero==&byte containing (0,0) */
-	u32int	width;	/* width in words of a single scan line */
+	uint32	width;	/* width in words of a single scan line */
 	Memlayer	*layer;	/* nil if not a layer*/
-	u32int	flags;
+	uint32	flags;
 
 	int		shift[NChan];
 	int		mask[NChan];
@@ -103,20 +103,20 @@ struct	Memdrawparam
 	Rectangle mr;
 	int op;
 
-	u32int state;
-	u32int mval;	/* if Simplemask, the mask pixel in mask format */
-	u32int mrgba;	/* mval in rgba */
-	u32int sval;	/* if Simplesrc, the source pixel in src format */
-	u32int srgba;	/* sval in rgba */
-	u32int sdval;	/* sval in dst format */
+	uint32 state;
+	uint32 mval;	/* if Simplemask, the mask pixel in mask format */
+	uint32 mrgba;	/* mval in rgba */
+	uint32 sval;	/* if Simplesrc, the source pixel in src format */
+	uint32 srgba;	/* sval in rgba */
+	uint32 sdval;	/* sval in dst format */
 };
 
 /*
  * Memimage management
  */
 
-extern Memimage*	allocmemimage(Rectangle, u32int);
-extern Memimage*	allocmemimaged(Rectangle, u32int, Memdata*, void*);
+extern Memimage*	allocmemimage(Rectangle, uint32);
+extern Memimage*	allocmemimaged(Rectangle, uint32, Memdata*, void*);
 extern Memimage*	readmemimage(int);
 extern Memimage*	creadmemimage(int);
 extern int	writememimage(int, Memimage*);
@@ -124,11 +124,11 @@ extern void	freememimage(Memimage*);
 extern int		loadmemimage(Memimage*, Rectangle, uchar*, int);
 extern int		cloadmemimage(Memimage*, Rectangle, uchar*, int);
 extern int		unloadmemimage(Memimage*, Rectangle, uchar*, int);
-extern u32int*	wordaddr(Memimage*, Point);
+extern uint32*	wordaddr(Memimage*, Point);
 extern uchar*	byteaddr(Memimage*, Point);
 extern int		drawclip(Memimage*, Rectangle*, Memimage*, Point*, Memimage*, Point*, Rectangle*, Rectangle*);
-extern void	memfillcolor(Memimage*, u32int);
-extern int		memsetchan(Memimage*, u32int);
+extern void	memfillcolor(Memimage*, uint32);
+extern int		memsetchan(Memimage*, uint32);
 
 /*
  * Graphics
@@ -185,19 +185,19 @@ extern int		drawdebug;
  */
 
 
-extern Memimage*	_allocmemimage(Rectangle, u32int);
+extern Memimage*	_allocmemimage(Rectangle, uint32);
 extern void	_freememimage(Memimage*);
-extern void	_memfillcolor(Memimage*, u32int);
+extern void	_memfillcolor(Memimage*, uint32);
 extern int	_loadmemimage(Memimage*, Rectangle, uchar*, int);
 extern int	_cloadmemimage(Memimage*, Rectangle, uchar*, int);
 extern int	_unloadmemimage(Memimage*, Rectangle, uchar*, int);
 extern void _memimageinit(void);
 extern Memdrawparam *_memimagedrawsetup(Memimage*, Rectangle, Memimage*, Point, Memimage*, Point, int);
 extern void _memimagedraw(Memdrawparam*);
-extern u32int _rgbatoimg(Memimage*, u32int);
-extern u32int _pixelbits(Memimage*, Point);
-extern u32int _imgtorgba(Memimage*, u32int);
+extern uint32 _rgbatoimg(Memimage*, uint32);
+extern uint32 _pixelbits(Memimage*, Point);
+extern uint32 _imgtorgba(Memimage*, uint32);
 
-extern u32int rgbatoimg(Memimage*, u32int);
-extern u32int pixelbits(Memimage*, Point);
-extern u32int imgtorgba(Memimage*, u32int);
+extern uint32 rgbatoimg(Memimage*, uint32);
+extern uint32 pixelbits(Memimage*, Point);
+extern uint32 imgtorgba(Memimage*, uint32);

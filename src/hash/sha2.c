@@ -34,7 +34,9 @@
 #include <assert.h>	/* assert() */
 
 #include "libvx32/words.h"	// XXX
+#ifndef BYTE_ORDER
 #define BYTE_ORDER LITTLE_ENDIAN 	// XXX
+#endif
 
 #include "sha2.h"
 

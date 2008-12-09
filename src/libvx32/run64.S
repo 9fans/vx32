@@ -108,6 +108,7 @@ vxrun_return:
 	movl	%edx,VXEMU_EFLAGS(%r8)
 
 	// Return to caller
+	cld	// x86-64 ABI says DF must be cleared
 	ret
 
 

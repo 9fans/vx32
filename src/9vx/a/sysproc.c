@@ -15,14 +15,14 @@ extern void checkpages(void);
 extern void checkpagerefs(void);
 
 long
-sysr1(u32int *x)
+sysr1(uint32 *x)
 {
 	vx32sysr1();
 	return 0;
 }
 
 long
-sysrfork(u32int *arg)
+sysrfork(uint32 *arg)
 {
 	Proc *p;
 	int n, i;
@@ -205,8 +205,8 @@ sysrfork(u32int *arg)
 	return pid;
 }
 
-static u32int
-l2be(u32int l)
+static uint32
+l2be(uint32 l)
 {
 	uchar *cp;
 
@@ -217,7 +217,7 @@ l2be(u32int l)
 static char Echanged[] = "exec arguments changed underfoot";
 
 long
-sysexec(u32int *arg)
+sysexec(uint32 *arg)
 {
 	char *volatile elem, *volatile file, *ufile;
 	Chan *volatile tc;
@@ -238,12 +238,10 @@ sysexec(u32int *arg)
 		nexterror();
 	}
 
-iprint("sysexec %p %p\n", (void*)arg[0], (void*)arg[1]);
 	ufile = uvalidaddr(arg[0], 1, 0);
 	file = validnamedup(ufile, 1);
 	tc = namec(file, Aopen, OEXEC, 0);
 	kstrdup((char**)&elem, up->genbuf);
-iprint("sysexec %s %p\n", file, (void*)arg[1]);
 
 	/*
 	 * Read the header.  If it's a #!, fill in progarg[] with info and repeat.
@@ -285,7 +283,7 @@ iprint("sysexec %s %p\n", file, (void*)arg[1]);
 	/* 
 	 * #! has had its chance, now we need a real binary
 	 */
-	u32int magic, entry, text, etext, data, edata, bss, ebss;
+	uint32 magic, entry, text, etext, data, edata, bss, ebss;
 
 	magic = l2be(exec.magic);
 	if(n != sizeof(Exec) || l2be(exec.magic) != AOUT_MAGIC)
@@ -317,7 +315,7 @@ iprint("sysexec %s %p\n", file, (void*)arg[1]);
 	 * Pass 1: count number of arguments, string bytes.
 	 */
 	int nargv, strbytes;
-	u32int argp, ssize, spage;
+	uint32 argp, ssize, spage;
 
 	strbytes = 0;
 	for(i=0; i<nprogarg; i++)
@@ -325,11 +323,10 @@ iprint("sysexec %s %p\n", file, (void*)arg[1]);
 
 	argp = arg[1];
 	for(nargv=0;; nargv++, argp += BY2WD){
-		u32int a;
+		uint32 a;
 		char *str;
 
-		a = *(u32int*)uvalidaddr(argp, BY2WD, 0);
-iprint("a%d = %p = %p\n", nargv, (void*)argp, (void*)a);
+		a = *(uint32*)uvalidaddr(argp, BY2WD, 0);
 		if(a == 0)
 			break;
 		str = uvalidaddr(a, 1, 0);
@@ -385,7 +382,7 @@ iprint("a%d = %p = %p\n", nargv, (void*)argp, (void*)a);
 	uchar *uzero;
 	uzero = up->pmmu.uzero;
 	Tos *tos;
-	u32int utos;
+	uint32 utos;
 	utos = USTKTOP - sizeof(Tos);
 	tos = (Tos*)(uzero + utos + TSTKTOP - USTKTOP);
 	tos->cyclefreq = m->cyclefreq;
@@ -398,15 +395,15 @@ iprint("a%d = %p = %p\n", nargv, (void*)argp, (void*)a);
 	 * Argument pointers and strings, together.
 	 */
 	char *bp, *ep;
-	u32int *targp;
-	u32int ustrp, uargp;
+	uint32 *targp;
+	uint32 ustrp, uargp;
 
 	ustrp = utos - ROUND(strbytes, BY2WD);
 	uargp = ustrp - BY2WD*((nprogarg+nargv)+1);
 	bp = (char*)(uzero + ustrp + TSTKTOP - USTKTOP);
 	ep = bp + strbytes;
 	p = bp;
-	targp = (u32int*)(uzero + uargp + TSTKTOP - USTKTOP);
+	targp = (uint32*)(uzero + uargp + TSTKTOP - USTKTOP);
 	
 	/* #! args are trusted */
 	for(i=0; i<nprogarg; i++){
@@ -422,10 +419,10 @@ iprint("a%d = %p = %p\n", nargv, (void*)argp, (void*)a);
 	/* the rest are not */
 	argp = arg[1];
 	for(i=0; i<nargv; i++){
-		u32int a;
+		uint32 a;
 		char *str;
 		
-		a = *(u32int*)uvalidaddr(argp, BY2WD, 0);
+		a = *(uint32*)uvalidaddr(argp, BY2WD, 0);
 		argp += BY2WD;
 		
 		str = uvalidaddr(a, 1, 0);
@@ -438,7 +435,7 @@ iprint("a%d = %p = %p\n", nargv, (void*)argp, (void*)a);
 		ustrp += n;
 	}
 
-	if(*(u32int*)uvalidaddr(argp, BY2WD, 0) != 0)
+	if(*(uint32*)uvalidaddr(argp, BY2WD, 0) != 0)
 		error(Echanged);	
 	*targp = 0;
 
@@ -606,7 +603,7 @@ return0(void *v)
 }
 
 long
-syssleep(u32int *arg)
+syssleep(uint32 *arg)
 {
 
 	int n;
@@ -623,13 +620,13 @@ syssleep(u32int *arg)
 }
 
 long
-sysalarm(u32int *arg)
+sysalarm(uint32 *arg)
 {
 	return procalarm(arg[0]);
 }
 
 long
-sysexits(u32int *arg)
+sysexits(uint32 *arg)
 {
 	char *status;
 	char *inval = "invalid exit string";
@@ -654,7 +651,7 @@ sysexits(u32int *arg)
 }
 
 long
-sys_wait(u32int *arg)
+sys_wait(uint32 *arg)
 {
 	int pid;
 	Waitmsg w;
@@ -678,12 +675,12 @@ sys_wait(u32int *arg)
 }
 
 long
-sysawait(u32int *arg)
+sysawait(uint32 *arg)
 {
 	int i;
 	int pid;
 	Waitmsg w;
-	u32int n;
+	uint32 n;
 	char *buf;
 
 	n = arg[1];
@@ -713,7 +710,7 @@ werrstr(char *fmt, ...)
 }
 
 static long
-generrstr(u32int addr, uint nbuf)
+generrstr(uint32 addr, uint nbuf)
 {
 	char tmp[ERRMAX];
 	char *buf;
@@ -734,20 +731,20 @@ generrstr(u32int addr, uint nbuf)
 }
 
 long
-syserrstr(u32int *arg)
+syserrstr(uint32 *arg)
 {
 	return generrstr(arg[0], arg[1]);
 }
 
 /* compatibility for old binaries */
 long
-sys_errstr(u32int *arg)
+sys_errstr(uint32 *arg)
 {
 	return generrstr(arg[0], 64);
 }
 
 long
-sysnotify(u32int *arg)
+sysnotify(uint32 *arg)
 {
 	if(arg[0] != 0)
 		uvalidaddr(arg[0], 1, 0);
@@ -756,7 +753,7 @@ sysnotify(u32int *arg)
 }
 
 long
-sysnoted(u32int *arg)
+sysnoted(uint32 *arg)
 {
 	if(arg[0]!=NRSTR && !up->notified)
 		error(Egreg);
@@ -764,10 +761,10 @@ sysnoted(u32int *arg)
 }
 
 long
-syssegbrk(u32int *arg)
+syssegbrk(uint32 *arg)
 {
 	int i;
-	u32int addr;
+	uint32 addr;
 	Segment *s;
 
 	addr = arg[0];
@@ -790,16 +787,16 @@ syssegbrk(u32int *arg)
 }
 
 long
-syssegattach(u32int *arg)
+syssegattach(uint32 *arg)
 {
 	return segattach(up, arg[0], uvalidaddr(arg[1], 1, 0), arg[2], arg[3]);
 }
 
 long
-syssegdetach(u32int *arg)
+syssegdetach(uint32 *arg)
 {
 	int i;
-	u32int addr;
+	uint32 addr;
 	Segment *s;
 
 	qlock(&up->seglock);
@@ -841,10 +838,10 @@ found:
 }
 
 long
-syssegfree(u32int *arg)
+syssegfree(uint32 *arg)
 {
 	Segment *s;
-	u32int from, to;
+	uint32 from, to;
 
 	from = arg[0];
 	s = seg(up, from, 1);
@@ -867,13 +864,13 @@ syssegfree(u32int *arg)
 
 /* For binary compatibility */
 long
-sysbrk_(u32int *arg)
+sysbrk_(uint32 *arg)
 {
 	return ibrk(arg[0], BSEG);
 }
 
 long
-sysrendezvous(u32int *arg)
+sysrendezvous(uint32 *arg)
 {
 	uintptr tag, val;
 	Proc *p, **l;
@@ -1106,7 +1103,7 @@ semacquire(Segment *s, long *addr, int block)
 }
 
 long
-syssemacquire(u32int *arg)
+syssemacquire(uint32 *arg)
 {
 	int block;
 	long *addr;
@@ -1124,7 +1121,7 @@ syssemacquire(u32int *arg)
 }
 
 long
-syssemrelease(u32int *arg)
+syssemrelease(uint32 *arg)
 {
 	long *addr, delta;
 	Segment *s;

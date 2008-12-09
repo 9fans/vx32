@@ -24,7 +24,7 @@ unitsperline(Rectangle r, int d, int bitsperunit)
 int
 wordsperline(Rectangle r, int d)
 {
-	return unitsperline(r, d, 8*sizeof(u32int));
+	return unitsperline(r, d, 8*sizeof(uint32));
 }
 
 int

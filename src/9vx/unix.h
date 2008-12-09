@@ -52,14 +52,14 @@ typedef unsigned long ulong;
 typedef unsigned long long uvlong;
 typedef long long vlong;
 typedef ulong uintptr;
-typedef unsigned int u32int;
 typedef signed char schar;
 
 typedef unsigned short Rune;
 
-// gcc 4.3.2 is too smart - it warns about unused return values
-// for functions like write and fchmod, even if you cast
-// the result to (void).
-// #define USED(x) ((void)(x))
-#define USED(x) do{typeof(x) __tmp__ = (x); (void)__tmp__; } while(0)
+typedef unsigned int uint32;
+typedef unsigned long long uint64;
+typedef int int32;
+typedef long long int64;
+
+#define USED(x) ((void)(x))
 

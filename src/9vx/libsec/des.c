@@ -4,7 +4,7 @@
 /*
  * integrated sbox & p perm
  */
-static u32int spbox[] = {
+static uint32 spbox[] = {
 
 0x00808200,0x00000000,0x00008000,0x00808202,0x00808002,0x00008202,0x00000002,0x00008000,
 0x00000200,0x00808200,0x00808202,0x00000200,0x00800202,0x00808002,0x00800000,0x00000002,
@@ -81,7 +81,7 @@ static u32int spbox[] = {
 
 /*
  * for manual index calculation
- * #define fetch(box, i, sh) (*((u32int*)((uchar*)spbox + (box << 8) + ((i >> (sh)) & 0xfc))))
+ * #define fetch(box, i, sh) (*((uint32*)((uchar*)spbox + (box << 8) + ((i >> (sh)) & 0xfc))))
  */
 #define fetch(box, i, sh) ((spbox+(box << 6))[((i >> (sh + 2)) & 0x3f)])
 
@@ -91,14 +91,14 @@ static u32int spbox[] = {
 void
 block_cipher(ulong key[32], uchar text[8], int decrypting)
 {
-	u32int right, left, v0, v1;
+	uint32 right, left, v0, v1;
 	int i, keystep;
 
 	/*
 	 * initial permutation
 	 */
-	v0 = text[0] | ((u32int)text[2]<<8) | ((u32int)text[4]<<16) | ((u32int)text[6]<<24);
-	left = text[1] | ((u32int)text[3]<<8) | ((u32int)text[5]<<16) | ((u32int)text[7]<<24);
+	v0 = text[0] | ((uint32)text[2]<<8) | ((uint32)text[4]<<16) | ((uint32)text[6]<<24);
+	left = text[1] | ((uint32)text[3]<<8) | ((uint32)text[5]<<16) | ((uint32)text[7]<<24);
 	right = (left & 0xaaaaaaaa) | ((v0 >> 1) & 0x55555555);
 	left = ((left << 1) & 0xaaaaaaaa) | (v0 & 0x55555555);
 	left = ((left << 6) & 0x33003300)
@@ -183,14 +183,14 @@ void
 triple_block_cipher(ulong expanded_key[3][32], uchar text[8], int ende)
 {
 	ulong *key;
-	u32int right, left, v0, v1;
+	uint32 right, left, v0, v1;
 	int i, j, keystep;
 
 	/*
 	 * initial permutation
 	 */
-	v0 = text[0] | ((u32int)text[2]<<8) | ((u32int)text[4]<<16) | ((u32int)text[6]<<24);
-	left = text[1] | ((u32int)text[3]<<8) | ((u32int)text[5]<<16) | ((u32int)text[7]<<24);
+	v0 = text[0] | ((uint32)text[2]<<8) | ((uint32)text[4]<<16) | ((uint32)text[6]<<24);
+	left = text[1] | ((uint32)text[3]<<8) | ((uint32)text[5]<<16) | ((uint32)text[7]<<24);
 	right = (left & 0xaaaaaaaa) | ((v0 >> 1) & 0x55555555);
 	left = ((left << 1) & 0xaaaaaaaa) | (v0 & 0x55555555);
 	left = ((left << 6) & 0x33003300)
@@ -281,7 +281,7 @@ triple_block_cipher(ulong expanded_key[3][32], uchar text[8], int ende)
 /*
  * key compression permutation, 4 bits at a time
  */
-static u32int comptab[] = {
+static uint32 comptab[] = {
 
 0x000000,0x010000,0x000008,0x010008,0x000080,0x010080,0x000088,0x010088,
 0x000000,0x010000,0x000008,0x010008,0x000080,0x010080,0x000088,0x010088,
@@ -332,9 +332,9 @@ static int keysh[] =
 };
 
 static void
-keycompperm(u32int left, u32int right, ulong *ek)
+keycompperm(uint32 left, uint32 right, ulong *ek)
 {
-	u32int v0, v1;
+	uint32 v0, v1;
 	int i;
 
 	for(i = 0; i < 16; i++){
@@ -371,10 +371,10 @@ keycompperm(u32int left, u32int right, ulong *ek)
 void
 des_key_setup(uchar key[8], ulong *ek)
 {
-	u32int left, right, v0, v1;
+	uint32 left, right, v0, v1;
 
-	v0 = key[0] | ((u32int)key[2] << 8) | ((u32int)key[4] << 16) | ((u32int)key[6] << 24);
-	v1 = key[1] | ((u32int)key[3] << 8) | ((u32int)key[5] << 16) | ((u32int)key[7] << 24);
+	v0 = key[0] | ((uint32)key[2] << 8) | ((uint32)key[4] << 16) | ((uint32)key[6] << 24);
+	v1 = key[1] | ((uint32)key[3] << 8) | ((uint32)key[5] << 16) | ((uint32)key[7] << 24);
 	left = ((v0 >> 1) & 0x40404040)
 		| ((v0 >> 2) & 0x10101010)
 		| ((v0 >> 3) & 0x04040404)
@@ -433,10 +433,10 @@ static uchar parity[128] =
 void
 des56to64(uchar *k56, uchar *k64)
 {
-	u32int hi, lo;
+	uint32 hi, lo;
 
-	hi = ((u32int)k56[0]<<24)|((u32int)k56[1]<<16)|((u32int)k56[2]<<8)|k56[3];
-	lo = ((u32int)k56[4]<<24)|((u32int)k56[5]<<16)|((u32int)k56[6]<<8);
+	hi = ((uint32)k56[0]<<24)|((uint32)k56[1]<<16)|((uint32)k56[2]<<8)|k56[3];
+	lo = ((uint32)k56[4]<<24)|((uint32)k56[5]<<16)|((uint32)k56[6]<<8);
 
 	k64[0] = parity[(hi>>25)&0x7f];
 	k64[1] = parity[(hi>>18)&0x7f];
@@ -454,12 +454,12 @@ des56to64(uchar *k56, uchar *k64)
 void
 des64to56(uchar *k64, uchar *k56)
 {
-	u32int hi, lo;
+	uint32 hi, lo;
 
-	hi = (((u32int)k64[0]&0xfe)<<24)|(((u32int)k64[1]&0xfe)<<17)|(((u32int)k64[2]&0xfe)<<10)
+	hi = (((uint32)k64[0]&0xfe)<<24)|(((uint32)k64[1]&0xfe)<<17)|(((uint32)k64[2]&0xfe)<<10)
 		|((k64[3]&0xfe)<<3)|(k64[4]>>4);
-	lo = (((u32int)k64[4]&0xfe)<<28)|(((u32int)k64[5]&0xfe)<<21)|(((u32int)k64[6]&0xfe)<<14)
-		|(((u32int)k64[7]&0xfe)<<7);
+	lo = (((uint32)k64[4]&0xfe)<<28)|(((uint32)k64[5]&0xfe)<<21)|(((uint32)k64[6]&0xfe)<<14)
+		|(((uint32)k64[7]&0xfe)<<7);
 
 	k56[0] = hi>>24;
 	k56[1] = hi>>16;

@@ -17,7 +17,7 @@
  * (They've been underscored.)
  */
 Memimage*
-allocmemimage(Rectangle r, u32int chan)
+allocmemimage(Rectangle r, uint32 chan)
 {
 	return _allocmemimage(r, chan);
 }
@@ -57,7 +57,7 @@ memimagedraw(Memimage *dst, Rectangle r, Memimage *src, Point sp,
 }
 
 void
-memfillcolor(Memimage *m, u32int val)
+memfillcolor(Memimage *m, uint32 val)
 {
 	_memfillcolor(m, val);
 }

@@ -1826,7 +1826,7 @@ void testAPI(void) {
                 }
                 NESSIEfinalize(&w, computedDigest);
                 if (memcmp(computedDigest, expectedDigest, DIGESTBYTES) != 0) {
-                    fprintf(stderr, "API error @ pieceLen = %lu\n", pieceLen);
+                    fprintf(stderr, "API error @ pieceLen = %lu\n", (long unsigned)pieceLen);
                     display(computedDigest, DIGESTBYTES); printf("\n\n");
                     display(expectedDigest, DIGESTBYTES); printf("\n\n");
                     return;

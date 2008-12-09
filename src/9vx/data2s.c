@@ -36,6 +36,6 @@ main(int argc, char *argv[])
 			printf("\n");
 	}
 	printf("\n\n.p2align 2\n%s%slen:\n", prefix, argv[1]);
-	printf(".long %d\n", len);
+	printf(".long %d\n", (int)len);
 	return 0;
 }

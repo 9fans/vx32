@@ -20,7 +20,7 @@ iseve(void)
 }
 
 long
-sysfversion(u32int *arg)
+sysfversion(uint32 *arg)
 {
 	char *vers;
 	uint arglen, m, msize;
@@ -46,7 +46,7 @@ sysfversion(u32int *arg)
 }
 
 long
-sys_fsession(u32int *arg)
+sys_fsession(uint32 *arg)
 {
 	/* deprecated; backwards compatibility only */
 
@@ -57,7 +57,7 @@ sys_fsession(u32int *arg)
 }
 
 long
-sysfauth(u32int *arg)
+sysfauth(uint32 *arg)
 {
 	Chan *c, *ac;
 	char *aname;

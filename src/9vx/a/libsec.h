@@ -52,8 +52,8 @@ struct BFstate
 	uchar	key[56];
 	uchar	ivec[8];
 
-	u32int 	pbox[BFrounds+2];
-	u32int	sbox[1024];
+	uint32 	pbox[BFrounds+2];
+	uint32	sbox[1024];
 };
 
 void	setupBFstate(BFstate *s, uchar key[], int keybytes, uchar *ivec);
@@ -138,7 +138,7 @@ typedef struct DigestState DigestState;
 struct DigestState
 {
 	uvlong	len;
-	u32int	state[5];
+	uint32	state[5];
 	uchar	buf[128];
 	int	blen;
 	char	malloced;

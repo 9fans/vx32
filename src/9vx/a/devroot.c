@@ -223,9 +223,9 @@ rootread(Chan *c, void *buf, long n, vlong off)
 #ifdef asdf
 print("[%d] kaddr %.8ulx base %.8ulx offset %ld (%.8ulx), n %d %.8ux %.8ux %.8ux\n", 
 		t, buf, data, offset, offset, n,
-		((u32int*)(data+offset))[0],
-		((u32int*)(data+offset))[1],
-		((u32int*)(data+offset))[2]);
+		((uint32*)(data+offset))[0],
+		((uint32*)(data+offset))[1],
+		((uint32*)(data+offset))[2]);
 #endif
 	memmove(buf, data+offset, n);
 	return n;

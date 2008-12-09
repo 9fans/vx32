@@ -1340,6 +1340,10 @@ kproc(char *name, void (*func)(void *), void *arg)
 	Proc *p;
 	static Pgrp *kpgrp;
 
+	extern int tracekdev;
+	if(tracekdev)
+		iprint("kproc %s\n", name);
+
 	p = newproc();
 	p->psstate = 0;
 	p->procmode = 0640;

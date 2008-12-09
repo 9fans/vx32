@@ -222,7 +222,7 @@ static DigestState*nomac(uchar *p, ulong len, uchar *key, ulong klen, uchar *dig
 static void	sslPackMac(Secret *sec, uchar *mackey, uchar *seq, uchar *header, uchar *body, int len, uchar *mac);
 static void	tlsPackMac(Secret *sec, uchar *mackey, uchar *seq, uchar *header, uchar *body, int len, uchar *mac);
 static void	put64(uchar *p, vlong x);
-static void	put32(uchar *p, u32int);
+static void	put32(uchar *p, uint32);
 static void	put24(uchar *p, int);
 static void	put16(uchar *p, int);
 static int	get16(uchar *p);
@@ -2101,7 +2101,7 @@ tlsPackMac(Secret *sec, uchar *mackey, uchar *seq, uchar *header, uchar *body, i
 }
 
 static void
-put32(uchar *p, u32int x)
+put32(uchar *p, uint32 x)
 {
 	p[0] = x>>24;
 	p[1] = x>>16;
@@ -2112,8 +2112,8 @@ put32(uchar *p, u32int x)
 static void
 put64(uchar *p, vlong x)
 {
-	put32(p, (u32int)(x >> 32));
-	put32(p+4, (u32int)x);
+	put32(p, (uint32)(x >> 32));
+	put32(p+4, (uint32)x);
 }
 
 static void
@@ -2132,7 +2132,7 @@ put16(uchar *p, int x)
 }
 
 #if 0
-static u32int
+static uint32
 get32(uchar *p)
 {
 	return (p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3];

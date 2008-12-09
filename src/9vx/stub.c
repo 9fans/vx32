@@ -147,6 +147,7 @@ fpinit(void)
 	if(tracefp)
 		iprint("fpinit\n");
 
+#ifdef i386
 	asm volatile(
 		"finit\n"
 		"fwait\n"
@@ -154,12 +155,26 @@ fpinit(void)
 		"fldcw 0(%%esp)\n"
 		"popw %%ax\n"
 		"fwait\n" : : : "memory");
+#else
+	asm volatile(
+		"finit\n"
+		"fwait\n"
+		"pushq $0x232\n"
+		"fldcw 0(%%rsp)\n"
+		"popq %%rax\n"
+		"fwait\n" : : : "memory");
+#endif
+
 }
 
 void
 fpsave(FPsave *s)
 {
+#ifdef i386
 	asm volatile("fnsave 0(%%eax)\n" : : "a" (s) : "memory");
+#else
+	asm volatile("fnsave 0(%%rax)\n" : : "a" (s) : "memory");
+#endif
 	if(tracefp)
 		iprint("fpsave: %#x %#x %#x %#ux\n", s->control, s->status, s->tag, s->pc);
 }
@@ -169,7 +184,11 @@ fprestore(FPsave *s)
 {
 	if(tracefp)
 		iprint("fprestore: %#x %#x %#x %#ux\n", s->control, s->status, s->tag, s->pc);
+#ifdef i386
 	asm volatile("frstor 0(%%eax); fwait\n" : : "a" (s) : "memory");
+#else
+	asm volatile("frstor 0(%%rax); fwait\n" : : "a" (s) : "memory");
+#endif
 }
 
 void
@@ -177,7 +196,11 @@ fpenv(FPsave *s)
 {
 	if(tracefp)
 		iprint("fpenv: %#x %#x %#x %#ux\n", s->control, s->status, s->tag, s->pc);
+#ifdef i386
 	asm volatile("fstenv 0(%%eax)\n" : : "a" (s) : "memory");
+#else
+	asm volatile("fstenv 0(%%rax)\n" : : "a" (s) : "memory");
+#endif
 }
 
 void
@@ -481,7 +504,7 @@ iprint(char *fmt, ...)
 	va_start(arg, fmt);
 	n = vseprint(buf, buf+sizeof(buf), fmt, arg) - buf;
 	va_end(arg);
-	USED(write(2, buf, n));
+	write(2, buf, n);
 	return n;
 }
 
@@ -505,7 +528,7 @@ panic(char *fmt, ...)
 	n = vseprint(buf+strlen(buf), buf+sizeof(buf), fmt, arg) - buf;
 	va_end(arg);
 	buf[n] = '\n';
-	USED(write(2, buf, n+1));
+	write(2, buf, n+1);
 	if(doabort){
 #ifdef __APPLE__
 		fprint(2, "sleeping, so you can attach gdb to pid %d\n", (int)getpid());

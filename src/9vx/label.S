@@ -57,7 +57,6 @@ EXT(setlabel):
 	movq %r13, 56(%rdi)
 	movq %r14, 64(%rdi)
 	movq %r15, 72(%rdi)
-
 	movq $0, %rax
 	ret
 
@@ -72,8 +71,8 @@ EXT(gotolabel):
 	movq 56(%rdi), %r13
 	movq 64(%rdi), %r14
 	movq 72(%rdi), %r15
-	
 	movq $1, %rax
+	cld
 	ret
 
 #endif

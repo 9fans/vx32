@@ -221,9 +221,9 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	asm("movw %"VSEGSTR",%0"
 		: "=r" (vs));
 	
-	if(0) vxprint("vx32_sighandler signo=%d eip=%#x esp=%#x vs=%#x\n",
+	if(vx32_debugxlate) vxprint("vx32_sighandler signo=%d eip=%#x esp=%#x vs=%#x\n",
 		signo, ctx->ctxeip, ctx->esp, vs);
-	if(0) dumpsigcontext(ctx);
+	if(vx32_debugxlate) dumpsigcontext(ctx);
 
 	if ((vs & 15) != 15)	// 8 (emu), LDT, RPL=3
 		return 0;

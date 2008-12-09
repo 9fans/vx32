@@ -16,7 +16,7 @@
  * Allocate a Memimage with an optional pixmap backing on the X server.
  */
 Memimage*
-_xallocmemimage(Rectangle r, u32int chan, int pixmap)
+_xallocmemimage(Rectangle r, uint32 chan, int pixmap)
 {
 	int d, offset;
 	Memimage *m;
@@ -72,7 +72,7 @@ _xallocmemimage(Rectangle r, u32int chan, int pixmap)
 	 */
 	xi = XCreateImage(_x.display, _x.vis, d,
 		ZPixmap, 0, (char*)m->data->bdata, Dx(r), Dy(r),
-		32, m->width*sizeof(u32int));
+		32, m->width*sizeof(uint32));
 	if(xi == nil){
 		iprint("XCreateImage %R %d %d failed\n", r, m->width, m->depth);
 		freememimage(m);
@@ -107,7 +107,7 @@ _xallocmemimage(Rectangle r, u32int chan, int pixmap)
  * (They've been underscored.)
  */
 Memimage*
-allocmemimage(Rectangle r, u32int chan)
+allocmemimage(Rectangle r, uint32 chan)
 {
 	return _xallocmemimage(r, chan, PMundef);
 }
@@ -182,7 +182,7 @@ memimagedraw(Memimage *dst, Rectangle r, Memimage *src, Point sp,
 static int
 xdraw(Memdrawparam *par)
 {
-	u32int sdval;
+	uint32 sdval;
 	uint m, state;
 	Memimage *src, *dst, *mask;
 	Point dp, mp, sp;
@@ -284,7 +284,7 @@ xdraw(Memdrawparam *par)
 
 
 void
-memfillcolor(Memimage *m, u32int val)
+memfillcolor(Memimage *m, uint32 val)
 {
 	_memfillcolor(m, val);
 	if(m->x == nil)
@@ -296,7 +296,7 @@ memfillcolor(Memimage *m, u32int val)
 }
 
 void
-_xfillcolor(Memimage *m, Rectangle r, u32int v)
+_xfillcolor(Memimage *m, Rectangle r, uint32 v)
 {
 	Point p;
 	Xmem *xm;
@@ -454,7 +454,7 @@ unloadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 	return _unloadmemimage(i, r, data, ndata);
 }
 
-u32int
+uint32
 pixelbits(Memimage *m, Point p)
 {
 	if(m->x)

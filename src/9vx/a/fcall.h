@@ -7,11 +7,11 @@ typedef
 struct	Fcall
 {
 	uchar	type;
-	u32int	fid;
+	uint32	fid;
 	ushort	tag;
 	union {
 		struct {
-			u32int	msize;		/* Tversion, Rversion */
+			uint32	msize;		/* Tversion, Rversion */
 			char	*version;	/* Tversion, Rversion */
 		};
 		struct {
@@ -22,23 +22,23 @@ struct	Fcall
 		};
 		struct {
 			Qid	qid;		/* Rattach, Ropen, Rcreate */
-			u32int	iounit;		/* Ropen, Rcreate */
+			uint32	iounit;		/* Ropen, Rcreate */
 		};
 		struct {
 			Qid	aqid;		/* Rauth */
 		};
 		struct {
-			u32int	afid;		/* Tauth, Tattach */
+			uint32	afid;		/* Tauth, Tattach */
 			char	*uname;		/* Tauth, Tattach */
 			char	*aname;		/* Tauth, Tattach */
 		};
 		struct {
-			u32int	perm;		/* Tcreate */ 
+			uint32	perm;		/* Tcreate */ 
 			char	*name;		/* Tcreate */
 			uchar	mode;		/* Tcreate, Topen */
 		};
 		struct {
-			u32int	newfid;		/* Twalk */
+			uint32	newfid;		/* Twalk */
 			ushort	nwname;		/* Twalk */
 			char	*wname[MAXWELEM];	/* Twalk */
 		};
@@ -48,7 +48,7 @@ struct	Fcall
 		};
 		struct {
 			vlong	offset;		/* Tread, Twrite */
-			u32int	count;		/* Tread, Twrite, Rread */
+			uint32	count;		/* Tread, Twrite, Rread */
 			char	*data;		/* Twrite, Rread */
 		};
 		struct {
@@ -62,7 +62,7 @@ struct	Fcall
 #define	GBIT8(p)	((p)[0])
 #define	GBIT16(p)	((p)[0]|((p)[1]<<8))
 #define	GBIT32(p)	((p)[0]|((p)[1]<<8)|((p)[2]<<16)|((p)[3]<<24))
-#define	GBIT64(p)	((u32int)((p)[0]|((p)[1]<<8)|((p)[2]<<16)|((p)[3]<<24)) |\
+#define	GBIT64(p)	((uint32)((p)[0]|((p)[1]<<8)|((p)[2]<<16)|((p)[3]<<24)) |\
 				((vlong)((p)[4]|((p)[5]<<8)|((p)[6]<<16)|((p)[7]<<24)) << 32))
 
 #define	PBIT8(p,v)	(p)[0]=(v)
@@ -82,7 +82,7 @@ struct	Fcall
 #define STATFIXLEN	(BIT16SZ+QIDSZ+5*BIT16SZ+4*BIT32SZ+1*BIT64SZ)	/* amount of fixed length data in a stat buffer */
 
 #define	NOTAG		(ushort)~0U	/* Dummy tag */
-#define	NOFID		(u32int)~0U	/* Dummy fid */
+#define	NOFID		(uint32)~0U	/* Dummy fid */
 #define	IOHDRSZ		24	/* ample room for Twrite/Rread header (iounit) */
 
 enum

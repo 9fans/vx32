@@ -267,12 +267,12 @@ int vx32_siginit(void)
 	assert(!(ss.ss_flags & SS_ONSTACK));
 	if (ss.ss_flags & SS_DISABLE) {
 		// Allocate an alternate signal stack.
-		stk = malloc(65536);
+		ss.ss_size = 64*1024;
+		stk = malloc(ss.ss_size);
 		if (stk == NULL)
 			return -1;
 		ss.ss_flags = 0;
 		ss.ss_sp = stk;
-		ss.ss_size = 65536;
 		if (sigaltstack(&ss, NULL) < 0) {
 			free(stk);
 			return -1;

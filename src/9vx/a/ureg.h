@@ -1,25 +1,25 @@
 struct Ureg
 {
-	u32int	di;		/* general registers */
-	u32int	si;		/* ... */
-	u32int	bp;		/* ... */
-	u32int	nsp;
-	u32int	bx;		/* ... */
-	u32int	dx;		/* ... */
-	u32int	cx;		/* ... */
-	u32int	ax;		/* ... */
-	u32int	gs;		/* data segments */
-	u32int	fs;		/* ... */
-	u32int	es;		/* ... */
-	u32int	ds;		/* ... */
-	u32int	trap;		/* trap type */
-	u32int	ecode;		/* error code (or zero) */
-	u32int	pc;		/* pc */
-	u32int	cs;		/* old context */
-	u32int	flags;		/* old flags */
+	uint32	di;		/* general registers */
+	uint32	si;		/* ... */
+	uint32	bp;		/* ... */
+	uint32	nsp;
+	uint32	bx;		/* ... */
+	uint32	dx;		/* ... */
+	uint32	cx;		/* ... */
+	uint32	ax;		/* ... */
+	uint32	gs;		/* data segments */
+	uint32	fs;		/* ... */
+	uint32	es;		/* ... */
+	uint32	ds;		/* ... */
+	uint32	trap;		/* trap type */
+	uint32	ecode;		/* error code (or zero) */
+	uint32	pc;		/* pc */
+	uint32	cs;		/* old context */
+	uint32	flags;		/* old flags */
 	union {
-		u32int	usp;
-		u32int	sp;
+		uint32	usp;
+		uint32	sp;
 	};
-	u32int	ss;		/* old stack segment */
+	uint32	ss;		/* old stack segment */
 };

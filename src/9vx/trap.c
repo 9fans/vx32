@@ -108,6 +108,13 @@ trap(Ureg *ureg)
 		sched();
 		break;
 	
+	case 3:	// breakpoint
+		/* restore pc to instruction that caused the trap */
+		ureg->pc--;
+		sprint(buf, "sys: breakpoint");
+		postnote(up, 1, buf, NDebug);
+		break;
+
 	default:
 		if(vno < nelem(excname)){
 			spllo();

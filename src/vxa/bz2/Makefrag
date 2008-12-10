@@ -24,7 +24,7 @@ all: $(BZ2_TARGETS)
 
 # VXA-based bzip2 encoder and decoder
 vxa/bz2/%bz2: vxa/bz2/%bz2.vo vxa/bz2/libbz2.a $(CLIB_DEPS)
-	$(VX32_LD) -o $@ $(VX32_LDFLAGS) -Lbz2 $< -Lvxa/bz2 -lbz2 $(VX32_LDLIBS)
+	$(VX32_LD) -o $@ $(VX32_LDFLAGS) $< vxa/bz2/libbz2.a $(VX32_LDLIBS)
 
 vxa/bz2/libbz2.a: $(BZ2_OBJS)
 	$(VX32_AR) r $@ $(BZ2_OBJS)

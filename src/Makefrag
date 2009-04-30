@@ -6,7 +6,7 @@ COMMON_CFLAGS = -g -O3 -MD -std=gnu99 -I. $(CFLAGS)
 COMMON_LDFLAGS = -g -L. $(LDFLAGS)
 
 # Host environment compiler options
-HOST_CC		:= $(CC)
+HOST_CC		:= $(CC) -fno-inline
 HOST_LD		:= $(LD)
 HOST_AR		:= $(AR)
 HOST_LDFLAGS	:= $(COMMON_LDFLAGS)

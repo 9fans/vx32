@@ -29,7 +29,7 @@ VX32_OBJS = \
 VX32_DEPS := libvx32/libvx32.a
 VX32_INST := $(prefix)/lib/libvx32.a
 
-CLEAN_FILES += $(VX32_OBJS) $(VX32_DEPS)
+CLEAN_FILES += $(VX32_OBJS) $(VX32_DEPS) libvx32/asm.h
 
 all: $(VX32_DEPS)
 install: $(VX32_INST)

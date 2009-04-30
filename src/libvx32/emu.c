@@ -832,12 +832,16 @@ static int xscan(struct vxproc *p)
 		case 0x5c: case 0x5d: case 0x5e: case 0x5f:	// SUBPS etc.
 		case 0xa3:					// BT Ev,Gv
 		case 0xab:					// BTS Ev,Gv
+		case 0xaf:					// IMUL Gv,Ev
+		case 0xb0:					// CMPXCHG Eb,Gb
+		case 0xb1:					// CMPXCHG Ev,Gv
 		case 0xb3:					// BTR Ev,Gv
+		case 0xb6: case 0xb7:				// MOVZX
 		case 0xbb:					// BTC Ev,Gv
 		case 0xbc: case 0xbd:				// BSF, BSR
-		case 0xaf:					// IMUL Gv,Ev
-		case 0xb6: case 0xb7:				// MOVZX
 		case 0xbe: case 0xbf:				// MOVSX
+		case 0xc0:					// XADD Eb,Gb
+		case 0xc1:					// XADD Ev,Gv
 			inp = xscan_rm(inp);
 			goto notrans;
 

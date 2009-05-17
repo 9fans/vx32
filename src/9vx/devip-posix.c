@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
+#include <signal.h>
 #include "lib.h"
 #include "mem.h"
 #include "dat.h"
@@ -19,6 +20,8 @@ void
 osipinit(void)
 {
 	char buf[1024];
+	
+	signal(SIGPIPE, SIG_IGN);
 	gethostname(buf, sizeof(buf));
 	kstrdup(&sysname, buf);
 }

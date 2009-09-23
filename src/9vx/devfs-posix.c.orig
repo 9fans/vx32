@@ -59,19 +59,13 @@ struct UnixFd
 void
 oserrstr(void)
 {
-	if (errno == EINTR)
-		kstrcpy(up->errstr, Eintr, ERRMAX);
-	else
-		kstrcpy(up->errstr, strerror(errno), ERRMAX);
+	kstrcpy(up->errstr, strerror(errno), ERRMAX);
 }
 
 void
 oserror(void)
 {
-	if (errno == EINTR)
-		error(Eintr);
-	else
-		error(strerror(errno));
+	error(strerror(errno));
 }
 
 static Qid

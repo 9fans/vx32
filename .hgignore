@@ -4,6 +4,7 @@ syntax:glob
 *.vo
 *.ho
 *.d
+*.orig
 src/vxa/zlib/[de]zlib
 src/vxa/zlib/hdzlib
 src/vxa/vorbis/*dvorbis

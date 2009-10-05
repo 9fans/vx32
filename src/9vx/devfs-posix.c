@@ -452,13 +452,11 @@ fscreate(Chan *c, char *name, int mode, ulong perm)
 	if(perm & DMDIR){
 		if(mode != OREAD)
 			error(Eperm);
-		if(mkdir(path, perm & 0777) < 0)
+		/* have to do the minimum 0400 so we can open it */
+		if(mkdir(path, 0400 | perm & 0777) < 0)
 			oserror();
 		if((fd = open(path, 0)) < 0)
 			oserror();
-		// Be like Plan 9 file servers: inherit mode bits 
-		// and group from parent.
-		fchmod(fd, perm & st.st_mode & 0777);
 		fchown(fd, -1, st.st_gid);
 		if(fstat(fd, &st) < 0){
 			close(fd);
@@ -467,6 +465,9 @@ fscreate(Chan *c, char *name, int mode, ulong perm)
 		close(fd);
 		if((ufd->dir = opendir(path)) == nil)
 			oserror();
+		// Be like Plan 9 file servers: inherit mode bits 
+		// and group from parent.
+		fchmod(ufd->dir, perm & st.st_mode & 0777);
 		ufd->diroffset = 0;
 		ufd->nextde = nil;
 	}else{

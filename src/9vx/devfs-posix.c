@@ -480,7 +480,7 @@ fscreate(Chan *c, char *name, int mode, ulong perm)
 		mm = mode & 3;
 		if(mode & OTRUNC)
 			mm |= O_TRUNC;
-		if((fd = open(path, mm|O_CREAT, 0666)) < 0)
+		if((fd = open(path, mm|O_CREAT|O_EXCL, 0666)) < 0)
 			oserror();
 		// Be like Plan 9 file servers: inherit mode bits 
 		// and group from parent.

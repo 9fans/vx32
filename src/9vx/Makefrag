@@ -66,6 +66,7 @@ PLAN9_A_OBJS = \
 		convS2M.o \
 		convM2S.o \
 		dev.o \
+		devcap.o \
 		devcons.o \
 		devdraw.o \
 		devdup.o \

@@ -22,6 +22,7 @@ extern Dev procdevtab;
 extern Dev mntloopdevtab;
 extern Dev dupdevtab;
 extern Dev sddevtab;
+extern Dev capdevtab;
 
 Dev *devtab[] = {
 	&rootdevtab,	/* must be first */
@@ -41,6 +42,7 @@ Dev *devtab[] = {
 	&ssldevtab,
 	&tlsdevtab,
 	&sddevtab,
+	&capdevtab,
 	0
 };
 

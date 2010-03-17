@@ -38,6 +38,7 @@ autofiles="
 /sys/src/9/port/devmnt.c
 /sys/src/9/port/devpipe.c
 /sys/src/9/port/devproc.c
+/sys/src/9/port/devram.c
 /sys/src/9/port/devroot.c
 /sys/src/9/port/devsrv.c
 /sys/src/9/port/devtls.c

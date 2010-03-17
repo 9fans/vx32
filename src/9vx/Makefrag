@@ -74,6 +74,7 @@ PLAN9_A_OBJS = \
 		devmnt.o \
 		devproc.o \
 		devpipe.o \
+		devram.o \
 		devroot.o \
 		devsd.o \
 		devsrv.o \

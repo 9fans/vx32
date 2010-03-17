@@ -752,6 +752,9 @@ struct Proc
 	 *  machine specific MMU
 	 */
 	PMMU pmmu;
+	/* syscall trace */
+	char *syscalltrace;
+	
 };
 
 enum

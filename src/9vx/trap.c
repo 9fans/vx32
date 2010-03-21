@@ -194,130 +194,167 @@ syscallprint(Ureg *ureg)
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
 	case _ERRSTR:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1]);
 	break;
-	case BIND:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case BIND:{
+		char *s1 =  uvalidaddr(sp[1], 1, 0);
+		char *s2 =  uvalidaddr(sp[2], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08x=%s  %08x=%s flags %08uxh",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], s1, sp[2], s2, sp[3]);
 	break;
-	case CHDIR:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	}
+	case CHDIR:{
+		char *s =  uvalidaddr(sp[1], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08x=%s  ",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], s);
 	break;
+	}
 	case CLOSE:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1]);
 	break;
 	case DUP:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], sp[2]);
 	break;
 	case ALARM:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux ms",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1]);
 	break;
-	case EXEC:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case EXEC: {
+		char *name =uvalidaddr(sp[1], 1, 0);
+		uint32 *argv = uvalidaddr(sp[2], 1, 0);
+		int j = 0, i;
+		up->syscalltrace = mallocz(4096,1);
+		j += snprint(up->syscalltrace, 4096, "%d [%s] %s %#ux %08ux=%s %08ux=(",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], name, sp[2]);
+		/* more than 4096 of args, we just don't do */
+		for(i = 0; argv[i] && (j > 0); i++) {
+			char *str = uvalidaddr(argv[i], 1, 0);
+			j += snprint(up->syscalltrace+j,4096-j, "[%d]=%s ", i, str);
+		}
 	break;
-	case EXITS:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	}
+	case EXITS:{
+		char *msg = sp[1] ? uvalidaddr(sp[1], 1, 0) : "NULL";
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux=%s",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], msg);
 	break;
+	}
 	case _FSESSION:
 	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case FAUTH:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case FAUTH:{
+		char *aname = uvalidaddr(sp[2], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux=%s",
+		up->pid, up->text,
+		sysctab[ureg->ax], sp[0], sp[1], aname);
+	break;
+	}
+	case _FSTAT:{
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %#ux %08ux",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case _FSTAT:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
-		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
-	break;
+	}
 	case SEGBRK:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux",
+		up->pid, up->text,
+		sysctab[ureg->ax], sp[0], sp[1]);
+	break;
+	case _MOUNT:{
+		char *old =uvalidaddr(sp[3], 1, 0);
+		//char *aname = uvalidaddr(sp[5], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d %d %08ux=%s %08ux %#ux",
+		up->pid, up->text,
+		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3], old, sp[4],sp[5]);
+	break;
+	}
+	case OPEN: {
+		char *s;
+		s = uvalidaddr(sp[1], 1, 0);
+		up->syscalltrace = smprint("%d [%s] %s %#ux %08x=%s %08ux",
+			up->pid, up->text,
+			sysctab[ureg->ax], sp[0], sp[1], s, sp[2]);
+	break;
+	}
+	case _READ: {
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d %08ux %08ux %08uxh",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case _MOUNT:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
-		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
-	break;
-	case OPEN:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
-		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
-	break;
-	case _READ:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
-		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
-	break;
+	}
 	case OSEEK:
 	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case SLEEP:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case SLEEP: {
+		uint32 *arg = uvalidaddr(sp[1], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], arg[0]);
 	break;
-	case _STAT:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	}
+	case _STAT:{
+		char *name = uvalidaddr(sp[1], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux=%s %#ux %d",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], name, sp[2], sp[3]);
 	break;
-	case RFORK:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	}
+	case RFORK:{
+		uint32 flags = sp[1];
+	up->syscalltrace = smprint("%d [%s] %s%s %#ux %08ux",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		flags & RFPROC ? "Proc" : "",sysctab[ureg->ax], sp[0], sp[1] );
 	break;
+	}
 	case _WRITE:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d %#ux %d %08uxh",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case PIPE:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case PIPE: 
+	up->syscalltrace = smprint("%d [%s] %s %#ux",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0]);
 	break;
-	case CREATE:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case CREATE:{
+		char *name = uvalidaddr(sp[1], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %#ux=%s %08ux %08ux",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], name, sp[2], sp[3]);
 	break;
+	}
 	case FD2PATH:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1]);
 	break;
 	case BRK_:
 	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case REMOVE:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case REMOVE:{
+		char *name = uvalidaddr(sp[1], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %#ux=%s",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], name);
 	break;
+	}
 	case _WSTAT:
 	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
 		up->pid, up->text,
@@ -363,11 +400,13 @@ syscallprint(Ureg *ureg)
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case UNMOUNT:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case UNMOUNT:{
+		char *name = uvalidaddr(sp[1], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %#ux=%s",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], name);
 	break;
+	}
 	case _WAIT:
 	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
 		up->pid, up->text,
@@ -418,26 +457,38 @@ syscallprint(Ureg *ureg)
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case MOUNT:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case MOUNT:{
+		char *old =uvalidaddr(sp[3], 1, 0);
+		//char *aname = uvalidaddr(sp[5], 1, 0);
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d %d %08ux=%s %08ux %#ux",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3], old, sp[4],sp[5]);
 	break;
+	}
 	case AWAIT:
 	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case PREAD:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	case PREAD:{
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d %#ux %d",
 		up->pid, up->text,
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
-	case PWRITE:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
+	}
+	case PWRITE:{
+		int len = sp[3] > 64 ? 64 : sp[3];
+  		char *s = uvalidaddr(sp[2], len, 0);
+		int i;
+		char a[65];
+		memset(a, 0, sizeof(a));
+		for(i = 0; i < len; i++)
+			a[i] = isgraph(s[i]) ? s[i] : '.';
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d %#ux='%s' %d",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
+		sysctab[ureg->ax], sp[0], sp[1], sp[2], a, sp[3]);
 	break;
+	}
 	}
 	
 }
@@ -468,7 +519,6 @@ retprint(Ureg *ureg, int syscallno)
 		case OSEEK:
 		case SLEEP:
 		case _STAT:
-		case RFORK:
 		case _WRITE:
 		case PIPE:
 		case CREATE:
@@ -497,13 +547,33 @@ retprint(Ureg *ureg, int syscallno)
 		case FWSTAT:
 		case MOUNT:
 		case AWAIT:
-		case PREAD:
 		case PWRITE:
 		default: 
 			if(ureg->ax == -1)
 				up->syscalltrace = smprint("= %s\n", up->syserrstr);
 			else
 				up->syscalltrace = smprint("= %#ux\n", ureg->ax);
+		break;
+		case RFORK:
+			if(ureg->ax == -1)
+				up->syscalltrace = smprint("= %s\n", up->syserrstr);
+			else
+				up->syscalltrace = smprint("= %d\n", ureg->ax);
+		break;
+		case PREAD:
+			if(ureg->ax == -1)
+				up->syscalltrace = smprint("= %s\n", up->syserrstr);
+			else {
+				int len = up->s.args[2] > 64 ? 64 : up->s.args[2];
+				char *s = uvalidaddr(up->s.args[1], len, 0);
+				char a[65];
+				int i;
+				memset(a, 0, sizeof(a));
+				for(i = 0; i < len; i++)
+					a[i] = isgraph(s[i]) ? s[i] : '.';
+				up->syscalltrace = smprint("= %#ux='%s'\n", ureg->ax, a);
+			}
+		break;
 	}
 	
 }

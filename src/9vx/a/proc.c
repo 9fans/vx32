@@ -616,6 +616,10 @@ newproc(void)
 	p->fpstate = FPinit;
 	p->kp = 0;
 	p->procctl = 0;
+	if(up && (up->procctl == Proc_tracesyscall))
+		p->procctl = Proc_tracesyscall;
+	else
+		p->procctl = 0;
 	p->notepending = 0;
 	p->ureg = 0;
 	p->privatemem = 0;

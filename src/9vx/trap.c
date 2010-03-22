@@ -241,6 +241,7 @@ syscallprint(Ureg *ureg)
 			char *str = uvalidaddr(argv[i], 1, 0);
 			j += snprint(up->syscalltrace+j,4096-j, "[%d]=%s ", i, str);
 		}
+		snprint(up->syscalltrace+j,4096-j, ")");
 	break;
 	}
 	case EXITS:{
@@ -301,10 +302,9 @@ syscallprint(Ureg *ureg)
 		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
 	case SLEEP: {
-		uint32 *arg = uvalidaddr(sp[1], 1, 0);
 	up->syscalltrace = smprint("%d [%s] %s %#ux %d",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], arg[0]);
+		sysctab[ureg->ax], sp[0], sp[1]);
 	break;
 	}
 	case _STAT:{

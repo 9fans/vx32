@@ -339,9 +339,9 @@ syscallprint(Ureg *ureg)
 	break;
 	}
 	case FD2PATH:
-	up->syscalltrace = smprint("%d [%s] %s %#ux %d",
+	up->syscalltrace = smprint("%d [%s] %s %#ux %d %#ux %d",
 		up->pid, up->text,
-		sysctab[ureg->ax], sp[0], sp[1]);
+		sysctab[ureg->ax], sp[0], sp[1], sp[2], sp[3]);
 	break;
 	case BRK_:
 	up->syscalltrace = smprint("%d [%s] %s %#ux %08ux %08ux %08ux %08uxh",
@@ -522,7 +522,6 @@ retprint(Ureg *ureg, int syscallno)
 		case _WRITE:
 		case PIPE:
 		case CREATE:
-		case FD2PATH:
 		case BRK_:
 		case REMOVE:
 		case _WSTAT:
@@ -559,6 +558,14 @@ retprint(Ureg *ureg, int syscallno)
 				up->syscalltrace = smprint("= %s\n", up->syserrstr);
 			else
 				up->syscalltrace = smprint("= %d\n", ureg->ax);
+		break;
+		case FD2PATH:
+			if(ureg->ax == -1)
+				up->syscalltrace = smprint("= %s\n", up->syserrstr);
+			else {
+				char *s = uvalidaddr(up->s.args[1], up->s.args[2], 0);
+				up->syscalltrace = smprint("= %#ux='%s'\n", ureg->ax, s);
+			}
 		break;
 		case PREAD:
 			if(ureg->ax == -1)

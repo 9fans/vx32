@@ -620,6 +620,7 @@ newproc(void)
 		p->procctl = Proc_tracesyscall;
 	else
 		p->procctl = 0;
+	p->syscalltrace = 0;
 	p->notepending = 0;
 	p->ureg = 0;
 	p->privatemem = 0;
@@ -1051,6 +1052,8 @@ pexit(char *exitstr, int freemem)
 	Chan *dot;
 	void (*pt)(Proc*, int, vlong);
 
+	if (up->syscalltrace)
+		free(up->syscalltrace);
 	up->alarm = 0;
 	if (up->timer.tt)
 		timerdel(&up->timer);

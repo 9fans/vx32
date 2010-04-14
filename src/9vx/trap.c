@@ -197,9 +197,8 @@ syscallprint(Ureg *ureg)
 	else
 		prefix = smprint("%d %s %s%s %#ux", up->pid, up->text, special, sysctab[syscallno], sp[0]);
 
-	/* should never happen -- arguably, this should panic. */
 	if (up->syscalltrace)
-		free(up->syscalltrace);
+		panic("syscallprint");
 	switch(syscallno) {
 	case SYSR1:
 		up->syscalltrace = smprint("%s %08ux %08ux %08ux", prefix, sp[1], sp[2], sp[3]);
@@ -229,19 +228,22 @@ syscallprint(Ureg *ureg)
 		up->syscalltrace = smprint("%s %08ux ", prefix, sp[1]);
 		break;
 	case EXEC: {
+		char *execargs;
 		char *name =uvalidaddr(sp[1], 1, 0);
 		uint32 *argv = uvalidaddr(sp[2], 1, 0);
 		int j = 0, i;
-		up->syscalltrace = mallocz(4096,1);
-		j += snprint(up->syscalltrace, 4096, "%08ux/%s ",sp[1], name);
+		execargs = mallocz(4096,1);
+		j += snprint(execargs, 4096, "%08ux/\"%s\" ",sp[1], name);
 		/* more than 4096 of args, we just don't do */
 		for(i = 0; argv[i] && (j > 5); i++) {
 			char *str = uvalidaddr(argv[i], 1, 0);
-			j += snprint(up->syscalltrace+j,4096-j, "%08ux/%s ", argv[i], str);
+			j += snprint(execargs+j,4096-j, "%08ux/%s ", argv[i], str);
 		}
 		/* assume */
 		if (j == 5)
 			snprint(up->syscalltrace+j,4096-j, " ...");
+		up->syscalltrace = smprint("%s %s", prefix, execargs);
+		free(execargs);
 		break;
 	}
 	case EXITS:{
@@ -398,12 +400,12 @@ syscallprint(Ureg *ureg)
   		char *s = uvalidaddr(sp[2], len, 0);
 		int i;
 		char a[65];
-		if (! offset)
-			offset = *(vlong *)&sp[4];
 		memset(a, 0, sizeof(a));
 		for(i = 0; i < len; i++)
 			a[i] = isgraph(s[i]) ? s[i] : '.';
-		up->syscalltrace = smprint("%s %d %#ux/\"%s\" %d %#ullx", prefix, sp[1], sp[2], a, sp[3], offset);
+		if (! offset)
+			offset = *(vlong *)&sp[4];
+		up->syscalltrace = smprint("%s %d %#ux/\"%s\" %d %#llx", prefix, sp[1], sp[2], a, sp[3], offset);
 		break;
 	}
 	}
@@ -415,9 +417,10 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 {
 	char *prefix = nil;
 	int errstrlen = 0;
-	/* should never happen */
+	vlong offset = 0;
+
 	if (up->syscalltrace)
-		free(up->syscalltrace);
+		panic("retprint");
 	switch(syscallno) {
 		case SYSR1:
 		case BIND:
@@ -493,14 +496,15 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 			break;
 		}
 		case FD2PATH:
-			if(ureg->ax != -1)
-				up->syscalltrace = smprint("/%s\n", up->syserrstr);
+			if(ureg->ax == -1)
+				up->syscalltrace = smprint("/\"\" %d", up->s.args[2]);
 			else {
-				char *s = uvalidaddr(up->s.args[1], up->s.args[1], 0);
+				char *s = uvalidaddr(up->s.args[1], 1, 0);
 				up->syscalltrace = smprint("/\"%s\" %d", s, up->s.args[2]);
 			}
 			break;
 		case _READ:
+			offset = -1;
 		case PREAD:
 			if(ureg->ax == -1)
 				prefix = smprint("/\"\" %d 0x%ullx", up->s.args[2], *(vlong *)&up->s.args[3]);
@@ -512,13 +516,15 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 				memset(a, 0, sizeof(a));
 				for(i = 0; i < len; i++)
 					a[i] = isgraph(s[i]) ? s[i] : '.';
-				prefix = smprint("/\"%s\" %d 0x%ullx", a, up->s.args[2], *(vlong *)&up->s.args[3]);
+				if (! offset)
+					offset = *(vlong *)&up->s.args[3];
+				prefix = smprint("/\"%s\" %d %#llx", a, up->s.args[2], offset);
 			}
 		break;
 	}
 
 	if (prefix){
-		up->syscalltrace = smprint("%s = %d %s %#ullx %#ullx \n", prefix, ureg->ax, ureg->ax == -1 ? up->errstr : "\"\"", start, stop);
+		up->syscalltrace = smprint("%s = %d %s %#ullx %#ullx\n", prefix, ureg->ax, ureg->ax == -1 ? up->errstr : "\"\"", start, stop);
 		free(prefix);
 	} else {
 		up->syscalltrace = smprint(" = %d %s %#ullx %#ullx\n", ureg->ax, ureg->ax == -1  ? up->errstr : "\"\"", start, stop);

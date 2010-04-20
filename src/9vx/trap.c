@@ -228,7 +228,8 @@ syscallprint(Ureg *ureg)
 	vlong offset;
 	Fmt fmt;
 	int len;
-  	char *argv;
+  	uint32 argp, a;
+
 	sp = (uint32*)(up->pmmu.uzero + ureg->usp);
 	syscallno = ureg->ax;
 	offset = 0;
@@ -270,13 +271,14 @@ syscallprint(Ureg *ureg)
 		break;
 	case EXEC: 
 		fmtuserstring(&fmt, sp[1], "");
-		argv = uvalidaddr(sp[2], 1, 0);
-/*
-		for(i = 0; argv[i]; i++) {
+		argp = sp[2];
+		for(;;argp += BY2WD) {
+			a = *(uint32*)uvalidaddr(argp, BY2WD, 0);
+			if(a == 0)
+				break;
 			fmtprint(&fmt, " ");
-			fmtuserstring(&fmt, argv[i], "");
+			fmtuserstring(&fmt, a, "");
 		}
- */
 		break;
 	case EXITS:
 		fmtuserstring(&fmt, sp[1], "");
@@ -402,7 +404,7 @@ syscallprint(Ureg *ureg)
 		break;
 	case _READ: 
 	case PREAD:
-		fmtprint(&fmt, "%d %#ux", sp[1], sp[2]);
+		fmtprint(&fmt, "%d ", sp[1]);
 		break;
 	case _WRITE:
 		offset = -1;

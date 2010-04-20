@@ -616,7 +616,7 @@ newproc(void)
 	p->fpstate = FPinit;
 	p->kp = 0;
 	p->procctl = 0;
-	if(up && (up->procctl == Proc_tracesyscall))
+	if(up && up->procctl == Proc_tracesyscall)
 		p->procctl = Proc_tracesyscall;
 	else
 		p->procctl = 0;
@@ -839,7 +839,7 @@ twakeup(Ureg *ureg, Timer *t)
 void
 tsleep(Rendez *r, int (*fn)(void*), void *arg, ulong ms)
 {
-	if (up->timer.tt){
+	if(up->timer.tt){
 		print("tsleep: timer active: mode %d, tf 0x%lux\n", up->timer.tmode, up->timer.tf);
 		timerdel(&up->timer);
 	}
@@ -856,7 +856,7 @@ tsleep(Rendez *r, int (*fn)(void*), void *arg, ulong ms)
 		nexterror();
 	}
 	sleep(r, tfn, arg);
-	if (up->timer.tt)
+	if(up->timer.tt)
 		timerdel(&up->timer);
 	up->timer.twhen = 0;
 	poperror();
@@ -1052,10 +1052,10 @@ pexit(char *exitstr, int freemem)
 	Chan *dot;
 	void (*pt)(Proc*, int, vlong);
 
-	if (up->syscalltrace)
+	if(up->syscalltrace)
 		free(up->syscalltrace);
 	up->alarm = 0;
-	if (up->timer.tt)
+	if(up->timer.tt)
 		timerdel(&up->timer);
 	pt = proctrace;
 	if(pt)

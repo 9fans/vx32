@@ -754,7 +754,6 @@ struct Proc
 	PMMU pmmu;
 	/* syscall trace */
 	char *syscalltrace;
-	
 };
 
 enum

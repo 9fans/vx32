@@ -14,7 +14,7 @@ struct Ram
 	Ram	*next;
 	int	ref;
 	/* simple for now */
-	unsigned char **pages;
+	uchar **pages;
 	int pagecount;
 	int size;
 	int	qref[2];
@@ -233,15 +233,18 @@ ramclose(Chan *c)
 		qunlock(&p->lk);
 }
 
-static long rampageread(Ram *p, void *va, long n, vlong offset)
+static long 
+rampageread(Ram *p, void *va, long n, vlong offset)
 {
 	int i;
-	long total = n, offinpage, leninpage;
+	long total, offinpage, leninpage;
+
+	total = n;
 
 	/* figure out what range we can actually read */
-	if (offset > p->size)
+	if(offset > p->size)
 		return 0;
-	if (offset + n > p->size) 
+	if(offset + n > p->size) 
 		n = p->size - offset;
 	/* granular copy */
 	for(i = offset / BY2PG; n > 0; i++) {
@@ -249,7 +252,7 @@ static long rampageread(Ram *p, void *va, long n, vlong offset)
 		offinpage = offset & (BY2PG - 1);
 		leninpage = BY2PG - offinpage;
 		/* unless there is too little left ... */
-		if (leninpage > n)
+		if(leninpage > n)
 			leninpage = n;
 		memcpy(va, p->pages[i] + offinpage, leninpage);
 		offset += offinpage;
@@ -288,15 +291,17 @@ ramread(Chan *c, void *va, long n, vlong offset)
 }
 
 /* for the range offset .. offset + n, make sure we have pages */
-static void pages(Ram *p, long n, vlong offset)
+static 
+void pages(Ram *p, long n, vlong offset)
 {
 	int i;
 	int newpagecount;
-	unsigned char **newpages;
+	uchar **newpages;
+
 	newpagecount = (offset + n + BY2PG-1)/BY2PG;
-	if (newpagecount > p->pagecount) {
+	if(newpagecount > p->pagecount) {
 		newpages = mallocz(sizeof(char *) * newpagecount, 1);
-		if (! newpages)
+		if(!newpages)
 			error("No more pages in devram");
 		memcpy(newpages, p->pages, sizeof(char *) * p->pagecount);
 		free(p->pages);
@@ -304,17 +309,21 @@ static void pages(Ram *p, long n, vlong offset)
 		p->pagecount = newpagecount;
 		/* now allocate them */
 		for(i = offset / BY2PG; i < newpagecount; i++) {
-			if (p->pages[i])
+			if(p->pages[i])
 				continue;
 			p->pages[i] = mallocz(BY2PG, 1);
 		}
 	}
 }
-static long rampagewrite(Ram *p, void *va, long n, vlong offset)
+
+static long 
+rampagewrite(Ram *p, void *va, long n, vlong offset)
 {
 	int i;
-	long total = n, offinpage, leninpage;
+	long total, offinpage, leninpage;
 	long newsize;
+
+	total = n;
 	pages(p, n, offset);
 	
 	/* granular copy */
@@ -324,7 +333,7 @@ static long rampagewrite(Ram *p, void *va, long n, vlong offset)
 		offinpage = offset & (BY2PG - 1);
 		leninpage = BY2PG - offinpage;
 		/* unless there is too little left ... */
-		if (leninpage > n)
+		if(leninpage > n)
 			leninpage = n;
 		memcpy(p->pages[i] + offinpage, va, leninpage);
 		offset += leninpage;
@@ -338,6 +347,9 @@ static long
 ramwrite(Chan *c, void *va, long n, vlong offset)
 {
 	Ram *p;
+	int i;
+	uchar **new;
+	uchar *page;
 
 	if(!islo())
 		print("ramwrite hi %lux\n", getcallerpc(&c));
@@ -348,10 +360,9 @@ ramwrite(Chan *c, void *va, long n, vlong offset)
 		break;
 
 	case Qctl:
-		if (strcmp(va, "free") == 0) {
-			int i;
-			unsigned char **new = mallocz(sizeof(char *), 1);
-			unsigned char *page = p->pages[0];
+		if(strcmp(va, "free") == 0) {
+			new = mallocz(sizeof(char *), 1);
+			page = p->pages[0];
 			for(i = 1; i < p->pagecount; i++)
 				free(p->pages[i]);
 			free(p->pages);

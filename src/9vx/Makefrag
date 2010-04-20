@@ -33,6 +33,7 @@ PLAN9_OBJS = \
 		devip-posix.o \
 		devmntloop.o \
 		devmouse.o \
+		devram.o \
 		devtab.o \
 		factotum.o \
 		kprocdev.o \
@@ -74,7 +75,6 @@ PLAN9_A_OBJS = \
 		devmnt.o \
 		devproc.o \
 		devpipe.o \
-		devram.o \
 		devroot.o \
 		devsd.o \
 		devsrv.o \

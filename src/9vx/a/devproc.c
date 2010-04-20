@@ -31,7 +31,7 @@ enum
 	Qtext,
 	Qwait,
 	Qprofile,
-	Qtruss,
+	Qsyscall,
 };
 
 enum
@@ -85,7 +85,7 @@ Dirtab procdir[] =
 	"text",		{Qtext},	0,			0000,
 	"wait",		{Qwait},	0,			0400,
 	"profile",	{Qprofile},	0,			0400,
-	"truss",	{Qtruss},	0,			0400,
+	"syscall",	{Qsyscall},	0,			0400,
 };
 
 static
@@ -399,7 +399,7 @@ procopen(Chan *c, int omode)
 	case Qwait:
 	case Qregs:
 	case Qfpregs:
-	case Qtruss:
+	case Qsyscall:
 		nonone(p);
 		break;
 
@@ -709,8 +709,8 @@ procread(Chan *c, void *va, long n, vlong off)
 		memmove(a, &up->genbuf[offset], n);
 		return n;
 
-	case Qtruss:
-		if (! p->syscalltrace)
+	case Qsyscall:
+		if(!p->syscalltrace)
 			return 0;
 		n = readstr(offset, a, n, p->syscalltrace);
 		return n;

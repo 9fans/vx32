@@ -237,9 +237,9 @@ syscallprint(Ureg *ureg)
 	/* accomodate process-private system calls */
 
 	if(syscallno > nelem(sysctab))
-		fmtprint(&fmt, " %d %#x", syscallno, sp[0]);
+		fmtprint(&fmt, " %d %#x ", syscallno, sp[0]);
 	else
-		fmtprint(&fmt, "%s %#ux", sysctab[syscallno], sp[0]);
+		fmtprint(&fmt, "%s %#ux ", sysctab[syscallno], sp[0]);
 
 	if(up->syscalltrace)
 		free(up->syscalltrace);
@@ -271,10 +271,12 @@ syscallprint(Ureg *ureg)
 	case EXEC: 
 		fmtuserstring(&fmt, sp[1], "");
 		argv = uvalidaddr(sp[2], 1, 0);
+/*
 		for(i = 0; argv[i]; i++) {
 			fmtprint(&fmt, " ");
 			fmtuserstring(&fmt, argv[i], "");
 		}
+ */
 		break;
 	case EXITS:
 		fmtuserstring(&fmt, sp[1], "");
@@ -397,7 +399,7 @@ syscallprint(Ureg *ureg)
 		fmtuserstring(&fmt, sp[5], "");
 		break;
 	case AWAIT:
-		fmtprint(&fmt, "%08ux %#ux", sp[1], sp[2]);
+		fmtprint(&fmt, "%#ux", sp[1]);
 		break;
 	case _READ: 
 	case PREAD:
@@ -490,7 +492,8 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 	break;
 	case AWAIT:
 		if(ureg->ax > 0){
-			fmtuserstring(&fmt, up->s.args[1], "");
+			fmtuserstring(&fmt, up->s.args[0], " ");
+			fmtprint(&fmt, "%d", up->s.args[1]);
 		} else {
 			fmtprint(&fmt, "\"\" %d", up->s.args[1]);
 		}

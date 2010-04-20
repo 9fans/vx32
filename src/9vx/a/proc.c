@@ -615,7 +615,6 @@ newproc(void)
 	p->pdbg = 0;
 	p->fpstate = FPinit;
 	p->kp = 0;
-	p->procctl = 0;
 	if(up && up->procctl == Proc_tracesyscall)
 		p->procctl = Proc_tracesyscall;
 	else

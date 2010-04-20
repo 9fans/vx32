@@ -185,7 +185,7 @@ fmtrwdata(Fmt *f, ulong s, int n, char *suffix)
 	int i;
 
 	if (! s) {
-		fmtprint(f, "0%s", suffix);
+		fmtprint(f, "0x0", suffix);
 		return;
 	}
 	src = uvalidaddr(s, 1, 0);
@@ -196,7 +196,7 @@ fmtrwdata(Fmt *f, ulong s, int n, char *suffix)
 		else
 			t[i] = '.';
 
-	fmtprint(f, "%08ux/%s%s", s, t, suffix);
+	fmtprint(f, "%08ux/\"%s\"%s", s, t, suffix);
 	free(t);
 }
 
@@ -207,7 +207,7 @@ fmtuserstring(Fmt *f, ulong s, char *suffix)
 	int n;
 
 	if (! s){
-		fmtprint(f, "0/\"\"");
+		fmtprint(f, "0/\"\"%s", suffix);
 		return;
 	}
 	src = uvalidaddr(s, 1, 0);
@@ -227,7 +227,7 @@ syscallprint(Ureg *ureg)
 	int syscallno;
 	vlong offset;
 	Fmt fmt;
-	int len, i;
+	int len;
   	char *argv;
 	sp = (uint32*)(up->pmmu.uzero + ureg->usp);
 	syscallno = ureg->ax;
@@ -399,7 +399,6 @@ syscallprint(Ureg *ureg)
 		fmtuserstring(&fmt, sp[5], "");
 		break;
 	case AWAIT:
-		fmtprint(&fmt, "%#ux", sp[1]);
 		break;
 	case _READ: 
 	case PREAD:
@@ -419,7 +418,6 @@ syscallprint(Ureg *ureg)
 		fmtprint(&fmt, "%d %#llx", sp[3], offset);
 		break;
 	}
-done:
 	up->syscalltrace = fmtstrflush(&fmt);
 }
 
@@ -495,7 +493,7 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 			fmtuserstring(&fmt, up->s.args[0], " ");
 			fmtprint(&fmt, "%d", up->s.args[1]);
 		} else {
-			fmtprint(&fmt, "\"\" %d", up->s.args[1]);
+			fmtprint(&fmt, "%#ux/\"\" %d", up->s.args[0], up->s.args[1]);
 		}
 		break;
 	case _ERRSTR:

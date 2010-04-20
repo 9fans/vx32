@@ -178,18 +178,17 @@ dumpregs(Ureg* ureg)
 	 */
 }
 
-/* rsc: combine these into one? */
 static void
-fmtrwdata(Fmt *f, ulong s, int max, char *suffix)
+fmtrwdata(Fmt *f, ulong s, int n, char *suffix)
 {
-	char *es, *t, *src;
-	int n;
+	char *t, *src;
 	int i;
 
-	src = (char *) s;
-	uvalidaddr(s, 1, 0);
-	es = vmemchr((void *)s, 0, max);
-	n = es - src;
+	if (! s) {
+		fmtprint(f, "0%s", suffix);
+		return;
+	}
+	src = uvalidaddr(s, 1, 0);
 	t = smalloc(n+1);
 	for(i = 0; i < n; i++)
 		if (isgraph(src[i]))
@@ -207,14 +206,17 @@ fmtuserstring(Fmt *f, ulong s, char *suffix)
 	char *es, *t, *src;
 	int n;
 
-	src = (char *)s;
-	uvalidaddr((ulong)s, 1, 0);
-	es = vmemchr((void *)s, 0, 1<<16);
+	if (! s){
+		fmtprint(f, "0/\"\"");
+		return;
+	}
+	src = uvalidaddr(s, 1, 0);
+	es = vmemchr(src, 0, 1<<16);
 	n = es - src;
 	t = smalloc(n+1);
 	memmove(t, src, n);
 	t[n] = 0;
-	fmtprint(f, "%08ux/%q%s", s, t, suffix);
+	fmtprint(f, "%08ux/\"%s\"%s", s, t, suffix);
 	free(t);
 }
 
@@ -227,13 +229,11 @@ syscallprint(Ureg *ureg)
 	Fmt fmt;
 	int len, i;
   	char *argv;
-
 	sp = (uint32*)(up->pmmu.uzero + ureg->usp);
 	syscallno = ureg->ax;
 	offset = 0;
 	fmtstrinit(&fmt);
-	fmtprint(&fmt, "%d %s", up->pid, up->text);
-
+	fmtprint(&fmt, "%d %s ", up->pid, up->text);
 	/* accomodate process-private system calls */
 
 	if(syscallno > nelem(sysctab))
@@ -277,7 +277,7 @@ syscallprint(Ureg *ureg)
 		}
 		break;
 	case EXITS:
-		 fmtuserstring(&fmt, sp[1], "");
+		fmtuserstring(&fmt, sp[1], "");
 		break;
 	case _FSESSION:
 		fmtprint(&fmt, "%08ux %08ux %08ux", sp[1], sp[2], sp[3]);
@@ -411,12 +411,13 @@ syscallprint(Ureg *ureg)
 			len = sp[3];
 		else
 			len = 64;
- 		fmtrwdata(&fmt, sp[2], len, " ");
+		fmtrwdata(&fmt, sp[2], len, " ");
 		if(! offset)
 			offset = *(vlong *)&sp[4];
 		fmtprint(&fmt, "%d %#llx", sp[3], offset);
 		break;
 	}
+done:
 	up->syscalltrace = fmtstrflush(&fmt);
 }
 
@@ -432,7 +433,7 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 	len = 0;
 	errstrlen = 0;
 	offset = 0;
-	if (ureg->ax == -1)
+	if (ureg->ax != -1)
 		errstr = "\"\"";
 	else
 		errstr = up->errstr;

@@ -536,7 +536,10 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 	break;
 	}
 
-	fmtprint(&fmt, " = %d %s %#ullx %#ullx\n", ureg->ax, errstr, start, stop);
+	if (syscallno == EXEC) 
+		fmtprint(&fmt, " = %p %s %#ullx %#ullx\n", ureg->ax, errstr, start, stop);
+	else
+		fmtprint(&fmt, " = %d %s %#ullx %#ullx\n", ureg->ax, errstr, start, stop);
 
 	up->syscalltrace = fmtstrflush(&fmt);
 }

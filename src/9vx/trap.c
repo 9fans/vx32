@@ -438,7 +438,7 @@ retprint(Ureg *ureg, int syscallno, uvlong start, uvlong stop)
 	if (ureg->ax != -1)
 		errstr = "";
 	else
-		errstr = up->errstr;
+		errstr = up->syserrstr;
 
 	if(up->syscalltrace)
 		free(up->syscalltrace);

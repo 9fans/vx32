@@ -1,10 +1,10 @@
 </$objtype/mkfile
 
-TARG=syscalltrace
+TARG=ratrace
 HFILES=\
 
 OFILES=\
-	syscalltrace.$O\
+	ratrace.$O\
 
 BIN=/$objtype/bin
 </sys/src/cmd/mkone

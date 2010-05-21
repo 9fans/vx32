@@ -29,6 +29,22 @@ cwrite(int fd, char *path, char *cmd, int len)
 		threadexits(nil);
 	}
 }
+
+void
+hang(int pid)
+{
+	char *ctl;
+	int cfd;
+	ctl = smprint("/proc/%d/ctl", pid);
+	if ((cfd = open(ctl, OWRITE)) < 0)
+		die(smprint("%s: %r", ctl));
+	if (write(cfd, "hang", 4) < 4) {
+		print("%s: %r\n", ctl);
+		exits("can't hang child");
+	}
+
+}
+
 void
 reader(void *v)
 {
@@ -154,6 +170,7 @@ threadmain(int argc, char **argv)
 			exits("fork failed");
 		}
 		if(pid == 0) {
+			hang(getpid());
 			exec(cmd, args);
 			fprint(2, "Bad exec: %s: %r\n", cmd);
 			exits("Bad exec");

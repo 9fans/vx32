@@ -72,7 +72,7 @@ enum {
 					 ((p)<<PartSHIFT)|((t)<<TypeSHIFT))
 
 
-static void
+void
 sdaddpart(SDunit* unit, char* name, uvlong start, uvlong end)
 {
 	SDpart *pp;
@@ -133,6 +133,19 @@ sdaddpart(SDunit* unit, char* name, uvlong start, uvlong end)
 	kstrdup(&pp->perm.user, eve);
 	pp->perm.perm = 0640;
 	pp->valid = 1;
+}
+
+SDpart*
+sdfindpart(SDunit *unit, char *name)
+{
+	int i;
+
+	for(i=0; i<unit->npart; i++) {
+		if(strcmp(unit->part[i].perm.name, name) == 0){
+			return &unit->part[i];
+		}
+	}
+	return nil;
 }
 
 static void
@@ -198,6 +211,7 @@ sdinitpart(SDunit* unit)
 	if(unit->sectors){
 		sdincvers(unit);
 		sdaddpart(unit, "data", 0, unit->sectors);
+		partition(unit);
 #if 0
 		/*
 		 * Use partitions passed from boot program,

@@ -167,6 +167,9 @@ void	*uvalidaddr(ulong addr, ulong len, int write);
 int	isuaddr(void*);
 void	setsigsegv(int invx32);
 
+#define GSHORT(p)	(((p)[1]<<8)|(p)[0])
+#define GLONG(p)	((GSHORT(p+2)<<16)|GSHORT(p))
+
 void	plock(Psleep*);
 void	punlock(Psleep*);
 void	pwakeup(Psleep*);

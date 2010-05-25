@@ -22,6 +22,7 @@ struct Ctlr{
 	Chan	*c;
 	int		mode;
 	uvlong	qidpath;
+	char		fn[20];
 };
 
 static	Lock	ctlrlock;
@@ -30,9 +31,47 @@ static	Ctlr	*ctlrtail;
 
 SDifc sdloopifc;
 
+static void
+loopopen(Ctlr *c)
+{
+	if(c->c == nil)
+		c->c = namec(c->fn, Aopen, c->mode, 0);
+}
+
 static SDev*
 looppnp(void)
 {
+	struct stat sbuf;
+	char c, c2;
+	char fn[20];
+
+	for(c = 'a'; c <= 'j'; ++c){
+		sprint(fn, "#Z/dev/sd%c", c);
+		if(stat(fn+2, &sbuf) == 0)
+			loopdev(fn, ORDWR);
+	}
+	for(c = '0'; c <= '9'; ++c){
+		sprintf(fn, "#Z/dev/sd%c",c);
+		if(stat(fn+2, &sbuf) == 0)
+			loopdev(fn, ORDWR);
+	}
+	for(c = 'a'; c <= 'j'; ++c){
+		sprint(fn, "#Z/dev/hd%c", c);
+		if(stat(fn+2, &sbuf) == 0)
+			loopdev(fn, ORDWR);
+	}
+	for(c = '0'; c <= '9'; ++c){
+		sprint(fn, "#Z/dev/wd%c", c);
+		if(stat(fn+2, &sbuf) == 0)
+			loopdev(fn, ORDWR);
+	}
+	for(c = '0'; c <= '8'; ++c){
+		for(c2 = '0'; c2 <= '8'; ++c2){
+			sprint(fn, "#Z/dev/cciss/c%cd%c", c, c2);
+			if(stat(fn+2, &sbuf) == 0)
+				loopdev(fn, ORDWR);
+		}
+	}
 	return nil;
 }
 
@@ -69,6 +108,7 @@ looponline(SDunit *unit)
 
 	sdev = unit->dev;
 	ctlr = sdev->ctlr;
+	loopopen(ctlr);
 	c = ctlr->c;
 	n = devtab[c->type]->stat(c, buf, sizeof buf);
 	if(convM2D(buf, n, &dir, nil) == 0)
@@ -99,6 +139,7 @@ looprio(SDreq *r)
 	unit = r->unit;
 	sdev = unit->dev;
 	ctlr = sdev->ctlr;
+	loopopen(ctlr);
 	cmd = r->cmd;
 
 	if((status = sdfakescsi(r, nil, 0)) != SDnostatus){
@@ -141,6 +182,7 @@ looprctl(SDunit *unit, char *p, int l)
 	char *e, *op;
 	
 	ctlr = unit->dev->ctlr;
+	loopopen(ctlr);
 	e = p+l;
 	op = p;
 	
@@ -170,7 +212,8 @@ loopclear1(Ctlr *ctlr)
 		ctlrtail = ctlr->prev;
 	unlock(&ctlrlock);
 	
-	cclose(ctlr->c);
+	if(ctlr->c)
+		cclose(ctlr->c);
 	free(ctlr);
 }
 
@@ -187,6 +230,7 @@ looprtopctl(SDev *s, char *p, char *e)
 	char *r;
 
 	c = s->ctlr;
+	loopopen(c);
 	r = "ro";
 	if(c->mode == ORDWR)
 		r = "rw";
@@ -219,9 +263,9 @@ loopdev(char *name, int mode)
 	Ctlr *volatile ctlr;
 	SDev *volatile sdev;
 
-	c = namec(name, Aopen, mode, 0);
 	ctlr = nil;
 	sdev = nil;
+/*
 	if(waserror()){
 		cclose(c);
 		if(ctlr)
@@ -230,6 +274,7 @@ loopdev(char *name, int mode)
 			free(sdev);
 		nexterror();
 	}
+*/
 
 	ctlr = smalloc(sizeof *ctlr);
 	sdev = smalloc(sizeof *sdev);
@@ -238,9 +283,11 @@ loopdev(char *name, int mode)
 	sdev->nunit = 1;
 	sdev->idno = '0';
 	ctlr->sdev = sdev;
-	ctlr->c = c;
+	strcpy(ctlr->fn, name);
 	ctlr->mode = mode;
+/*
 	poperror();
+*/
 
 	lock(&ctlrlock);
 	ctlr->next = nil;

@@ -129,9 +129,14 @@ extern void sdadddevs(SDev*);
 extern int sdsetsense(SDreq*, int, int, int, int);
 extern int sdmodesense(SDreq*, uchar*, void*, int);
 extern int sdfakescsi(SDreq*, void*, int);
+extern void sdaddpart(SDunit*, char*, uvlong, uvlong);
+extern SDpart* sdfindpart(SDunit*, char*);
 
 /* sdscsi.c */
 extern int scsiverify(SDunit*);
 extern int scsionline(SDunit*);
 extern long scsibio(SDunit*, int, int, void*, long, uvlong);
 extern SDev* scsiid(SDev*, SDifc*);
+
+/* part.c */
+extern void partition(SDunit*);

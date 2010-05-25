@@ -16,4 +16,7 @@ int	tailkmesg(char*, int);
 void	trap(Ureg*);
 void	uartecho(char*, int);
 void	uartinit(int);
+
+#define GSHORT(p)	(((p)[1]<<8)|(p)[0])
+#define GLONG(p)	((GSHORT(p+2)<<16)|GSHORT(p))
 .

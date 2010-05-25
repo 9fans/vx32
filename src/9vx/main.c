@@ -42,6 +42,7 @@ char*	argv0;
 char*	conffile = "9vx";
 Conf	conf;
 
+static char*	inifile;
 static int	bootboot;	/* run /boot/boot instead of bootscript */
 static int	initrc;	/* run rc instead of init */
 static char*	username;
@@ -62,7 +63,8 @@ static char*	findroot(void);
 void
 usage(void)
 {
-	fprint(2, "usage: 9vx [-gt] [-r root] [-u user]\n");
+	// TODO(yy): add debug and other options by ron
+	fprint(2, "usage: 9vx [-bgit] [-r root] [-u user] [-p ini file]\n");
 	exit(1);
 }
 
@@ -131,6 +133,9 @@ main(int argc, char **argv)
 		break;
 	case 'i':
 		initrc = 1;
+		break;
+	case 'p':
+		inifile = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -304,6 +309,12 @@ bootinit(void)
 	 */
 	extern uchar factotumcode[];
 	extern long factotumlen;
+	extern uchar fossilcode[];
+	extern long fossillen;
+	extern uchar venticode[];
+	extern long ventilen;
+	extern uchar ipconfigcode[];
+	extern long ipconfiglen;
 
 	if(bootboot){
 		extern uchar bootcode[];
@@ -314,6 +325,9 @@ bootinit(void)
 	else
 		addbootfile("boot", (uchar*)bootscript, strlen(bootscript));
 	addbootfile("factotum", factotumcode, factotumlen);
+	addbootfile("fossil", fossilcode, fossillen);
+	addbootfile("venti", venticode, ventilen);
+	addbootfile("ipconfig", ipconfigcode, ipconfiglen);
 }
 
 static uchar *sp;	/* user stack of init proc */
@@ -484,6 +498,8 @@ init0(void)
 		ksetenv("service", "terminal", 0);
 	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
+	if(inifile)
+		dotini(inifile);
 	
 	/* if we're not running /boot/boot, mount / and create /srv/boot */
 	if(!bootboot){

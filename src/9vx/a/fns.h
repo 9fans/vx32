@@ -151,6 +151,7 @@ int	xchgw(ushort*, int);
 #define	dcflush(a, b)
 
 // Plan 9 VX additions
+int dotini(char *fn);
 void	gotolabel(Label*);
 void	labelinit(Label *l, ulong pc, ulong sp);
 void	latin1putc(int, void(*)(int));

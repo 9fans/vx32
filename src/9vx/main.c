@@ -25,11 +25,17 @@
 #include	"arg.h"
 #include	"tos.h"
 
+#include "fs.h"
+
 #define Image IMAGE
 #include	"draw.h"
 #include	"memdraw.h"
 #include	"cursor.h"
 #include	"screen.h"
+
+#define BOOTLINELEN	64
+#define	BOOTARGSLEN	(3584-0x200-BOOTLINELEN)
+#define	MAXCONF		100
 
 extern Dev ipdevtab;
 extern Dev drawdevtab;
@@ -153,6 +159,9 @@ main(int argc, char **argv)
 	if(argc != 0)
 		usage();
 	
+	if(inifile)
+		dotini(inifile);
+
 	if(!bootboot){
 		if(localroot == nil && (localroot = findroot()) == nil)
 			panic("cannot find plan 9 root; use -r");
@@ -220,6 +229,95 @@ main(int argc, char **argv)
 	active.thunderbirdsarego = 1;
 	schedinit();
 	return 0;  // Not reached
+}
+
+/*
+ *  read configuration file
+ */
+static char inibuf[BOOTARGSLEN];
+
+int
+dotini(char *fn)
+{
+	int blankline, i, incomment, inspace, n, fd;
+	char *cp, *p, *q, *line[MAXCONF];
+
+	if((fd = open(fn, OREAD)) < 0)
+		return -1;
+
+	cp = inibuf;
+	*cp = 0;
+	n = read(fd, cp, BOOTARGSLEN-1);
+	close(fd);
+	if(n <= 0)
+		return -1;
+
+	cp[n] = 0;
+
+	/*
+	 * Strip out '\r', change '\t' -> ' '.
+	 * Change runs of spaces into single spaces.
+	 * Strip out trailing spaces, blank lines.
+	 *
+	 * We do this before we make the copy so that if we 
+	 * need to change the copy, it is already fairly clean.
+	 * The main need is in the case when plan9.ini has been
+	 * padded with lots of trailing spaces, as is the case 
+	 * for those created during a distribution install.
+	 */
+	p = cp;
+	blankline = 1;
+	incomment = inspace = 0;
+	for(q = cp; *q; q++){
+		if(*q == '\r')
+			continue;
+		if(*q == '\t')
+			*q = ' ';
+		if(*q == ' '){
+			inspace = 1;
+			continue;
+		}
+		if(*q == '\n'){
+			if(!blankline){
+				if(!incomment)
+					*p++ = '\n';
+				blankline = 1;
+			}
+			incomment = inspace = 0;
+			continue;
+		}
+		if(inspace){
+			if(!blankline && !incomment)
+				*p++ = ' ';
+			inspace = 0;
+		}
+		if(blankline && *q == '#')
+			incomment = 1;
+		blankline = 0;
+		if(!incomment)
+			*p++ = *q;	
+	}
+	if(p > cp && p[-1] != '\n')
+		*p++ = '\n';
+	*p++ = 0;
+	n = p-cp;
+
+	n = getfields(cp, line, MAXCONF, 0, "\n");
+	for(i = 0; i < n; i++){
+		cp = strchr(line[i], '=');
+		if(cp == 0)
+			continue;
+		*cp++ = 0;
+		if(cp - line[i] >= NAMELEN+1)
+			*(line[i]+NAMELEN-1) = 0;
+		if(strcmp(line[i], "localroot") == 0)
+			localroot = cp;
+		else if(strcmp(line[i], "user") == 0)
+			username = cp;
+		else
+			ksetenv(line[i], cp, 0);
+	}
+	return 0;
 }
 
 /*
@@ -313,8 +411,6 @@ bootinit(void)
 	extern long fossillen;
 	extern uchar venticode[];
 	extern long ventilen;
-	extern uchar ipconfigcode[];
-	extern long ipconfiglen;
 
 	if(bootboot){
 		extern uchar bootcode[];
@@ -497,8 +593,6 @@ init0(void)
 		ksetenv("service", "terminal", 0);
 	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
-	if(inifile)
-		dotini(inifile);
 	
 	/* if we're not running /boot/boot, mount / and create /srv/boot */
 	if(!bootboot){

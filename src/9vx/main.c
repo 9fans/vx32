@@ -327,7 +327,6 @@ bootinit(void)
 	addbootfile("factotum", factotumcode, factotumlen);
 	addbootfile("fossil", fossilcode, fossillen);
 	addbootfile("venti", venticode, ventilen);
-	addbootfile("ipconfig", ipconfigcode, ipconfiglen);
 }
 
 static uchar *sp;	/* user stack of init proc */

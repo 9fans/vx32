@@ -38,7 +38,6 @@ PLAN9_OBJS = \
 		devtab.o \
 		factotum.o \
 		fossil.o \
-		ipconfig.o \
 		kprocdev.o \
 		label.o \
 		main.o \
@@ -184,9 +183,6 @@ PLAN9_DEPS = \
 9vx/fossil.S: 9vx/data2s 9vx/fossil.9
 	./9vx/data2s fossil < 9vx/fossil.9 >$@_ && mv $@_ $@
 
-9vx/ipconfig.S: 9vx/data2s 9vx/ipconfig.9
-	./9vx/data2s ipconfig < 9vx/ipconfig.9 > $@_ && mv $@_ $@
-
 9vx/venti.S: 9vx/data2s 9vx/venti.9
 	./9vx/data2s venti < 9vx/venti.9 > $@_ && mv $@_ $@
 
@@ -216,7 +212,6 @@ CLEAN_FILES += \
 	9vx/bootcode.S \
 	9vx/factotum.S \
 	9vx/fossil.S \
-	9vx/ipconfig.S \
 	9vx/venti.S
 
 include 9vx/libdraw/Makefrag

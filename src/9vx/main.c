@@ -61,6 +61,7 @@ extern int nuspace;
 static int singlethread;
 
 static void	bootinit(void);
+static int	dotini(char *fn);
 static void	siginit(void);
 
 static char*	getuser(void);

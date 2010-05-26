@@ -160,10 +160,7 @@ main(int argc, char **argv)
 	if(argc != 0)
 		usage();
 	
-	if(inifile)
-		dotini(inifile);
-
-	if(!bootboot){
+	if(!bootboot && !inifile){
 		if(localroot == nil && (localroot = findroot()) == nil)
 			panic("cannot find plan 9 root; use -r");
 		snprint(buf, sizeof buf, "%s/386/bin/rc", localroot);
@@ -311,10 +308,11 @@ dotini(char *fn)
 		*cp++ = 0;
 		if(cp - line[i] >= NAMELEN+1)
 			*(line[i]+NAMELEN-1) = 0;
+		// Too late to set username
+		//if(strcmp(line[i], "user") == 0)
+		//	username = cp;
 		if(strcmp(line[i], "localroot") == 0)
 			localroot = cp;
-		else if(strcmp(line[i], "user") == 0)
-			username = cp;
 		else
 			ksetenv(line[i], cp, 0);
 	}
@@ -584,6 +582,12 @@ init0(void)
 	chandevinit();
 
 	/* set up environment */
+	if(inifile){
+		conffile=inifile;
+		dotini(inifile);
+		if(localroot == nil && (localroot = findroot()) == nil)
+			panic("cannot find plan 9 root; use -r");
+	}
 	snprint(buf, sizeof(buf), "%s %s", "vx32" /*arch->id*/, conffile);
 	ksetenv("terminal", buf, 0);
 	ksetenv("cputype", "386", 0);
@@ -594,7 +598,7 @@ init0(void)
 		ksetenv("service", "terminal", 0);
 	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
-	
+
 	/* if we're not running /boot/boot, mount / and create /srv/boot */
 	if(!bootboot){
 		kbind("#Zplan9/", "/", MAFTER);

@@ -49,6 +49,8 @@ char*	conffile = "9vx";
 Conf	conf;
 
 static char*	inifile;
+static char	inibuf[BOOTARGSLEN];
+static char	*iniline[MAXCONF];
 static int	bootboot;	/* run /boot/boot instead of bootscript */
 static int	initrc;	/* run rc instead of init */
 static char*	username;
@@ -61,8 +63,12 @@ extern int nuspace;
 static int singlethread;
 
 static void	bootinit(void);
-static int	dotini(char *fn);
 static void	siginit(void);
+
+static int	readini(char *fn);
+static void	inifields(void (*fp)(char*, char*));
+static void	iniopt(char *name, char *value);
+static void	inienv(char *name, char *value);
 
 static char*	getuser(void);
 static char*	findroot(void);
@@ -160,7 +166,14 @@ main(int argc, char **argv)
 	if(argc != 0)
 		usage();
 	
-	if(!bootboot && !inifile){
+	if(inifile){
+		if(readini(inifile) != 0)
+			panic("error reading config file %s", inifile);
+		conffile=inifile;
+		inifields(&iniopt);
+	}
+
+	if(!bootboot){
 		if(localroot == nil && (localroot = findroot()) == nil)
 			panic("cannot find plan 9 root; use -r");
 		snprint(buf, sizeof buf, "%s/386/bin/rc", localroot);
@@ -232,13 +245,11 @@ main(int argc, char **argv)
 /*
  *  read configuration file
  */
-static char inibuf[BOOTARGSLEN];
-
 int
-dotini(char *fn)
+readini(char *fn)
 {
-	int blankline, i, incomment, inspace, n, fd;
-	char *cp, *p, *q, *line[MAXCONF];
+	int blankline, incomment, inspace, n, fd;
+	char *cp, *p, *q;
 
 	if((fd = open(fn, OREAD)) < 0)
 		return -1;
@@ -298,25 +309,52 @@ dotini(char *fn)
 	if(p > cp && p[-1] != '\n')
 		*p++ = '\n';
 	*p++ = 0;
-	n = p-cp;
 
-	n = getfields(cp, line, MAXCONF, 0, "\n");
-	for(i = 0; i < n; i++){
-		cp = strchr(line[i], '=');
+	getfields(cp, iniline, MAXCONF, 0, "\n");
+
+	return 0;
+}
+
+void
+inifields(void (*fp)(char*, char*))
+{
+	int i;
+	char *cp;
+
+	for(i = 0; i < MAXCONF; i++){
+		if(!iniline[i])
+			break;
+		cp = strchr(iniline[i], '=');
 		if(cp == 0)
 			continue;
 		*cp++ = 0;
-		if(cp - line[i] >= NAMELEN+1)
-			*(line[i]+NAMELEN-1) = 0;
-		// Too late to set username
-		//if(strcmp(line[i], "user") == 0)
-		//	username = cp;
-		if(strcmp(line[i], "localroot") == 0)
-			localroot = cp;
-		else
-			ksetenv(line[i], cp, 0);
+		if(cp - iniline[i] >= NAMELEN+1)
+			*(iniline[i]+NAMELEN-1) = 0;
+		(fp)(iniline[i], cp);
+		*(cp-1) = '=';
 	}
-	return 0;
+}
+
+void
+iniopt(char *name, char *value)
+{
+	if(*name == '*')
+		name++;
+	if(strcmp(name, "bootboot") == 0)
+		bootboot = 1;
+	else if(strcmp(name, "initrc") == 0)
+		initrc = 1;
+	else if(strcmp(name, "localroot") == 0)
+		localroot = value;
+	else if(strcmp(name, "user") == 0)
+		username = value;
+}
+
+void
+inienv(char *name, char *value)
+{
+	if(*name != '*')
+		ksetenv(name, value, 0);
 }
 
 /*
@@ -582,12 +620,6 @@ init0(void)
 	chandevinit();
 
 	/* set up environment */
-	if(inifile){
-		conffile=inifile;
-		dotini(inifile);
-		if(localroot == nil && (localroot = findroot()) == nil)
-			panic("cannot find plan 9 root; use -r");
-	}
 	snprint(buf, sizeof(buf), "%s %s", "vx32" /*arch->id*/, conffile);
 	ksetenv("terminal", buf, 0);
 	ksetenv("cputype", "386", 0);
@@ -598,6 +630,7 @@ init0(void)
 		ksetenv("service", "terminal", 0);
 	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
+	inifields(&inienv);
 
 	/* if we're not running /boot/boot, mount / and create /srv/boot */
 	if(!bootboot){

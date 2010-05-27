@@ -53,6 +53,8 @@ static char	inibuf[BOOTARGSLEN];
 static char	*iniline[MAXCONF];
 static int	bootboot;	/* run /boot/boot instead of bootscript */
 static int	initrc;	/* run rc instead of init */
+static int	nogui;	/* do not start the gui */
+static int	usetty;	/* use tty for input/output */
 static char*	username;
 static Mach mach0;
 
@@ -89,8 +91,6 @@ nop(void)
 int
 main(int argc, char **argv)
 {
-	int usetty;
-	int nogui;
 	int nofork;
 	char buf[1024];
 	
@@ -348,6 +348,12 @@ iniopt(char *name, char *value)
 		localroot = value;
 	else if(strcmp(name, "user") == 0)
 		username = value;
+	else if(strcmp(name, "usetty") == 0)
+		usetty = 1;
+	else if(strcmp(name, "nogui") == 0){
+		nogui = 1;
+		usetty = 1;
+	}
 }
 
 void

@@ -344,9 +344,9 @@ iniopt(char *name, char *value)
 		bootboot = 1;
 	else if(strcmp(name, "initrc") == 0)
 		initrc = 1;
-	else if(strcmp(name, "localroot") == 0)
+	else if(strcmp(name, "localroot") == 0 && !localroot)
 		localroot = value;
-	else if(strcmp(name, "user") == 0)
+	else if(strcmp(name, "user") == 0 && !username)
 		username = value;
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;

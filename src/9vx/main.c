@@ -79,7 +79,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-bgit] [-r root] [-u user] [-p ini file]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -213,7 +213,13 @@ main(int argc, char **argv)
 	/*
 	 * Debugging: tell user what options we guessed.
 	 */
-	print("9vx %s-r %s -u %s\n", usetty ? "-t " : "", localroot, username);
+	print("9vx ");
+	if(inifile)
+		print("-p %s ", inifile);
+	if(bootboot | nogui | initrc | usetty)
+		print("-%s%s%s%s ", bootboot ? "b" : "", nogui ? "g" : "",
+			initrc ? "i " : "", usetty ? "t " : "");
+	print("-r %s -u %s\n", localroot, username);
 
 	printinit();
 	procinit0();

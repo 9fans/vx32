@@ -380,8 +380,7 @@ findroot(void)
 	char buf[1024];
 	char *dir[] = {
 		cwd,
-		"/Users/rsc/9vx",
-		"/home/rsc/plan9/4e"
+		"/usr/local/9vx"
 	};
 	
 	if(getcwd(cwd, sizeof cwd) == nil){

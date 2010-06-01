@@ -19,6 +19,11 @@ endif
 # If you don't have/want X11
 #PLAN9GUI=nogui
 
+#PLAN9NET=virtualip
+PLAN9NET=posixip
+
+PLAN9NATIVEFS=1
+
 ifeq ($(PLAN9VX),1)
 
 all: 9vx/9vx
@@ -29,14 +34,11 @@ PLAN9_OBJS = \
 		devaudio.o \
 		devaudio-$(PLAN9AUDIO).o \
 		devfs-posix.o \
-		devip.o \
-		devip-posix.o \
 		devmntloop.o \
 		devmouse.o \
 		devram.o \
 		devtab.o \
 		factotum.o \
-		fossil.o \
 		kprocdev.o \
 		label.o \
 		main.o \
@@ -48,7 +50,6 @@ PLAN9_OBJS = \
 		time.o \
 		trap.o \
 		tty.o \
-		venti.o \
 		vx32.o \
 	)
 
@@ -93,7 +94,6 @@ PLAN9_A_OBJS = \
 		page.o \
 		parse.o \
 		parseip.o \
-		part.o \
 		pgrp.o \
 		print.o \
 		proc.o \
@@ -112,6 +112,40 @@ PLAN9_A_OBJS = \
 		u64.o \
 		unthwack.o \
 		utf.o \
+	)
+
+PLAN9_posixip_OBJS = \
+	$(addprefix 9vx/, \
+		devip.o \
+		devip-posix.o \
+	)
+
+PLAN9_virtualip_OBJS = \
+	$(addprefix 9vx/a/ip/,\
+		arp.o \
+		chandial.o \
+		devip.o \
+		esp.o \
+		ethermedium.o \
+		gre.o \
+		icmp.o \
+		icmp6.o \
+		il.o \
+		inferno.o \
+		ip.o \
+		ipaux.o \
+		ipifc.o \
+		ipmux.o \
+		iproute.o \
+		ipv6.o \
+		loopbackmedium.o \
+		netdevmedium.o \
+		netlog.o \
+		nullmedium.o \
+		pktmedium.o \
+		ptclbsum.o \
+		tcp.o \
+		udp.o \
 	)
 
 PLAN9_nogui_OBJS = \
@@ -142,9 +176,17 @@ PLAN9_osx_LIBS = -ggdb -framework Carbon -framework QuickTime
 PLAN9_GUI_OBJS = $(PLAN9_$(PLAN9GUI)_OBJS)
 PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
 
+PLAN9_IP_OBJS = $(PLAN9_$(PLAN9NET)_OBJS)
+
+ifeq ($(PLAN9NATIVEFS),1)
+PLAN9_OBJS := $(PLAN9_OBJS) 9vx/fossil.o 9vx/venti.o
+PLAN9_A_OBJS := $(PLAN9_A_OBJS) 9vx/a/part.o
+endif
+
 PLAN9_DEPS = \
 	$(PLAN9_OBJS) \
 	$(PLAN9_A_OBJS) \
+	$(PLAN9_IP_OBJS) \
 	$(PLAN9_GUI_OBJS) \
 	9vx/libsec/libsec.a \
 	9vx/libmemlayer/libmemlayer.a \

@@ -40,7 +40,7 @@ struct	Dentry
 
 struct Kfsfile
 {
-	Dentry;
+	Dentry _;
 	long off;
 };
 

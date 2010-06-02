@@ -33,7 +33,7 @@
 #include	"cursor.h"
 #include	"screen.h"
 
-#define BOOTLINELEN	64
+#define	BOOTLINELEN	64
 #define	BOOTARGSLEN	(3584-0x200-BOOTLINELEN)
 #define	MAXCONF		100
 
@@ -46,6 +46,7 @@ int	doabort = 1;	// for now
 int	abortonfault;
 char*	argv0;
 char*	conffile = "9vx";
+char*	netdev;
 Conf	conf;
 
 static char*	inifile;
@@ -79,7 +80,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-r root] [-u user]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-n netdev] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -150,6 +151,9 @@ main(int argc, char **argv)
 	case 'p':
 		inifile = EARGF(usage());
 		break;
+	case 'n':
+		netdev = EARGF(usage());
+		break;
 	case 'r':
 		localroot = EARGF(usage());
 		break;
@@ -219,14 +223,20 @@ main(int argc, char **argv)
 	if(bootboot | nogui | initrc | usetty)
 		print("-%s%s%s%s ", bootboot ? "b" : "", nogui ? "g" : "",
 			initrc ? "i " : "", usetty ? "t " : "");
+	if(netdev)
+		print("-n %s ", netdev);
 	print("-r %s -u %s\n", localroot, username);
 
 	printinit();
 	procinit0();
 	initseg();
+	if(netdev)
+		links();
+
 	chandevreset();
 	if(!singlethread){
-		makekprocdev(&ipdevtab);
+		if(!netdev)
+			makekprocdev(&ipdevtab);
 		makekprocdev(&fsdevtab);
 		makekprocdev(&drawdevtab);
 		makekprocdev(&audiodevtab);
@@ -352,6 +362,8 @@ iniopt(char *name, char *value)
 		initrc = 1;
 	else if(strcmp(name, "localroot") == 0 && !localroot)
 		localroot = value;
+	else if(strcmp(name, "netdev") == 0 && !netdev)
+		netdev = value;
 	else if(strcmp(name, "user") == 0 && !username)
 		username = value;
 	else if(strcmp(name, "usetty") == 0)

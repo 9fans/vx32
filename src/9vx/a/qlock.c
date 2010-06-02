@@ -5,6 +5,8 @@
 #include "dat.h"
 #include "fns.h"
 
+int tracelock = 0;
+
 struct {
 	ulong rlock;
 	ulong rlockq;
@@ -15,7 +17,7 @@ struct {
 } rwstats;
 
 void
-qlock(QLock *q)
+__qlock(QLock *q)
 {
 	Proc *p;
 
@@ -50,7 +52,7 @@ qlock(QLock *q)
 }
 
 int
-canqlock(QLock *q)
+__canqlock(QLock *q)
 {
 	if(!canlock(&q->use))
 		return 0;
@@ -64,7 +66,7 @@ canqlock(QLock *q)
 }
 
 void
-qunlock(QLock *q)
+__qunlock(QLock *q)
 {
 	Proc *p;
 
@@ -86,7 +88,7 @@ qunlock(QLock *q)
 }
 
 void
-rlock(RWlock *q)
+__rlock(RWlock *q)
 {
 	Proc *p;
 
@@ -115,7 +117,7 @@ rlock(RWlock *q)
 }
 
 void
-runlock(RWlock *q)
+__runlock(RWlock *q)
 {
 	Proc *p;
 
@@ -138,7 +140,7 @@ runlock(RWlock *q)
 }
 
 void
-wlock(RWlock *q)
+__wlock(RWlock *q)
 {
 	Proc *p;
 
@@ -170,7 +172,7 @@ wlock(RWlock *q)
 }
 
 void
-wunlock(RWlock *q)
+__wunlock(RWlock *q)
 {
 	Proc *p;
 
@@ -209,7 +211,7 @@ wunlock(RWlock *q)
 
 /* same as rlock but punts if there are any writers waiting */
 int
-canrlock(RWlock *q)
+__canrlock(RWlock *q)
 {
 	lock(&q->use);
 	rwstats.rlock++;

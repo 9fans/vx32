@@ -26,7 +26,7 @@ int tracemmu;
  * Plan 9 assumes this, and while it's not a ton of work to break that
  * assumption, it was easier not to.
  */
-#define MEMSIZE (256<<20)
+#define MEMSIZE (256<<20)	// same as ../mmu.c:29 (TODO: var)
 
 static int pagefile;
 static char* pagebase;

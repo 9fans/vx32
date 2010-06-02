@@ -324,11 +324,5 @@ SDifc sdloopifc = {
 	loopwtopctl,
 };
 
-SDifc *sdifc[] = 
-{
-	&sdloopifc,
-	nil
-};
-
 
 

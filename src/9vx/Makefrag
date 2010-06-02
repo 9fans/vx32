@@ -19,8 +19,8 @@ endif
 # If you don't have/want X11
 #PLAN9GUI=nogui
 
-#PLAN9NET=virtualip
-PLAN9NET=posixip
+PLAN9NET=virtualip
+#PLAN9NET=posixip
 
 PLAN9NATIVEFS=1
 
@@ -61,7 +61,6 @@ PLAN9_A_OBJS = \
 	$(addprefix 9vx/a/, \
 		allocb.o \
 		auth.o \
-		bo.o \
 		chan.o \
 		classmask.o \
 		cleanname.o \
@@ -115,12 +114,21 @@ PLAN9_A_OBJS = \
 	)
 
 PLAN9_posixip_OBJS = \
+	bo.o \
 	$(addprefix 9vx/, \
 		devip.o \
 		devip-posix.o \
 	)
+PLAN9_posixip_LIBS =
 
 PLAN9_virtualip_OBJS = \
+	9vx/etherve.o \
+	$(addprefix 9vx/a/,\
+		devaoe.o \
+		devether.o \
+		netif.o \
+		sdaoe.o \
+	) \
 	$(addprefix 9vx/a/ip/,\
 		arp.o \
 		chandial.o \
@@ -147,6 +155,7 @@ PLAN9_virtualip_OBJS = \
 		tcp.o \
 		udp.o \
 	)
+PLAN9_virtualip_LIBS = -lpcap
 
 PLAN9_nogui_OBJS = \
 	$(addprefix 9vx/,\
@@ -177,6 +186,7 @@ PLAN9_GUI_OBJS = $(PLAN9_$(PLAN9GUI)_OBJS)
 PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
 
 PLAN9_IP_OBJS = $(PLAN9_$(PLAN9NET)_OBJS)
+PLAN9_IP_LIBS = $(PLAN9_$(PLAN9NET)_LIBS)
 
 ifeq ($(PLAN9NATIVEFS),1)
 PLAN9_OBJS := $(PLAN9_OBJS) 9vx/fossil.o 9vx/venti.o
@@ -195,7 +205,7 @@ PLAN9_DEPS = \
 	libvx32/libvx32.a \
 
 9vx/9vx: $(PLAN9_DEPS)
-	$(HOST_CC) -o $@ $(PLAN9_DEPS) $(PLAN9_GUI_LIBS) -lpthread
+	$(HOST_CC) -o $@ $(PLAN9_DEPS) $(PLAN9_GUI_LIBS) $(PLAN9_IP_LIBS) -lpthread
 
 9vx/a/%.o: 9vx/a/%.c
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<

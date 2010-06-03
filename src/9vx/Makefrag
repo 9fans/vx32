@@ -22,8 +22,6 @@ endif
 PLAN9NET=virtualip
 #PLAN9NET=posixip
 
-PLAN9NATIVEFS=1
-
 ifeq ($(PLAN9VX),1)
 
 all: 9vx/9vx
@@ -37,8 +35,8 @@ PLAN9_OBJS = \
 		devmntloop.o \
 		devmouse.o \
 		devram.o \
-		devtab.o \
 		factotum.o \
+		fossil.o \
 		kprocdev.o \
 		label.o \
 		main.o \
@@ -50,6 +48,7 @@ PLAN9_OBJS = \
 		time.o \
 		trap.o \
 		tty.o \
+		venti.o \
 		vx32.o \
 	)
 
@@ -93,6 +92,7 @@ PLAN9_A_OBJS = \
 		page.o \
 		parse.o \
 		parseip.o \
+		part.o \
 		pgrp.o \
 		print.o \
 		proc.o \
@@ -114,14 +114,16 @@ PLAN9_A_OBJS = \
 	)
 
 PLAN9_posixip_OBJS = \
-	bo.o \
+	9vx/devtab.o \
 	$(addprefix 9vx/, \
+		a/bo.o \
 		devip.o \
 		devip-posix.o \
 	)
 PLAN9_posixip_LIBS =
 
 PLAN9_virtualip_OBJS = \
+	9vx/devtabve.o \
 	9vx/etherve.o \
 	$(addprefix 9vx/a/,\
 		devaoe.o \
@@ -187,11 +189,6 @@ PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
 
 PLAN9_IP_OBJS = $(PLAN9_$(PLAN9NET)_OBJS)
 PLAN9_IP_LIBS = $(PLAN9_$(PLAN9NET)_LIBS)
-
-ifeq ($(PLAN9NATIVEFS),1)
-PLAN9_OBJS := $(PLAN9_OBJS) 9vx/fossil.o 9vx/venti.o
-PLAN9_A_OBJS := $(PLAN9_A_OBJS) 9vx/a/part.o
-endif
 
 PLAN9_DEPS = \
 	$(PLAN9_OBJS) \

@@ -883,7 +883,7 @@ cswrite(Chan *c, void *a, long n, vlong offset)
 	return n;
 }
 
-Dev ipdevtab = 
+Dev pipdevtab = 
 {
 	'I',
 	"ip",

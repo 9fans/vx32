@@ -38,6 +38,7 @@
 #define	MAXCONF		100
 
 extern Dev ipdevtab;
+extern Dev pipdevtab;
 extern Dev drawdevtab;
 extern Dev fsdevtab;
 extern Dev audiodevtab;
@@ -46,6 +47,7 @@ int	doabort = 1;	// for now
 int	abortonfault;
 char*	argv0;
 char*	conffile = "9vx";
+char*	macaddr;
 char*	netdev;
 Conf	conf;
 
@@ -56,6 +58,7 @@ static int	bootboot;	/* run /boot/boot instead of bootscript */
 static int	initrc;	/* run rc instead of init */
 static int	nogui;	/* do not start the gui */
 static int	usetty;	/* use tty for input/output */
+static int	vether;	/* use virtual ethernet device */
 static char*	username;
 static Mach mach0;
 
@@ -80,7 +83,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-n netdev] [-r root] [-u user]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-n [netdev]] [-m macaddr] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -152,7 +155,12 @@ main(int argc, char **argv)
 		inifile = EARGF(usage());
 		break;
 	case 'n':
-		netdev = EARGF(usage());
+		vether = 1;
+		netdev = ARGF();
+		break;
+	case 'm':
+		vether = 1;
+		macaddr = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -223,14 +231,21 @@ main(int argc, char **argv)
 	if(bootboot | nogui | initrc | usetty)
 		print("-%s%s%s%s ", bootboot ? "b" : "", nogui ? "g" : "",
 			initrc ? "i " : "", usetty ? "t " : "");
+	if(vether)
+		print("-n ");
 	if(netdev)
-		print("-n %s ", netdev);
+		print("%s ", netdev);
+	if(macaddr)
+		print("-m %s ", macaddr);
 	print("-r %s -u %s\n", localroot, username);
+
+	if(!vether)
+		ipdevtab = pipdevtab;
 
 	printinit();
 	procinit0();
 	initseg();
-	if(netdev)
+	if(vether)
 		links();
 
 	chandevreset();
@@ -362,12 +377,18 @@ iniopt(char *name, char *value)
 		initrc = 1;
 	else if(strcmp(name, "localroot") == 0 && !localroot)
 		localroot = value;
-	else if(strcmp(name, "netdev") == 0 && !netdev)
-		netdev = value;
 	else if(strcmp(name, "user") == 0 && !username)
 		username = value;
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;
+	else if(strcmp(name, "netdev") == 0 && !netdev){
+		vether = 1;
+		netdev = value;
+	}
+	else if(strcmp(name, "macaddr") == 0 && !macaddr){
+		vether = 1;
+		macaddr = value;
+	}
 	else if(strcmp(name, "nogui") == 0){
 		nogui = 1;
 		usetty = 1;

@@ -39,8 +39,8 @@ setup(void)
 	bpf_u_int32 net;
 	bpf_u_int32 mask;
 
-	if (!netdev)
-		netdev = "en1"; /* XXX */
+	if (!netdev && (netdev = pcap_lookupdev(errbuf)) == nil)
+		panic("cannot find network device: %s", errbuf);
 
 	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
 		return nil;

@@ -123,6 +123,8 @@ PLAN9_posixip_OBJS = \
 PLAN9_posixip_LIBS =
 
 PLAN9_virtualip_OBJS = \
+	9vx/devip.o \
+	9vx/devip-posix.o \
 	9vx/devtabve.o \
 	9vx/etherve.o \
 	$(addprefix 9vx/a/,\

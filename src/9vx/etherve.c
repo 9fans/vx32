@@ -21,6 +21,7 @@
 
 #include <pcap.h>
 
+extern	char	*macaddr;
 extern	char	*netdev;
 static	uvlong	txerrs;
 
@@ -29,10 +30,29 @@ struct Ctlr {
 	pcap_t	*pd;
 };
 
+static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
+
+static int
+eafrom(char *ma)
+{
+	int i;
+	char **nc = &ma;
+
+	for(i = 0; i < 6; i++){
+		if(!ma)
+			return -1;
+		ea[i] = (uchar)strtoul(ma, nc, 16);
+		ma = *nc+1;
+	}
+	return 0;
+}
+
 static pcap_t *
 setup(void)
 {
 	char	*filter = "ether dst 00:48:01:23:45:67";	/* XXX */
+	if(macaddr)
+		*filter = sprintf("ether dst %s", macaddr);	/* XXX */
 	char	errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t	*pd;
 	struct bpf_program prog;
@@ -44,6 +64,9 @@ setup(void)
 
 	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
 		return nil;
+
+	if (macaddr && (eafrom(macaddr) == -1))
+		panic("cannot read mac address");
 
 	pcap_lookupnet(netdev, &net, &mask, errbuf);
 	pcap_compile(pd, &prog, filter, 0, net);
@@ -124,8 +147,6 @@ veattach(Ether* e)
 {
 	kproc("verecv", verecvkproc, e);
 }
-
-static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
 
 static int
 vepnp(Ether* e)

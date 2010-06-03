@@ -19,9 +19,6 @@ endif
 # If you don't have/want X11
 #PLAN9GUI=nogui
 
-PLAN9NET=virtualip
-#PLAN9NET=posixip
-
 ifeq ($(PLAN9VX),1)
 
 all: 9vx/9vx
@@ -113,20 +110,13 @@ PLAN9_A_OBJS = \
 		utf.o \
 	)
 
-PLAN9_posixip_OBJS = \
-	9vx/devtab.o \
-	$(addprefix 9vx/, \
-		a/bo.o \
+PLAN9_IP_OBJS = \
+	$(addprefix 9vx/,\
 		devip.o \
 		devip-posix.o \
-	)
-PLAN9_posixip_LIBS =
-
-PLAN9_virtualip_OBJS = \
-	9vx/devip.o \
-	9vx/devip-posix.o \
-	9vx/devtabve.o \
-	9vx/etherve.o \
+		devtabve.o \
+		etherve.o \
+	) \
 	$(addprefix 9vx/a/,\
 		devaoe.o \
 		devether.o \
@@ -159,7 +149,7 @@ PLAN9_virtualip_OBJS = \
 		tcp.o \
 		udp.o \
 	)
-PLAN9_virtualip_LIBS = -lpcap
+PLAN9_IP_LIBS = -lpcap
 
 PLAN9_nogui_OBJS = \
 	$(addprefix 9vx/,\
@@ -188,9 +178,6 @@ PLAN9_osx_LIBS = -ggdb -framework Carbon -framework QuickTime
 
 PLAN9_GUI_OBJS = $(PLAN9_$(PLAN9GUI)_OBJS)
 PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
-
-PLAN9_IP_OBJS = $(PLAN9_$(PLAN9NET)_OBJS)
-PLAN9_IP_LIBS = $(PLAN9_$(PLAN9NET)_LIBS)
 
 PLAN9_DEPS = \
 	$(PLAN9_OBJS) \

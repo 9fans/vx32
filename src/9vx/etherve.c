@@ -50,14 +50,18 @@ eafrom(char *ma)
 static pcap_t *
 setup(void)
 {
-	char	*filter = "ether dst 00:48:01:23:45:67";	/* XXX */
-	if(macaddr)
-		*filter = sprintf("ether dst %s", macaddr);	/* XXX */
+	char	filter[30] = "ether dst 00:48:01:23:45:67";
 	char	errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t	*pd;
 	struct bpf_program prog;
 	bpf_u_int32 net;
 	bpf_u_int32 mask;
+
+	if(macaddr)
+		if(strlen(macaddr)>17)
+			panic("wrong mac address");
+		else if(sprintf(filter, "ether dst %s", macaddr) == -1)
+			panic("cannot create pcap filter");
 
 	if (!netdev && (netdev = pcap_lookupdev(errbuf)) == nil)
 		panic("cannot find network device: %s", errbuf);

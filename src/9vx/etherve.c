@@ -47,6 +47,13 @@ eafrom(char *ma)
 	return 0;
 }
 
+static void *
+veerror(char* err)
+{
+	iprint("ve: %s\n", err);
+	return nil;
+}
+
 static pcap_t *
 setup(void)
 {
@@ -57,20 +64,21 @@ setup(void)
 	bpf_u_int32 net;
 	bpf_u_int32 mask;
 
-	if(macaddr)
+	if(macaddr){
 		if(strlen(macaddr)>17)
-			panic("wrong mac address");
+			return veerror("wrong mac address");
 		else if(sprintf(filter, "ether dst %s", macaddr) == -1)
-			panic("cannot create pcap filter");
+			return veerror("cannot create pcap filter");
+	}
 
 	if (!netdev && (netdev = pcap_lookupdev(errbuf)) == nil)
-		panic("cannot find network device: %s", errbuf);
+		return veerror("cannot find network device");
 
 	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
 		return nil;
 
 	if (macaddr && (eafrom(macaddr) == -1))
-		panic("cannot read mac address");
+		return veerror("cannot read mac address");
 
 	pcap_lookupnet(netdev, &net, &mask, errbuf);
 	pcap_compile(pd, &prog, filter, 0, net);

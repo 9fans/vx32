@@ -57,6 +57,8 @@ Dev *devtab[] = {
 	0
 };
 
+extern int nettap;
+extern void ethertaplink(void);
 extern void ethervelink(void);
 extern void ethermediumlink(void);
 extern void loopbackmediumlink(void);
@@ -65,7 +67,10 @@ void links(void) {
 	ethermediumlink();
 	loopbackmediumlink();
 	netdevmediumlink();
-	ethervelink();
+	if(nettap)
+		ethertaplink();
+	else
+		ethervelink();
 }
 
 extern void ilinit(Fs*);

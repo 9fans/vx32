@@ -49,6 +49,7 @@ char*	argv0;
 char*	conffile = "9vx";
 char*	macaddr;
 char*	netdev;
+int	nettap;
 Conf	conf;
 
 static char*	inifile;
@@ -83,7 +84,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-n [netdev]] [-m macaddr] [-r root] [-u user]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-n [tap] [netdev]] [-m macaddr] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -157,6 +158,10 @@ main(int argc, char **argv)
 	case 'n':
 		vether = 1;
 		netdev = ARGF();
+		if(strcmp(netdev, "tap") == 0){
+			nettap = 1;
+			netdev = ARGF();
+		}
 		break;
 	case 'm':
 		vether = 1;
@@ -233,8 +238,11 @@ main(int argc, char **argv)
 			initrc ? "i " : "", usetty ? "t " : "");
 	if(vether)
 		print("-n ");
-	if(netdev)
+	if(netdev){
+		if(nettap)
+			print("tap ");
 		print("%s ", netdev);
+	}
 	if(macaddr)
 		print("-m %s ", macaddr);
 	print("-r %s -u %s\n", localroot, username);

@@ -24,7 +24,6 @@
 
 #include "a/etherif.h"
 
-extern	char	*vxhostdev;
 static	uchar	anyea[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff,};
 
 typedef struct Ctlr Ctlr;
@@ -40,7 +39,6 @@ setup(char *dev)
 {
 	int fd;
 	struct ifreq ifr;
-	struct sockaddr_ll sa;
 
 	if((fd = open("/dev/net/tun", O_RDWR)) < 0)
 		return -1;
@@ -58,7 +56,7 @@ setup(char *dev)
 }
 
 Block*
-rspkt(Ctlr *c)
+tappkt(Ctlr *c)
 {
 	int n;
 	Block *b;
@@ -79,19 +77,19 @@ rspkt(Ctlr *c)
 }
 
 static void
-rsrecvkproc(void *v)
+taprecvkproc(void *v)
 {
 	Block *b;
 	Ether *e;
 
 	e = v;
-	while(b = rspkt(e->ctlr))
+	while((b = tappkt(e->ctlr)))
 		etheriq(e, b, 1);
 	pexit("read fail", 1);
 }
 
 static void
-rstransmit(Ether* e)
+taptransmit(Ether* e)
 {
 	Block *b, *h;
 	Ctlr *c;
@@ -113,7 +111,7 @@ rstransmit(Ether* e)
 }
 
 static long
-rsifstat(Ether *e, void *a, long n, ulong offset)
+tapifstat(Ether *e, void *a, long n, ulong offset)
 {
 	char buf[128];
 	Ctlr *c;
@@ -124,21 +122,21 @@ rsifstat(Ether *e, void *a, long n, ulong offset)
 }
 
 static void
-rsattach(Ether* e)
+tapattach(Ether* e)
 {
-	kproc("rsrecv", rsrecvkproc, e);
+	kproc("taprecv", taprecvkproc, e);
 }
 
 static uchar eatab[] = {
 	0x00, 0x48, 0x01, 0x23, 0x45, 0x60,
 };
 
-static char *rsdevtab[] = {
+static char *tapdevtab[] = {
 	"tap0",
 };
 
 static int
-rspnp(Ether* e)
+tappnp(Ether* e)
 {
 	uchar *ea;
 	Ctlr c;
@@ -148,26 +146,26 @@ rspnp(Ether* e)
 		return -1;
 	ea = eatab + Eaddrlen*nctlr;
 	memset(&c, 0, sizeof c);
-	c.fd = setup(rsdevtab[nctlr++]);
+	c.fd = setup(tapdevtab[nctlr++]);
 	memcpy(c.ea, ea, Eaddrlen);
 	if(c.fd== -1){
-		print("rs: failed to initialize\n");
+		print("tap: failed to initialize\n");
 		return -1;
 	}
 	e->ctlr = malloc(sizeof c);
 	memcpy(e->ctlr, &c, sizeof c);
 	e->tbdf = BUSUNKNOWN;
 	memcpy(e->ea, ea, Eaddrlen);
-	e->attach = rsattach;
-	e->transmit = rstransmit;
-	e->ifstat = rsifstat;
+	e->attach = tapattach;
+	e->transmit = taptransmit;
+	e->ifstat = tapifstat;
 	e->ni.arg = e;
 	e->ni.link = 1;
 	return 0;
 }
 
 void
-ethervelink(void)
+ethertaplink(void)
 {
-	addethercard("rs", rspnp);
+	addethercard("tap", tappnp);
 }

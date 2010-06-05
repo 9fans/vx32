@@ -115,6 +115,7 @@ PLAN9_IP_OBJS = \
 		devip.o \
 		devip-posix.o \
 		devtabve.o \
+		ethertap.o \
 		etherve.o \
 	) \
 	$(addprefix 9vx/a/,\

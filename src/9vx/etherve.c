@@ -33,7 +33,7 @@ struct Ctlr {
 
 static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
 
-static int
+int
 eafrom(char *ma)
 {
 	int i;
@@ -48,7 +48,7 @@ eafrom(char *ma)
 	return 0;
 }
 
-static void *
+void *
 veerror(char* err)
 {
 	iprint("ve: %s\n", err);

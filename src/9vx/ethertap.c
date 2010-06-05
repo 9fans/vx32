@@ -24,9 +24,11 @@
 
 #include "a/etherif.h"
 
-extern char *netdev;
+extern	char	*macaddr;
+extern	char	*netdev;
 
-static	uchar	anyea[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff,};
+extern	int	eafrom(char *ma);
+extern	void	*veerror(char* err);
 
 typedef struct Ctlr Ctlr;
 struct Ctlr {
@@ -36,11 +38,18 @@ struct Ctlr {
 	uchar	ea[Eaddrlen];
 };
 
+static	uchar	anyea[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff,};
+static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
+
 static int
-setup(char *dev)
+setup(void)
 {
 	int fd;
 	struct ifreq ifr;
+	char *dev = "tap0";
+
+	if(netdev)
+		dev = netdev;
 
 	if((fd = open("/dev/net/tun", O_RDWR)) < 0)
 		return -1;
@@ -51,6 +60,9 @@ setup(char *dev)
 		close(fd);
 		return -1;
 	}
+
+	if (macaddr && (eafrom(macaddr) == -1))
+		return veerror("cannot read mac address");
 
 	return fd;
 }
@@ -127,29 +139,19 @@ tapattach(Ether* e)
 	kproc("taprecv", taprecvkproc, e);
 }
 
-static uchar eatab[] = {
-	0x00, 0x48, 0x01, 0x23, 0x45, 0x60,
-};
-
 static int
 tappnp(Ether* e)
 {
 	uchar *ea;
 	Ctlr c;
 	static int nctlr;
-	char *dev = "tap0";
 
-	if(nctlr >= nelem(eatab)/Eaddrlen)
+	if(nctlr++ > 0)
 		return -1;
-	ea = eatab + Eaddrlen*nctlr;
 	memset(&c, 0, sizeof c);
-	if(netdev)
-		dev = netdev;
-	c.fd = setup(dev);
-	nctlr++;
-	memcpy(c.ea, ea, Eaddrlen);
+	c.fd = setup();
 	if(c.fd== -1){
-		print("tap: failed to initialize\n");
+		iprint("ve: tap failed to initialize\n");
 		return -1;
 	}
 	e->ctlr = malloc(sizeof c);

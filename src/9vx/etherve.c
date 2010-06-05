@@ -3,6 +3,7 @@
  * 
  * Copyright (c) 2008 Devon H. O'Dell
  * copyright © 2008 erik quanstrom
+ * copyright © 2010 Jesus Galan Lopez
  *
  * Released under 2-clause BSD license.
  */

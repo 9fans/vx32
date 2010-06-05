@@ -41,20 +41,15 @@ setup(char *dev)
 {
 	int fd;
 	struct ifreq ifr;
-	char *defaultdev = "/dev/net/tun";
 
-	if(!netdev)
-		netdev = defaultdev;
-	if((fd = open(netdev, O_RDWR)) < 0)
+	if((fd = open("/dev/net/tun", O_RDWR)) < 0)
 		return -1;
-	if(dev){
-		memset(&ifr, 0, sizeof ifr);
-		strncpy(ifr.ifr_name, dev, sizeof ifr.ifr_name);
-		ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
-		if(ioctl(fd, TUNSETIFF, &ifr) < 0){
-			close(fd);
-			return -1;
-		}
+	memset(&ifr, 0, sizeof ifr);
+	strncpy(ifr.ifr_name, dev, sizeof ifr.ifr_name);
+	ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
+	if(ioctl(fd, TUNSETIFF, &ifr) < 0){
+		close(fd);
+		return -1;
 	}
 
 	return fd;
@@ -136,22 +131,22 @@ static uchar eatab[] = {
 	0x00, 0x48, 0x01, 0x23, 0x45, 0x60,
 };
 
-static char *tapdevtab[] = {
-	"tap0",
-};
-
 static int
 tappnp(Ether* e)
 {
 	uchar *ea;
 	Ctlr c;
 	static int nctlr;
+	char *dev = "tap0";
 
 	if(nctlr >= nelem(eatab)/Eaddrlen)
 		return -1;
 	ea = eatab + Eaddrlen*nctlr;
 	memset(&c, 0, sizeof c);
-	c.fd = setup(tapdevtab[nctlr++]);
+	if(netdev)
+		dev = netdev;
+	c.fd = setup(dev);
+	nctlr++;
 	memcpy(c.ea, ea, Eaddrlen);
 	if(c.fd== -1){
 		print("tap: failed to initialize\n");

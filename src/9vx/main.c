@@ -238,11 +238,10 @@ main(int argc, char **argv)
 			initrc ? "i " : "", usetty ? "t " : "");
 	if(vether)
 		print("-n ");
-	if(netdev){
-		if(nettap)
-			print("tap ");
+	if(nettap)
+		print("tap ");
+	if(netdev)
 		print("%s ", netdev);
-	}
 	if(macaddr)
 		print("-m %s ", macaddr);
 	print("-r %s -u %s\n", localroot, username);
@@ -391,6 +390,10 @@ iniopt(char *name, char *value)
 		usetty = 1;
 	else if(strcmp(name, "netdev") == 0 && !netdev){
 		vether = 1;
+		if(strncmp(value, "tap", 3) == 0) {
+			nettap = 1;
+			value += 4;
+		}
 		netdev = value;
 	}
 	else if(strcmp(name, "macaddr") == 0 && !macaddr){

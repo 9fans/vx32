@@ -24,6 +24,8 @@
 
 #include "a/etherif.h"
 
+extern char *netdev;
+
 static	uchar	anyea[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff,};
 
 typedef struct Ctlr Ctlr;
@@ -39,8 +41,11 @@ setup(char *dev)
 {
 	int fd;
 	struct ifreq ifr;
+	char *defaultdev = "/dev/net/tun";
 
-	if((fd = open("/dev/net/tun", O_RDWR)) < 0)
+	if(!netdev)
+		netdev = defaultdev;
+	if((fd = open(netdev, O_RDWR)) < 0)
 		return -1;
 	if(dev){
 		memset(&ifr, 0, sizeof ifr);

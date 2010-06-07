@@ -758,8 +758,13 @@ sigsegv(int signo, siginfo_t *info, void *v)
 #elif defined(__FreeBSD__)
 	mcontext_t *mc;
 	mc = &uc->uc_mcontext;
+#ifdef __i386__
 	eip = mc->mc_eip;
 	esp = mc->mc_esp;
+#elif defined(__amd64__)
+	eip = mc->mc_rip;
+	esp = mc->mc_rsp;
+#endif
 	addr = (ulong)info->si_addr;
 	if(__FreeBSD__ < 7){
 		/*

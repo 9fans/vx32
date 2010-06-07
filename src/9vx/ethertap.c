@@ -93,7 +93,7 @@ setup(void)
 		iprint("ve: cannot read mac address\n");
 		return -1;
 	}
-	return opentap(dev);
+	return opentap();
 }
 
 Block*

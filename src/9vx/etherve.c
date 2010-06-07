@@ -48,7 +48,7 @@ eafrom(char *ma)
 	return 0;
 }
 
-void *
+static void *
 veerror(char* err)
 {
 	iprint("ve: %s\n", err);

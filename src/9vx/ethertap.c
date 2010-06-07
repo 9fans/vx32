@@ -8,11 +8,9 @@
 #include "u.h"
 #include <sys/socket.h>
 #include <net/if.h>
-#include <netpacket/packet.h>
 #include <net/ethernet.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
-#include <linux/if_tun.h>
 
 #include "a/lib.h"
 #include "a/mem.h"
@@ -24,11 +22,17 @@
 
 #include "a/etherif.h"
 
+#ifdef linux
+#include <netpacket/packet.h>
+#include <linux/if_tun.h>
+#elif defined(__FreeBSD__)
+#include <net/if_tun.h>
+#endif
+
 extern	char	*macaddr;
 extern	char	*netdev;
 
 extern	int	eafrom(char *ma);
-extern	void	*veerror(char* err);
 
 typedef struct Ctlr Ctlr;
 struct Ctlr {
@@ -39,18 +43,18 @@ struct Ctlr {
 };
 
 static	uchar	anyea[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff,};
-static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
+static	uchar	ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
 
+#ifdef linux
 static int
-setup(void)
+opentap(void)
 {
 	int fd;
-	struct ifreq ifr;
 	char *dev = "tap0";
+	struct ifreq ifr;
 
 	if(netdev)
 		dev = netdev;
-
 	if((fd = open("/dev/net/tun", O_RDWR)) < 0)
 		return -1;
 	memset(&ifr, 0, sizeof ifr);
@@ -60,11 +64,36 @@ setup(void)
 		close(fd);
 		return -1;
 	}
-
-	if (macaddr && (eafrom(macaddr) == -1))
-		return veerror("cannot read mac address");
-
+	// qemu does this:
+	// fcntl(fd, F_SETFL, O_NONBLOCK);
 	return fd;
+}
+#elif defined(__FreeBSD__)
+static int
+opentap(void)
+{
+	int fd;
+	struct stat s;
+
+	if((fd = open("/dev/tap", O_RDWR)) < 0)
+		return -1;
+	fstat(fd, &s);
+	// we don't need the dev name, qemu does
+	// dev = devname(s.st_rdev, S_IFCHR);
+	// qemu does this:
+	// fcntl(fd, F_SETFL, O_NONBLOCK);
+	return fd;
+}
+#endif
+
+static int
+setup(void)
+{
+	if (macaddr && (eafrom(macaddr) == -1)){
+		iprint("ve: cannot read mac address\n");
+		return -1;
+	}
+	return opentap(dev);
 }
 
 Block*
@@ -142,7 +171,6 @@ tapattach(Ether* e)
 static int
 tappnp(Ether* e)
 {
-	uchar *ea;
 	Ctlr c;
 	static int nctlr;
 

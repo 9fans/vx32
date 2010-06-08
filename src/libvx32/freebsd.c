@@ -40,12 +40,14 @@ static void setlimit(struct user_segment_descriptor *desc, unsigned long limit)
 	desc->sd_hilimit = limit >> 16;
 }
 
+/*
 #ifdef __amd64__
 union descriptor {
 	struct user_segment_descriptor sd;
 	struct gate_descriptor gd;
 };
 #endif
+*/
 
 int vxemu_map(vxemu *emu, vxmmap *mm)
 {

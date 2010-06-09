@@ -32,7 +32,7 @@
 extern	char	*macaddr;
 extern	char	*netdev;
 
-extern	int	eafrom(char *ma);
+extern	int	eafrom(char *ma, uchar ea[6]);
 
 typedef struct Ctlr Ctlr;
 struct Ctlr {
@@ -64,8 +64,6 @@ opentap(void)
 		close(fd);
 		return -1;
 	}
-	// qemu does this:
-	// fcntl(fd, F_SETFL, O_NONBLOCK);
 	return fd;
 }
 #elif defined(__FreeBSD__)
@@ -77,11 +75,6 @@ opentap(void)
 
 	if((fd = open("/dev/tap", O_RDWR)) < 0)
 		return -1;
-	fstat(fd, &s);
-	// we don't need the dev name, qemu does
-	// dev = devname(s.st_rdev, S_IFCHR);
-	// qemu does this:
-	// fcntl(fd, F_SETFL, O_NONBLOCK);
 	return fd;
 }
 #endif
@@ -89,7 +82,7 @@ opentap(void)
 static int
 setup(void)
 {
-	if (macaddr && (eafrom(macaddr) == -1)){
+	if (macaddr && (eafrom(macaddr, ea) == -1)){
 		iprint("ve: cannot read mac address\n");
 		return -1;
 	}
@@ -178,6 +171,7 @@ tappnp(Ether* e)
 		return -1;
 	memset(&c, 0, sizeof c);
 	c.fd = setup();
+	memcpy(c.ea, ea, Eaddrlen);
 	if(c.fd== -1){
 		iprint("ve: tap failed to initialize\n");
 		return -1;

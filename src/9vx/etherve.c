@@ -34,7 +34,7 @@ struct Ctlr {
 static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
 
 int
-eafrom(char *ma)
+eafrom(char *ma, uchar ea[6])
 {
 	int i;
 	char **nc = &ma;
@@ -78,7 +78,7 @@ setup(void)
 	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
 		return nil;
 
-	if (macaddr && (eafrom(macaddr) == -1))
+	if (macaddr && (eafrom(macaddr, ea) == -1))
 		return veerror("cannot read mac address");
 
 	pcap_lookupnet(netdev, &net, &mask, errbuf);

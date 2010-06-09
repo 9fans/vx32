@@ -163,6 +163,9 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 	/* is it for me? */
 	tome = memcmp(pkt->d, ether->ea, sizeof(pkt->d)) == 0;
 	fromme = memcmp(pkt->s, ether->ea, sizeof(pkt->s)) == 0;
+iprint("XXX PACK: %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux -> %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux\n",
+pkt->s[0], pkt->s[1], pkt->s[2],pkt->s[3], pkt->s[4], pkt->s[5],
+pkt->d[0], pkt->d[1], pkt->d[2],pkt->d[3], pkt->d[4], pkt->d[5]);
 	/*
 	 * Multiplex the packet to all the connections which want it.
 	 * If the packet is not to be used subsequently (fromwire != 0),
@@ -442,6 +445,9 @@ etherprobe(int cardno, int ctlrno)
 	ether->ni.alen = Eaddrlen;
 	memmove(ether->ni.addr, ether->ea, Eaddrlen);
 	memset(ether->ni.bcast, 0xFF, Eaddrlen);
+
+iprint("XXX EADDR: %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux\n",
+ether->ea[0], ether->ea[1], ether->ea[2],ether->ea[3], ether->ea[4], ether->ea[5]);
 
 	return ether;
 }

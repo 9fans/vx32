@@ -10,7 +10,7 @@
 
 #include "etherif.h"
 
-#define MEMSIZE (256<<20)	// same as ../a/devether.c:13 (TODO: var)
+#define MEMSIZE (256<<20)	// same as ../mmu.c:29 (TODO: var)
 
 static Ether *etherxx[MaxEther];
 

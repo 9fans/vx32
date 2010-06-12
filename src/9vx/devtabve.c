@@ -64,6 +64,7 @@ extern void ethermediumlink(void);
 extern void loopbackmediumlink(void);
 extern void netdevmediumlink(void);
 void links(void) {
+iprint("XXX links\n");
 	ethermediumlink();
 	loopbackmediumlink();
 	netdevmediumlink();
@@ -94,6 +95,21 @@ void (*ipprotoinit[])(Fs*) = {
 	espinit,
 	nil,
 };
+
+int
+eafrom(char *ma, uchar ea[6])
+{
+	int i;
+	char **nc = &ma;
+
+	for(i = 0; i < 6; i++){
+		if(!ma)
+			return -1;
+		ea[i] = (uchar)strtoul(ma, nc, 16);
+		ma = *nc+1;
+	}
+	return 0;
+}
 
 SDifc *sdifc[] =
 {

@@ -26,27 +26,14 @@ extern	char	*macaddr;
 extern	char	*netdev;
 static	uvlong	txerrs;
 
+extern	int	eafrom(char *ma, uchar ea[6]);
+
 typedef struct Ctlr Ctlr;
 struct Ctlr {
 	pcap_t	*pd;
 };
 
 static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
-
-int
-eafrom(char *ma, uchar ea[6])
-{
-	int i;
-	char **nc = &ma;
-
-	for(i = 0; i < 6; i++){
-		if(!ma)
-			return -1;
-		ea[i] = (uchar)strtoul(ma, nc, 16);
-		ma = *nc+1;
-	}
-	return 0;
-}
 
 static void *
 veerror(char* err)
@@ -75,7 +62,8 @@ setup(void)
 	if (!netdev && (netdev = pcap_lookupdev(errbuf)) == nil)
 		return veerror("cannot find network device");
 
-	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
+//	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
+	if ((pd = pcap_open_live(netdev, 1514, 1, 1000, errbuf)) == nil)
 		return nil;
 
 	if (macaddr && (eafrom(macaddr, ea) == -1))
@@ -98,13 +86,13 @@ vepkt(Ctlr *c)
 	struct pcap_pkthdr hdr;
 	Block *b;
 
+	b = allocb(1514);
+	while ((b->rp = pcap_next(c->pd, &hdr)) == nil) ;
+
 	if (hdr.caplen) {
-		b = allocb(1514);
-		while ((b->rp = pcap_next(c->pd, &hdr)) == nil) ;
+		b->wp = b->rp+hdr.caplen;
 
-		b->wp += hdr.caplen;
-
-		// iprint("Got packet len %d\n", hdr.caplen);
+		iprint("Got packet len %d\n", hdr.caplen);
 
 		return b;
 	}
@@ -119,7 +107,7 @@ verecvkproc(void *v)
 	Block *b;
 
 	e = v;
-	while (b = vepkt(e->ctlr)) 
+	while ((b = vepkt(e->ctlr))) 
 		if (b != nil)
 			etheriq(e, b, 1);
 }

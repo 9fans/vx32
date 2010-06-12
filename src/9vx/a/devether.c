@@ -163,11 +163,11 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 	/* is it for me? */
 	tome = memcmp(pkt->d, ether->ea, sizeof(pkt->d)) == 0;
 	fromme = memcmp(pkt->s, ether->ea, sizeof(pkt->s)) == 0;
-// if(tome||fromme)
-// iprint("XXX PACK: %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux -> %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux%s%s\n",
-// pkt->s[0], pkt->s[1], pkt->s[2],pkt->s[3], pkt->s[4], pkt->s[5],
-// pkt->d[0], pkt->d[1], pkt->d[2],pkt->d[3], pkt->d[4], pkt->d[5],
-// (tome ? " <<--" : ""), (fromme ? " -->>" : ""));
+if(tome||fromme)
+iprint("XXX PACK: %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux -> %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux%s[%d]%s\n",
+pkt->s[0], pkt->s[1], pkt->s[2],pkt->s[3], pkt->s[4], pkt->s[5],
+pkt->d[0], pkt->d[1], pkt->d[2],pkt->d[3], pkt->d[4], pkt->d[5],
+(tome ? " <<--" : ""), len, (fromme ? " -->>" : ""));
 	/*
 	 * Multiplex the packet to all the connections which want it.
 	 * If the packet is not to be used subsequently (fromwire != 0),
@@ -175,7 +175,9 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 	 * saving a copy of the data (usual case hopefully).
 	 */
 	for(fp = ether->ni.f; fp < ep; fp++){
-		if((f = *fp) != nil)
+		if((f = *fp) != nil){
+// if(tome)
+// iprint("XXX f->type =%X, type = %X\n", f->type, type);
 // XXX	if(f->type == type || f->type < 0)
 		if(tome || multi || f->prom){
 			/* Don't want to hear bridged packets */
@@ -196,6 +198,7 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 			else
 				etherrtrace(f, pkt, len);
 		}
+		} //XXX
 	}
 
 	if(fx){

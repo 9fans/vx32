@@ -63,7 +63,7 @@ setup(void)
 		return veerror("cannot find network device");
 
 //	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
-	if ((pd = pcap_open_live(netdev, 1514, 1, 1000, errbuf)) == nil)
+	if ((pd = pcap_open_live(netdev, 65000, 1, 1, errbuf)) == nil) // XXX
 		return nil;
 
 	if (macaddr && (eafrom(macaddr, ea) == -1))
@@ -86,13 +86,13 @@ vepkt(Ctlr *c)
 	struct pcap_pkthdr hdr;
 	Block *b;
 
-	b = allocb(1514);
+	b = allocb(65000);
 	while ((b->rp = pcap_next(c->pd, &hdr)) == nil) ;
 
 	if (hdr.caplen) {
 		b->wp = b->rp+hdr.caplen;
 
-		iprint("Got packet len %d\n", hdr.caplen);
+		iprint("Got packet (ts=%d) len %d / %d\n", hdr.ts.tv_sec , hdr.caplen, hdr.len);
 
 		return b;
 	}

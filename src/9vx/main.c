@@ -162,6 +162,11 @@ main(int argc, char **argv)
 			nettap = 1;
 			netdev = ARGF();
 		}
+		if(netdev != 0 && netdev[0] == '-'){
+			netdev = nil;
+			argc++;
+			*argv--;
+		}
 		break;
 	case 'm':
 		vether = 1;

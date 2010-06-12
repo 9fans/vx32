@@ -86,18 +86,19 @@ vepkt(Ctlr *c)
 	struct pcap_pkthdr hdr;
 	Block *b;
 
+	static int fn=0;
+
 	b = allocb(65000);
 	while ((b->rp = pcap_next(c->pd, &hdr)) == nil) ;
+	if(hdr.caplen == 0)
+		return nil;
 
-	if (hdr.caplen) {
-		b->wp = b->rp+hdr.caplen;
+	b->wp = b->rp+hdr.caplen;	// XXX ?
 
-		iprint("Got packet (ts=%d) len %d / %d\n", hdr.ts.tv_sec , hdr.caplen, hdr.len);
+	iprint("Got packet %d (len %d)\n", ++fn, hdr.caplen);
 
-		return b;
-	}
+	return b;
 
-	return nil;
 }
 
 static void

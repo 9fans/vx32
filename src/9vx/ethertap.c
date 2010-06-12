@@ -38,7 +38,6 @@ typedef struct Ctlr Ctlr;
 struct Ctlr {
 	int	fd;
 	int	txerrs;
-	int	promisc;
 	uchar	ea[Eaddrlen];
 };
 
@@ -100,7 +99,6 @@ tappkt(Ctlr *c)
 		n = read(c->fd, b->rp, BALLOC(b));
 		if(n <= 0)
 			panic("fd %d read %d", c->fd, n);
-		if(c->promisc == 0)
 		if(memcmp(b->rp + 0, anyea, 6) == 0
 		|| memcmp(b->rp + 0, c->ea, 6) == 0)
 			break;

@@ -94,8 +94,18 @@ vepkt(Ctlr *c)
 		return nil;
 
 	b->wp = b->rp+hdr.caplen;	// XXX ?
+	b->flag |= Btcpck|Budpck|Bpktck;
 
-	iprint("Got packet %d (len %d)\n", ++fn, hdr.caplen);
+	iprint("+++++++++++ packet %d (len %d):\n", ++fn, hdr.caplen);
+	// iprint("wp-20: %s\n\n", b->wp-20);
+	int i=0; uchar* p;
+	for(p=b->rp; p<b->wp; p++){
+		if (i%16 == 0) iprint("%.4ux", i);
+		if (i%8 == 0) iprint("   ");
+		iprint("%2.2ux ", *p);
+		if (++i%16 == 0) iprint("\n");
+	}
+	iprint("\n-------------\n");
 
 	return b;
 

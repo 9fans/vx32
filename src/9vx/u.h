@@ -17,3 +17,4 @@ typedef int socklen_t;
 #define nil ((void*)0)
 #define sleep _ksleep
 #define syscall _ksyscall
+#define atoi(x) strtol(x, 0, 0)

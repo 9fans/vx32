@@ -341,7 +341,7 @@ netifwrite(Netif *nif, Chan *c, void *a, long n)
 	QLOCK(nif);
 	f = nif->f[NETID(c->qid.path)];
 	if((p = matchtoken(buf, "connect")) != 0){
-		sscanf(p, "%x", &type);
+		type = atoi(p);
 		if(typeinuse(nif, type))
 			error(Einuse);
 		f->type = type;

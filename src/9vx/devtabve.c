@@ -64,7 +64,6 @@ extern void ethermediumlink(void);
 extern void loopbackmediumlink(void);
 extern void netdevmediumlink(void);
 void links(void) {
-iprint("XXX links\n");
 	ethermediumlink();
 	loopbackmediumlink();
 	netdevmediumlink();

@@ -161,9 +161,7 @@ etherbind(Ipifc *ifc, int argc, char **argv)
 	 *  this device.
 	 */
 	snprint(addr, sizeof(addr), "%s!0x800", argv[2]);	/* ETIP4 */
-iprint("XXX chandial mchan4: %s\n", &addr);
 	mchan4 = chandial(addr, nil, dir, &cchan4);
-iprint("XXX mchan4 = %x\n", mchan4->type);
 
 	/*
 	 *  make it non-blocking
@@ -202,9 +200,7 @@ iprint("XXX mchan4 = %x\n", mchan4->type);
  	 *  open arp conversation
 	 */
 	snprint(addr, sizeof(addr), "%s!0x806", argv[2]);	/* ETARP */
-iprint("XXX chandial achan: %s\n", &addr);
 	achan = chandial(addr, nil, nil, nil);
-iprint("XXX achan = %x\n", achan->type);
 
 	/*
 	 *  open ipv6 conversation
@@ -213,9 +209,7 @@ iprint("XXX achan = %x\n", achan->type);
 	 *  this device.
 	 */
 	snprint(addr, sizeof(addr), "%s!0x86DD", argv[2]);	/* ETIP6 */
-iprint("XXX chandial mchan6: %s\n", &addr);
 	mchan6 = chandial(addr, nil, dir, &cchan6);
-iprint("XXX mchan6 = %x\n", mchan6->type);
 
 	/*
 	 *  make it non-blocking

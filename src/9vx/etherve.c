@@ -63,7 +63,7 @@ setup(void)
 		return veerror("cannot find network device");
 
 //	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
-	if ((pd = pcap_open_live(netdev, 65000, 1, 1, errbuf)) == nil) // XXX
+	if ((pd = pcap_open_live(netdev, 65000, 1, 1, errbuf)) == nil)
 		return nil;
 
 	if (macaddr && (eafrom(macaddr, ea) == -1))
@@ -84,28 +84,30 @@ static Block *
 vepkt(Ctlr *c)
 {
 	struct pcap_pkthdr hdr;
+	uchar *p, *q;
 	Block *b;
 
-	static int fn=0;
+	while ((p = pcap_next(c->pd, &hdr)) == nil);
 
-	b = allocb(65000);
-	while ((b->rp = pcap_next(c->pd, &hdr)) == nil) ;
-	if(hdr.caplen == 0)
-		return nil;
-
-	b->wp = b->rp+hdr.caplen;	// XXX ?
+	b = allocb(hdr.caplen);
+	b->wp += hdr.caplen;
+	for(q = b->rp; q != b->wp; q++)
+		*q = *(p++);
 	b->flag |= Btcpck|Budpck|Bpktck;
 
+/*
 	iprint("+++++++++++ packet %d (len %d):\n", ++fn, hdr.caplen);
-	// iprint("wp-20: %s\n\n", b->wp-20);
-	int i=0; uchar* p;
-	for(p=b->rp; p<b->wp; p++){
+	int i=0; uchar* u;
+	static int fn=0;
+
+	for(u=b->rp; u<b->wp; u++){
 		if (i%16 == 0) iprint("%.4ux", i);
 		if (i%8 == 0) iprint("   ");
-		iprint("%2.2ux ", *p);
+		iprint("%2.2ux ", *u);
 		if (++i%16 == 0) iprint("\n");
 	}
 	iprint("\n-------------\n");
+*/
 
 	return b;
 

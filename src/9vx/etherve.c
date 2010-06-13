@@ -22,8 +22,8 @@
 
 #include <pcap.h>
 
-extern	char	*macaddr;
-extern	char	*netdev;
+static	char	*macaddr;
+static	char	*netdev;
 static	uvlong	txerrs;
 
 extern	int	eafrom(char *ma, uchar ea[6]);
@@ -189,7 +189,9 @@ vepnp(Ether* e)
 }
 
 void
-ethervelink(void)
+ethervelink(char *dev, char *mac)
 {
+	netdev = dev;
+	macaddr = mac;
 	addethercard("ve", vepnp);
 }

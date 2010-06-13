@@ -6,6 +6,7 @@
 #include "error.h"
 #include "ip/ip.h"
 #include "sd.h"
+#include "ve.h"
 
 extern Dev aoedevtab;
 extern Dev consdevtab;
@@ -57,20 +58,26 @@ Dev *devtab[] = {
 	0
 };
 
-extern int nettap;
-extern void ethertaplink(void);
-extern void ethervelink(void);
+extern void ethertaplink(char *dev, char *mac);
+extern void ethervelink(char *dev, char *mac);
 extern void ethermediumlink(void);
 extern void loopbackmediumlink(void);
 extern void netdevmediumlink(void);
-void links(void) {
+void links(Vether *vedev) {
+	Vether *ve;
+
 	ethermediumlink();
 	loopbackmediumlink();
 	netdevmediumlink();
-	if(nettap)
-		ethertaplink();
-	else
-		ethervelink();
+	for(ve=vedev; ve!=&vedev[MaxVEther]; ve++)
+		switch(ve->type){
+		case VEpcap:
+			ethervelink(ve->dev, ve->mac);
+			break;
+		case VEtap:
+			ethertaplink(ve->dev, ve->mac);
+			break;
+		}
 }
 
 extern void ilinit(Fs*);

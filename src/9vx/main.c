@@ -24,6 +24,7 @@
 #include	"error.h"
 #include	"arg.h"
 #include	"tos.h"
+#include	"ve.h"
 
 #include "fs.h"
 
@@ -47,9 +48,6 @@ int	doabort = 1;	// for now
 int	abortonfault;
 char*	argv0;
 char*	conffile = "9vx";
-char*	macaddr;
-char*	netdev;
-int	nettap;
 Conf	conf;
 
 static char*	inifile;
@@ -59,7 +57,8 @@ static int	bootboot;	/* run /boot/boot instead of bootscript */
 static int	initrc;	/* run rc instead of init */
 static int	nogui;	/* do not start the gui */
 static int	usetty;	/* use tty for input/output */
-static int	vether;	/* use virtual ethernet device */
+static int	nve;		/* number of virtual ethernet devices */
+static Vether	vedev[MaxVEther-1];
 static char*	username;
 static Mach mach0;
 
@@ -107,6 +106,7 @@ main(int argc, char **argv)
 	nogui = 0;
 	nofork = 0;
 	usetty = 0;
+	nve = 0;
 	localroot = nil;
 	ARGBEGIN{
 	/* debugging options */
@@ -156,21 +156,26 @@ main(int argc, char **argv)
 		inifile = EARGF(usage());
 		break;
 	case 'n':
-		vether = 1;
-		netdev = ARGF();
-		if(strcmp(netdev, "tap") == 0){
-			nettap = 1;
-			netdev = ARGF();
+		if(nve == MaxVEther)
+			panic("too many network devices");
+		vedev[nve].dev = ARGF();
+		if(strcmp(vedev[nve].dev, "tap") != 0){
+			vedev[nve].type = VEpcap;
+			nve++;
+			break;
 		}
-		if(netdev != 0 && netdev[0] == '-'){
-			netdev = nil;
+		vedev[nve].type = VEtap;
+		vedev[nve].dev = ARGF();
+		if(vedev[nve].dev != nil && vedev[nve].dev[0] == '-'){
+			vedev[nve].dev = nil;
 			argc++;
 			*argv--;
 		}
+		nve++;
 		break;
 	case 'm':
-		vether = 1;
-		macaddr = EARGF(usage());
+		if(nve > 0)
+			vedev[nve-1].mac = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -241,6 +246,7 @@ main(int argc, char **argv)
 	if(bootboot | nogui | initrc | usetty)
 		print("-%s%s%s%s ", bootboot ? "b" : "", nogui ? "g" : "",
 			initrc ? "i " : "", usetty ? "t " : "");
+/*
 	if(vether)
 		print("-n ");
 	if(nettap)
@@ -249,20 +255,21 @@ main(int argc, char **argv)
 		print("%s ", netdev);
 	if(macaddr)
 		print("-m %s ", macaddr);
+*/
 	print("-r %s -u %s\n", localroot, username);
 
-	if(!vether)
+	if(nve == 0)
 		ipdevtab = pipdevtab;
 
 	printinit();
 	procinit0();
 	initseg();
-	if(vether)
-		links();
+	if(nve != 0)
+		links(vedev);
 
 	chandevreset();
 	if(!singlethread){
-		if(!netdev)
+		if(nve == 0)
 			makekprocdev(&ipdevtab);
 		makekprocdev(&fsdevtab);
 		makekprocdev(&drawdevtab);
@@ -393,6 +400,7 @@ iniopt(char *name, char *value)
 		username = value;
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;
+/*
 	else if(strcmp(name, "netdev") == 0 && !netdev){
 		vether = 1;
 		if(strncmp(value, "tap", 3) == 0) {
@@ -405,6 +413,7 @@ iniopt(char *name, char *value)
 		vether = 1;
 		macaddr = value;
 	}
+*/
 	else if(strcmp(name, "nogui") == 0){
 		nogui = 1;
 		usetty = 1;

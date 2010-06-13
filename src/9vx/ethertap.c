@@ -29,8 +29,8 @@
 #include <net/if_tun.h>
 #endif
 
-extern	char	*macaddr;
-extern	char	*netdev;
+static	char	*macaddr;
+static	char	*netdev;
 
 extern	int	eafrom(char *ma, uchar ea[6]);
 
@@ -156,7 +156,6 @@ tapifstat(Ether *e, void *a, long n, ulong offset)
 static void
 tapattach(Ether* e)
 {
-iprint("XXX tapattach\n");
 	kproc("taprecv", taprecvkproc, e);
 }
 
@@ -188,7 +187,9 @@ tappnp(Ether* e)
 }
 
 void
-ethertaplink(void)
+ethertaplink(char *dev, char *mac)
 {
+	netdev = dev;
+	macaddr = mac;
 	addethercard("tap", tappnp);
 }

@@ -80,7 +80,6 @@ void	kbdinit(void);
 #define	kmapinval()
 void	lgdt(ushort[3]);
 void	lidt(ushort[3]);
-void	links(void);
 void	ltr(ulong);
 void	mach0init(void);
 void	mathinit(void);

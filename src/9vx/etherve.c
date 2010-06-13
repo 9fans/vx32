@@ -84,15 +84,14 @@ static Block *
 vepkt(Ctlr *c)
 {
 	struct pcap_pkthdr hdr;
-	uchar *p, *q;
+	uchar *p;
 	Block *b;
 
 	while ((p = pcap_next(c->pd, &hdr)) == nil);
 
 	b = allocb(hdr.caplen);
+	memcpy(b->rp, p, hdr.caplen);
 	b->wp += hdr.caplen;
-	for(q = b->rp; q != b->wp; q++)
-		*q = *(p++);
 	b->flag |= Btcpck|Budpck|Bpktck;
 
 /*

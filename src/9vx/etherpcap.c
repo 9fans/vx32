@@ -51,7 +51,6 @@ setup(char *dev, uchar *ea)
 	if(sprint(filter, "ether dst %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux",
 	ea[0], ea[1], ea[2],ea[3], ea[4], ea[5]) == -1)
 		return veerror("cannot create pcap filter");
-iprint("XXX FILTER: %s\n", filter);
 
 	if (!dev && (dev = pcap_lookupdev(errbuf)) == nil)
 		return veerror("cannot find network device");
@@ -72,7 +71,7 @@ iprint("XXX FILTER: %s\n", filter);
 }
 
 static Block *
-vepkt(Ctlr *c)
+pcappkt(Ctlr *c)
 {
 	struct pcap_pkthdr hdr;
 	uchar *p;
@@ -104,19 +103,19 @@ vepkt(Ctlr *c)
 }
 
 static void
-verecvkproc(void *v)
+pcaprecvkproc(void *v)
 {
 	Ether *e;
 	Block *b;
 
 	e = v;
-	while ((b = vepkt(e->ctlr))) 
+	while ((b = pcappkt(e->ctlr))) 
 		if (b != nil)
 			etheriq(e, b, 1);
 }
 
 static void
-vetransmit(Ether* e)
+pcaptransmit(Ether* e)
 {
 	const u_char *u;
 	Block *b;
@@ -138,7 +137,7 @@ vetransmit(Ether* e)
 }
 
 static long
-veifstat(Ether *e, void *a, long n, ulong offset)
+pcapifstat(Ether *e, void *a, long n, ulong offset)
 {
 	char buf[128];
 
@@ -147,24 +146,23 @@ veifstat(Ether *e, void *a, long n, ulong offset)
 }
 
 static void
-veattach(Ether* e)
+pcapattach(Ether* e)
 {
-	kproc("verecv", verecvkproc, e);
+	kproc("pcaprecv", pcaprecvkproc, e);
 }
 
 static int
-vepnp(Ether* e)
+pcappnp(Ether* e)
 {
 	Ctlr c;
 	static int cve = 0;
 
-	if(cve == nve)
-		return -1;
-	while(ve[cve].tap == 1)
+	while(cve < nve && ve[cve].tap == 1)
 		cve++;
+	if(cve >= nve)
+		return -1;
 
 	memset(&c, 0, sizeof(c));
-	iprint("cve = %d\n", cve);
 	c.pd = setup(ve[cve].dev, ve[cve].ea);
 	if (c.pd == nil) {
 		iprint("ve: pcap failed to initialize\n");
@@ -175,9 +173,9 @@ vepnp(Ether* e)
 	memcpy(e->ctlr, &c, sizeof(c));
 	e->tbdf = BUSUNKNOWN;
 	memcpy(e->ea, ve[cve].ea, Eaddrlen);
-	e->attach = veattach;
-	e->transmit = vetransmit;
-	e->ifstat = veifstat;
+	e->attach = pcapattach;
+	e->transmit = pcaptransmit;
+	e->ifstat = pcapifstat;
 	e->ni.arg = e;
 	e->ni.link = 1;
 	cve++;
@@ -187,5 +185,5 @@ vepnp(Ether* e)
 void
 etherpcaplink(void)
 {
-	addethercard("ve", vepnp);
+	addethercard("pcap", pcappnp);
 }

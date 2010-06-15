@@ -51,9 +51,6 @@ int	doabort = 1;	// for now
 int	abortonfault;
 char*	argv0;
 char*	conffile = "9vx";
-char*	macaddr;
-char*	netdev;
-int	nettap;
 Conf	conf;
 
 static char*	inifile;
@@ -174,7 +171,7 @@ main(int argc, char **argv)
 		if(vedev != nil && vedev[0] == '-'){
 			vedev = nil;
 			argc++;
-			*argv--;
+			argv--;
 		}
 		addve(vedev, vetap);
 		break;
@@ -403,9 +400,9 @@ iniopt(char *name, char *value)
 		username = value;
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;
-	else if(strcmp(name, "macaddr") == 0 && !macaddr)
+	else if(strcmp(name, "macaddr") == 0)
 		setea(value);
-	else if(strcmp(name, "netdev") == 0 && !netdev){
+	else if(strcmp(name, "netdev") == 0){
 		if(strncmp(value, "tap", 3) == 0) {
 			vetap = 1;
 			value += 4;

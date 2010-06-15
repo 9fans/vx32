@@ -152,10 +152,10 @@ tappnp(Ether* e)
 	Ctlr c;
 	static int cve = 0;
 
+	while(cve < nve && ve[cve].tap == 0)
+		cve++;
 	if(cve == nve)
 		return -1;
-	while(ve[cve].tap == 0)
-		cve++;
 
 	memset(&c, 0, sizeof c);
 	c.fd = setup(ve[cve].dev);

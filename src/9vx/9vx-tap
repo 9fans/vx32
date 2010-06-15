@@ -1,0 +1,27 @@
+#!/bin/sh
+
+USERID=`whoami`
+
+# Create the tap device with tunctl
+IFACE=`sudo tunctl -b -u $USERID`
+# or openvpn
+#IFACE=tap0
+#sudo openvpn --mktun --dev $IFACE --user $USERID
+
+# Bring the tap device up
+sudo /sbin/ifconfig $IFACE 0.0.0.0 up
+
+# Add it to the bridge
+sudo /usr/sbin/brctl addif br0 $IFACE
+
+# Launch 9vx (use -F to not fork)
+9vx -F -n tap $IFACE $*
+
+# Bring the tap device down and disconnect from br0
+sudo /sbin/ifconfig $IFACE down
+sudo /usr/sbin/brctl delif br0 $IFACE
+
+# Remove the tap device with tunctl
+sudo tunctl -d $IFACE &> /dev/null
+# or openvpn
+#sudo openvpn --rmtun --dev $1

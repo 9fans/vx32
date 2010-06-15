@@ -156,7 +156,6 @@ tapifstat(Ether *e, void *a, long n, ulong offset)
 static void
 tapattach(Ether* e)
 {
-iprint("XXX tapattach\n");
 	kproc("taprecv", taprecvkproc, e);
 }
 

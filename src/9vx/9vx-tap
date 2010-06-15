@@ -14,8 +14,8 @@ sudo /sbin/ifconfig $IFACE 0.0.0.0 up
 # Add it to the bridge
 sudo /usr/sbin/brctl addif br0 $IFACE
 
-# Launch 9vx (use -F to not fork)
-9vx -F -n tap $IFACE $*
+# Launch 9vx (use -f to not fork)
+9vx -f -n tap $IFACE $*
 
 # Bring the tap device down and disconnect from br0
 sudo /sbin/ifconfig $IFACE down

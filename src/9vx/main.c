@@ -60,6 +60,7 @@ static char*	inifile;
 static char	inibuf[BOOTARGSLEN];
 static char	*iniline[MAXCONF];
 static int	bootboot;	/* run /boot/boot instead of bootscript */
+static int	nofork;	/* do not fork at init */
 static int	initrc;	/* run rc instead of init */
 static int	nogui;	/* do not start the gui */
 static int	usetty;	/* use tty for input/output */
@@ -87,7 +88,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-bgit] [-n [tap] [netdev]] [-m macaddr] [-r root] [-u user]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-n [tap] [netdev]] [-m macaddr] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -99,7 +100,6 @@ nop(void)
 int
 main(int argc, char **argv)
 {
-	int nofork;
 	int vetap;
 	char *vedev;
 	char buf[1024];
@@ -128,9 +128,6 @@ main(int argc, char **argv)
 	case 'K':
 		tracekdev++;
 		break;
-	case 'F':
-		nofork = 1;
-		break;
 	case 'M':
 		tracemmu++;
 		break;
@@ -150,6 +147,9 @@ main(int argc, char **argv)
 	/* real options */
 	case 'b':
 		bootboot = 1;
+		break;
+	case 'f':
+		nofork = 1;
 		break;
 	case 'g':
 		nogui = 1;
@@ -244,9 +244,9 @@ main(int argc, char **argv)
 	print("9vx ");
 	if(inifile)
 		print("-p %s ", inifile);
-	if(bootboot | nogui | initrc | usetty)
-		print("-%s%s%s%s ", bootboot ? "b" : "", nogui ? "g" : "",
-			initrc ? "i " : "", usetty ? "t " : "");
+	if(bootboot | nofork | nogui | initrc | usetty)
+		print("-%s%s%s%s%s ", bootboot ? "b" : "", nofork ? "f " : "",
+			nogui ? "g" : "", initrc ? "i " : "", usetty ? "t " : "");
 	for(int i=0; i<nve; i++){
 		print("-n %s", ve[i].tap ? "tap ": "");
 		if(ve[i].dev != nil)
@@ -395,6 +395,8 @@ iniopt(char *name, char *value)
 		bootboot = 1;
 	else if(strcmp(name, "initrc") == 0)
 		initrc = 1;
+	else if(strcmp(name, "nofork") == 0)
+		nofork = 1;
 	else if(strcmp(name, "localroot") == 0 && !localroot)
 		localroot = value;
 	else if(strcmp(name, "user") == 0 && !username)

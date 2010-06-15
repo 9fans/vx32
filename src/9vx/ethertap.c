@@ -6,21 +6,18 @@
  */
 
 #include "u.h"
-#include <sys/socket.h>
+#include "lib.h"
+#include "mem.h"
+#include "dat.h"
+#include "fns.h"
+#include "io.h"
+#include "error.h"
+#include "netif.h"
+#include "etherif.h"
+#include "vether.h"
+
 #include <net/if.h>
-#include <net/ethernet.h>
-#include <netinet/in.h>
 #include <sys/ioctl.h>
-
-#include "a/lib.h"
-#include "a/mem.h"
-#include "a/dat.h"
-#include "a/fns.h"
-#include "a/io.h"
-#include "a/error.h"
-#include "a/netif.h"
-
-#include "a/etherif.h"
 
 #ifdef linux
 #include <netpacket/packet.h>
@@ -28,11 +25,6 @@
 #elif defined(__FreeBSD__)
 #include <net/if_tun.h>
 #endif
-
-extern	char	*macaddr;
-extern	char	*netdev;
-
-extern	int	eafrom(char *ma, uchar ea[6]);
 
 typedef struct Ctlr Ctlr;
 struct Ctlr {
@@ -42,18 +34,17 @@ struct Ctlr {
 };
 
 static	uchar	anyea[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff,};
-static	uchar	ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
 
 #ifdef linux
 static int
-opentap(void)
+opentap(char *dev)
 {
 	int fd;
-	char *dev = "tap0";
+	char *tap0 = "tap0";
 	struct ifreq ifr;
 
-	if(netdev)
-		dev = netdev;
+	if(dev == nil)
+		dev = tap0;
 	if((fd = open("/dev/net/tun", O_RDWR)) < 0)
 		return -1;
 	memset(&ifr, 0, sizeof ifr);
@@ -67,7 +58,7 @@ opentap(void)
 }
 #elif defined(__FreeBSD__)
 static int
-opentap(void)
+opentap(char *dev)
 {
 	int fd;
 	struct stat s;
@@ -79,13 +70,9 @@ opentap(void)
 #endif
 
 static int
-setup(void)
+setup(char *dev)
 {
-	if (macaddr && (eafrom(macaddr, ea) == -1)){
-		iprint("ve: cannot read mac address\n");
-		return -1;
-	}
-	return opentap();
+	return opentap(dev);
 }
 
 Block*
@@ -163,26 +150,31 @@ static int
 tappnp(Ether* e)
 {
 	Ctlr c;
-	static int nctlr;
+	static int cve = 0;
 
-	if(nctlr++ > 0)
+	if(cve == nve)
 		return -1;
+	while(ve[cve].tap == 0)
+		cve++;
+
 	memset(&c, 0, sizeof c);
-	c.fd = setup();
-	memcpy(c.ea, ea, Eaddrlen);
+	c.fd = setup(ve[cve].dev);
+	memcpy(c.ea, ve[cve].ea, Eaddrlen);
 	if(c.fd== -1){
 		iprint("ve: tap failed to initialize\n");
+		cve++;
 		return -1;
 	}
 	e->ctlr = malloc(sizeof c);
 	memcpy(e->ctlr, &c, sizeof c);
 	e->tbdf = BUSUNKNOWN;
-	memcpy(e->ea, ea, Eaddrlen);
+	memcpy(e->ea, ve[cve].ea, Eaddrlen);
 	e->attach = tapattach;
 	e->transmit = taptransmit;
 	e->ifstat = tapifstat;
 	e->ni.arg = e;
 	e->ni.link = 1;
+	cve++;
 	return 0;
 }
 

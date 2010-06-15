@@ -27,6 +27,10 @@
 
 #include "fs.h"
 
+#include "netif.h"
+#include "etherif.h"
+#include "vether.h"
+
 #define Image IMAGE
 #include	"draw.h"
 #include	"memdraw.h"
@@ -59,7 +63,6 @@ static int	bootboot;	/* run /boot/boot instead of bootscript */
 static int	initrc;	/* run rc instead of init */
 static int	nogui;	/* do not start the gui */
 static int	usetty;	/* use tty for input/output */
-static int	vether;	/* use virtual ethernet device */
 static char*	username;
 static Mach mach0;
 
@@ -97,6 +100,8 @@ int
 main(int argc, char **argv)
 {
 	int nofork;
+	int vetap;
+	char *vedev;
 	char buf[1024];
 	
 	/* Minimal set up to make print work. */
@@ -107,6 +112,7 @@ main(int argc, char **argv)
 	nogui = 0;
 	nofork = 0;
 	usetty = 0;
+	nve = 0;
 	localroot = nil;
 	ARGBEGIN{
 	/* debugging options */
@@ -155,22 +161,22 @@ main(int argc, char **argv)
 	case 'p':
 		inifile = EARGF(usage());
 		break;
+	case 'm':
+		setea(EARGF(usage()));
+		break;
 	case 'n':
-		vether = 1;
-		netdev = ARGF();
-		if(strcmp(netdev, "tap") == 0){
-			nettap = 1;
-			netdev = ARGF();
+		vetap = 0;
+		vedev = ARGF();
+		if(vedev != nil && strcmp(vedev, "tap") == 0){
+			vetap = 1;
+			vedev = ARGF();
 		}
-		if(netdev != 0 && netdev[0] == '-'){
-			netdev = nil;
+		if(vedev != nil && vedev[0] == '-'){
+			vedev = nil;
 			argc++;
 			*argv--;
 		}
-		break;
-	case 'm':
-		vether = 1;
-		macaddr = EARGF(usage());
+		addve(vedev, vetap);
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -241,28 +247,27 @@ main(int argc, char **argv)
 	if(bootboot | nogui | initrc | usetty)
 		print("-%s%s%s%s ", bootboot ? "b" : "", nogui ? "g" : "",
 			initrc ? "i " : "", usetty ? "t " : "");
-	if(vether)
-		print("-n ");
-	if(nettap)
-		print("tap ");
-	if(netdev)
-		print("%s ", netdev);
-	if(macaddr)
-		print("-m %s ", macaddr);
+	for(int i=0; i<nve; i++){
+		print("-n %s", ve[i].tap ? "tap ": "");
+		if(ve[i].dev != nil)
+			print("%s ", ve[i].dev);
+		if(ve[i].mac != nil)
+			print("-m %s ", ve[i].mac);
+	}
 	print("-r %s -u %s\n", localroot, username);
 
-	if(!vether)
+	if(nve == 0)
 		ipdevtab = pipdevtab;
 
 	printinit();
 	procinit0();
 	initseg();
-	if(vether)
+	if(nve > 0)
 		links();
 
 	chandevreset();
 	if(!singlethread){
-		if(!netdev)
+		if(nve == 0)
 			makekprocdev(&ipdevtab);
 		makekprocdev(&fsdevtab);
 		makekprocdev(&drawdevtab);
@@ -381,6 +386,9 @@ inifields(void (*fp)(char*, char*))
 void
 iniopt(char *name, char *value)
 {
+	char *vedev;
+	int vetap;
+
 	if(*name == '*')
 		name++;
 	if(strcmp(name, "bootboot") == 0)
@@ -393,17 +401,15 @@ iniopt(char *name, char *value)
 		username = value;
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;
+	else if(strcmp(name, "macaddr") == 0 && !macaddr)
+		setea(value);
 	else if(strcmp(name, "netdev") == 0 && !netdev){
-		vether = 1;
 		if(strncmp(value, "tap", 3) == 0) {
-			nettap = 1;
+			vetap = 1;
 			value += 4;
 		}
-		netdev = value;
-	}
-	else if(strcmp(name, "macaddr") == 0 && !macaddr){
-		vether = 1;
-		macaddr = value;
+		vedev = value;
+		addve(vedev, vetap);
 	}
 	else if(strcmp(name, "nogui") == 0){
 		nogui = 1;

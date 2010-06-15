@@ -38,6 +38,7 @@ setea(char *macaddr)
 
 	if(nve == 0)
 		return;
+	ve[nve-1].mac = macaddr;
 	for(i = 0; i < Eaddrlen; i++){
 		ve[nve-1].ea[i] = (uchar)strtoul(macaddr, nc, 16);
 		macaddr = *nc+1;
@@ -47,14 +48,13 @@ setea(char *macaddr)
 void
 addve(char *dev, int tap)
 {
-	int i;
-
 	static uchar ea[Eaddrlen] = {0x00, 0x00, 0x09, 0x00, 0x00, 0x00};
 
 	if(nve == MaxEther)
 		panic("too many virtual ether cards");
-	ve[nve].dev = dev;
 	ve[nve].tap = tap;
+	ve[nve].dev = dev;
+	ve[nve].mac = nil;
 	/* This ea could conflict with one given by the user */
 	memcpy(ve[nve].ea, ea, Eaddrlen);
 	ea[5]++;

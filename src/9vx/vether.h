@@ -3,8 +3,13 @@ struct Vether
 {
 	int	tap;
 	char	*dev;
+	char	*mac;
 	uchar ea[Eaddrlen];
 };
 
-static Vether ve[MaxEther+1];
-static int nve = 0;
+Vether ve[MaxEther+1];
+int nve;
+
+void	setea(char*);
+void	addve(char*, int);
+void	links();

@@ -4,9 +4,8 @@
 #include "dat.h"
 #include "fns.h"
 #include "error.h"
-#include "ip/ip.h"
-#include "sd.h"
 
+extern Dev aoedevtab;
 extern Dev consdevtab;
 extern Dev rootdevtab;
 extern Dev pipedevtab;
@@ -26,15 +25,18 @@ extern Dev mntloopdevtab;
 extern Dev dupdevtab;
 extern Dev sddevtab;
 extern Dev capdevtab;
+extern Dev etherdevtab;
 
 Dev *devtab[] = {
 	&rootdevtab,	/* must be first */
+	&aoedevtab,
 	&audiodevtab,
 	&capdevtab,
 	&consdevtab,
 	&drawdevtab,
 	&dupdevtab,
 	&envdevtab,
+	&etherdevtab,
 	&fsdevtab,
 	&ipdevtab,
 	&mntdevtab,
@@ -48,14 +50,4 @@ Dev *devtab[] = {
 	&ssldevtab,
 	&tlsdevtab,
 	0
-};
-
-void
-links(void)
-{
-}
-
-SDifc *sdifc[] =
-{
-	0,
 };

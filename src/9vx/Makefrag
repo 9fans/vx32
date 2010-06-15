@@ -32,6 +32,7 @@ PLAN9_OBJS = \
 		devmntloop.o \
 		devmouse.o \
 		devram.o \
+		devtab.o \
 		factotum.o \
 		fossil.o \
 		kprocdev.o \
@@ -114,9 +115,9 @@ PLAN9_IP_OBJS = \
 	$(addprefix 9vx/,\
 		devip.o \
 		devip-posix.o \
-		devtabve.o \
+		etherpcap.o \
 		ethertap.o \
-		etherve.o \
+		vether.o \
 	) \
 	$(addprefix 9vx/a/,\
 		devaoe.o \

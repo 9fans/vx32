@@ -5,6 +5,9 @@
 #include "fns.h"
 #include "error.h"
 #include "ip/ip.h"
+#include "netif.h"
+#include "etherif.h"
+#include "vether.h"
 #include "sd.h"
 
 extern int nettap;
@@ -26,6 +29,37 @@ extern void espinit(Fs*);
 
 extern SDifc sdloopifc;
 extern SDifc sdaoeifc;
+
+void
+setea(char *macaddr)
+{
+	int i;
+	char **nc = &macaddr;
+
+	if(nve == 0)
+		return;
+	for(i = 0; i < Eaddrlen; i++){
+		ve[nve-1].ea[i] = (uchar)strtoul(macaddr, nc, 16);
+		macaddr = *nc+1;
+	}
+}
+
+void
+addve(char *dev, int tap)
+{
+	int i;
+
+	static uchar ea[Eaddrlen] = {0x00, 0x00, 0x09, 0x00, 0x00, 0x00};
+
+	if(nve == MaxEther)
+		panic("too many virtual ether cards");
+	ve[nve].dev = dev;
+	ve[nve].tap = tap;
+	/* This ea could conflict with one given by the user */
+	memcpy(ve[nve].ea, ea, Eaddrlen);
+	ea[5]++;
+	nve++;
+}
 
 void links(void) {
 	ethermediumlink();

@@ -1,5 +1,5 @@
 /*
- * etherve - portable Virtual Ethernet driver for 9vx.
+ * etherpcap - portable Virtual Ethernet driver for 9vx.
  * 
  * Copyright (c) 2008 Devon H. O'Dell
  * copyright © 2008 erik quanstrom
@@ -10,20 +10,18 @@
 
 #include "u.h"
 
-#include "a/lib.h"
-#include "a/mem.h"
-#include "a/dat.h"
-#include "a/fns.h"
-#include "a/io.h"
-#include "a/error.h"
-#include "a/netif.h"
-
-#include "a/etherif.h"
+#include "lib.h"
+#include "mem.h"
+#include "dat.h"
+#include "fns.h"
+#include "io.h"
+#include "error.h"
+#include "netif.h"
+#include "etherif.h"
+#include "vether.h"
 
 #include <pcap.h>
 
-extern	char	*macaddr;
-extern	char	*netdev;
 static	uvlong	txerrs;
 
 extern	int	eafrom(char *ma, uchar ea[6]);
@@ -33,8 +31,6 @@ struct Ctlr {
 	pcap_t	*pd;
 };
 
-static uchar ea[6] = {0x00, 0x48, 0x01, 0x23, 0x45, 0x67};
-
 static void *
 veerror(char* err)
 {
@@ -43,33 +39,28 @@ veerror(char* err)
 }
 
 static pcap_t *
-setup(void)
+setup(char *dev, uchar *ea)
 {
-	char	filter[30] = "ether dst 00:48:01:23:45:67";
+	char	filter[30];
 	char	errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t	*pd;
 	struct bpf_program prog;
 	bpf_u_int32 net;
 	bpf_u_int32 mask;
 
-	if(macaddr){
-		if(strlen(macaddr)>17)
-			return veerror("wrong mac address");
-		else if(sprintf(filter, "ether dst %s", macaddr) == -1)
-			return veerror("cannot create pcap filter");
-	}
+	if(sprint(filter, "ether dst %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux",
+	ea[0], ea[1], ea[2],ea[3], ea[4], ea[5]) == -1)
+		return veerror("cannot create pcap filter");
+iprint("XXX FILTER: %s\n", filter);
 
-	if (!netdev && (netdev = pcap_lookupdev(errbuf)) == nil)
+	if (!dev && (dev = pcap_lookupdev(errbuf)) == nil)
 		return veerror("cannot find network device");
 
 //	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
-	if ((pd = pcap_open_live(netdev, 65000, 1, 1, errbuf)) == nil)
+	if ((pd = pcap_open_live(dev, 65000, 1, 1, errbuf)) == nil)
 		return nil;
 
-	if (macaddr && (eafrom(macaddr, ea) == -1))
-		return veerror("cannot read mac address");
-
-	pcap_lookupnet(netdev, &net, &mask, errbuf);
+	pcap_lookupnet(dev, &net, &mask, errbuf);
 	pcap_compile(pd, &prog, filter, 0, net);
 
 	if (pcap_setfilter(pd, &prog) == -1)
@@ -165,31 +156,36 @@ static int
 vepnp(Ether* e)
 {
 	Ctlr c;
-	static int nctlr = 0;
+	static int cve = 0;
 
-	if (nctlr++ > 0)
+	if(cve == nve)
 		return -1;
+	while(ve[cve].tap == 1)
+		cve++;
 
 	memset(&c, 0, sizeof(c));
-	c.pd = setup();
+	iprint("cve = %d\n", cve);
+	c.pd = setup(ve[cve].dev, ve[cve].ea);
 	if (c.pd == nil) {
 		iprint("ve: pcap failed to initialize\n");
+		cve++;
 		return -1;
 	}
 	e->ctlr = malloc(sizeof(c));
 	memcpy(e->ctlr, &c, sizeof(c));
 	e->tbdf = BUSUNKNOWN;
-	memcpy(e->ea, ea, sizeof(ea));
+	memcpy(e->ea, ve[cve].ea, Eaddrlen);
 	e->attach = veattach;
 	e->transmit = vetransmit;
 	e->ifstat = veifstat;
 	e->ni.arg = e;
 	e->ni.link = 1;
+	cve++;
 	return 0;
 }
 
 void
-ethervelink(void)
+etherpcaplink(void)
 {
 	addethercard("ve", vepnp);
 }

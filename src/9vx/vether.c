@@ -12,7 +12,7 @@
 
 extern int nettap;
 extern void ethertaplink(void);
-extern void ethervelink(void);
+extern void etherpcaplink(void);
 extern void ethermediumlink(void);
 extern void loopbackmediumlink(void);
 extern void netdevmediumlink(void);
@@ -65,10 +65,11 @@ void links(void) {
 	ethermediumlink();
 	loopbackmediumlink();
 	netdevmediumlink();
-	if(nettap)
-		ethertaplink();
-	else
-		ethervelink();
+	for(int i=0; i<nve; i++)
+		if(ve[i].tap == 1)
+			ethertaplink();
+		else
+			etherpcaplink();
 }
 
 void (*ipprotoinit[])(Fs*) = {

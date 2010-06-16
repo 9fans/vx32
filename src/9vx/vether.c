@@ -31,7 +31,7 @@ extern SDifc sdloopifc;
 extern SDifc sdaoeifc;
 
 void
-setea(char *macaddr)
+setmac(char *macaddr)
 {
 	int i;
 	char **nc = &macaddr;
@@ -45,31 +45,45 @@ setea(char *macaddr)
 	}
 }
 
+static int
+eainuse(int n, uchar ea[Eaddrlen])
+{
+	int i;
+
+	for(i = 0; i < nve; i++)
+		if((i<n || ve[i].mac != nil) && memcmp(ea, ve[i].ea, Eaddrlen) == 0)
+			return -1;
+	return 0;
+}
+
 void
 addve(char *dev, int tap)
 {
-	static uchar ea[Eaddrlen] = {0x00, 0x00, 0x09, 0x00, 0x00, 0x00};
-
 	if(nve == MaxEther)
 		panic("too many virtual ether cards");
 	ve[nve].tap = tap;
 	ve[nve].dev = dev;
 	ve[nve].mac = nil;
-	/* This ea could conflict with one given by the user */
-	memcpy(ve[nve].ea, ea, Eaddrlen);
-	ea[5]++;
 	nve++;
 }
 
 void links(void) {
+	static uchar ea[Eaddrlen] = {0x00, 0x00, 0x09, 0x00, 0x00, 0x00};
+
 	ethermediumlink();
 	loopbackmediumlink();
 	netdevmediumlink();
-	for(int i=0; i<nve; i++)
+	for(int i=0; i<nve; i++){
+		if(ve[i].mac == nil){
+			while(eainuse(i, ea))
+				ea[5]++;
+			memcpy(ve[i].ea, ea, Eaddrlen);
+		}
 		if(ve[i].tap == 1)
 			ethertaplink();
 		else
 			etherpcaplink();
+	}
 }
 
 void (*ipprotoinit[])(Fs*) = {

@@ -10,6 +10,6 @@ struct Vether
 Vether ve[MaxEther+1];
 int nve;
 
-void	setea(char*);
+void	setmac(char*);
 void	addve(char*, int);
 void	links();

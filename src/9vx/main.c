@@ -159,7 +159,7 @@ main(int argc, char **argv)
 		inifile = EARGF(usage());
 		break;
 	case 'm':
-		setea(EARGF(usage()));
+		setmac(EARGF(usage()));
 		break;
 	case 'n':
 		vetap = 0;
@@ -401,7 +401,7 @@ iniopt(char *name, char *value)
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;
 	else if(strcmp(name, "macaddr") == 0)
-		setea(value);
+		setmac(value);
 	else if(strcmp(name, "netdev") == 0){
 		if(strncmp(value, "tap", 3) == 0) {
 			vetap = 1;

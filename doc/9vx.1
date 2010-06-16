@@ -1,0 +1,130 @@
+.TH 9VX 1
+.SH NAME
+9vx, 9vx-tap \- Plan9 port to the virtual execution environment vx32
+.SH SYNOPSIS
+.B 9vx
+[
+.I option ...
+]
+[
+.I -p 9vx.ini
+]
+[
+.I -r root
+]
+[
+.I -u user
+]
+.PP
+.B 9vx-tap
+[
+.I option ...
+]
+[
+.I -p 9vx.ini
+]
+[
+.I -r root
+]
+[
+.I -u user
+]
+.SH DESCRIPTION
+Plan 9 VX (
+.I 9vx
+for short) is a port of the Plan 9 operating system to run on top of commodity operating systems, allowing the use of both Plan 9 and the host system simultaneously. To run user programs,
+.I 9vx
+creates an appropriate address space in a window within its own address space and invokes vx32 to simulate user mode execution. Some hardware devices are replaced by virtual versions, depending on the options given to
+.I 9vx
+.
+.I 9vx-tap
+is a shell script that sets up a tap device with tunctl(1), launches
+.I 9vx
+, and removes the tap device when finished.
+.PP
+Options can be passed to
+.I 9vx
+as command line arguments or in a configuration file with the
+.I -p
+option (see below). If no
+.I root
+argument is present, the current directory or
+.I /usr/local/9vx
+is used.
+If an
+.I user
+is not specified, the current user in the host operating system will be used.
+Other options are:
+.nr xx \w'\fL-m\f2name\ \ '
+.TP \n(xxu
+.BI -b
+Run /boot/boot instead of bootscript
+.TP
+.BI -f
+Do not fork at init
+.TP
+.BI -g
+Do not start the gui
+.TP
+.BI -i
+Run rc instead of init
+.TP
+.BI -t
+Use tty for input/output
+.TP
+.BI -n " [tap]" " [device]"
+Create virtual ethernet devices. The
+.I tap
+option tells that
+.I device
+is a tap device. Else, the virtual device will use pcap(3) to intercept packets going to
+.I device
+, and will therefore need root privileges. If a host
+.I device
+is not specified, pcap will use the first one available, and tap will use the
+.I tap0
+device. More than one virtual ethernet device can be used. In absence of virtual devices, the network stack of the host system will be used.
+.TP
+.BI -m " macaddress"
+Use the hardware address
+.I macaddress
+for the last given virtual network device.
+.SS 9vx.ini configuration files
+Configuration parameters can also be given to
+.I 9vx
+in the configuration file specified with the
+.I -p
+command line option. The file
+.I 9vx.ini
+has to contain a list of
+.I parameter=value
+pairs in a similar fasion to plan9.ini(8). Available options are
+.I bootboot
+,
+.I nofork
+,
+.I nogui
+,
+.I initrc
+,
+.I usetty
+,
+.I net
+,
+.I macaddr
+,
+.I localroot
+and
+.I user.
+Other options will be passed to the boot process as environment variables.
+.SH BUGS
+The menu system of plan9.ini(8) is not supported in
+.I 9vx.ini
+files.
+.P
+.I 9vx
+is not so stable as native Plan9 systems.
+.SH "SEE ALSO"
+.br
+Bryan Ford and Russ Cox,
+``Vx32: Lightweight User-level Sandboxing on the x86'

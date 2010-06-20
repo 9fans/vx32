@@ -296,7 +296,9 @@ readini(char *fn)
 	int blankline, incomment, inspace, n, fd;
 	char *cp, *p, *q;
 
-	if((fd = open(fn, OREAD)) < 0)
+	if(strcmp(fn, "-") == 0)
+		fd = stdin;
+	else if((fd = open(fn, OREAD)) < 0)
 		return -1;
 
 	cp = inibuf;

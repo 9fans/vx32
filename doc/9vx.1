@@ -30,17 +30,16 @@
 .I -u user
 ]
 .SH DESCRIPTION
-Plan 9 VX (
+Plan 9 VX (or
 .I 9vx
 for short) is a port of the Plan 9 operating system to run on top of commodity operating systems, allowing the use of both Plan 9 and the host system simultaneously. To run user programs,
 .I 9vx
 creates an appropriate address space in a window within its own address space and invokes vx32 to simulate user mode execution. Some hardware devices are replaced by virtual versions, depending on the options given to
-.I 9vx
-.
+.I 9vx.
 .I 9vx-tap
 is a shell script that sets up a tap device with tunctl(1), launches
-.I 9vx
-, and removes the tap device when finished.
+.I 9vx,
+and removes the tap device when finished.
 .PP
 Options can be passed to
 .I 9vx
@@ -51,6 +50,7 @@ option (see below). If no
 argument is present, the current directory or
 .I /usr/local/9vx
 is used.
+Alternatively, a file system can be specified in the 9vx.ini file.
 If an
 .I user
 is not specified, the current user in the host operating system will be used.
@@ -72,14 +72,14 @@ Run rc instead of init
 .BI -t
 Use tty for input/output
 .TP
-.BI -n " [tap]" " [device]"
+.BI -n " [ tap ] [ device ]"
 Create virtual ethernet devices. The
 .I tap
 option tells that
 .I device
 is a tap device. Else, the virtual device will use pcap(3) to intercept packets going to
-.I device
-, and will therefore need root privileges. If a host
+.I device,
+and will therefore need root privileges. If a host
 .I device
 is not specified, pcap will use the first one available, and tap will use the
 .I tap0
@@ -94,25 +94,22 @@ Configuration parameters can also be given to
 .I 9vx
 in the configuration file specified with the
 .I -p
-command line option. The file
+command line option.
+The file name
+.L -
+means the standard input.
+The file
 .I 9vx.ini
 has to contain a list of
 .I parameter=value
 pairs in a similar fasion to plan9.ini(8). Available options are
-.I bootboot
-,
-.I nofork
-,
-.I nogui
-,
-.I initrc
-,
-.I usetty
-,
-.I net
-,
-.I macaddr
-,
+.I bootboot,
+.I nofork,
+.I nogui,
+.I initrc,
+.I usetty,
+.I net,
+.I macaddr,
 .I localroot
 and
 .I user.

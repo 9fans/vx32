@@ -784,6 +784,7 @@ consread(Chan *c, void *buf, long n, vlong off)
 		while(!qcanread(lineq)){
 			if(qread(kbdq, &ch, 1) == 0)
 				continue;
+			//XXX TODO: startup blocks here
 			send = 0;
 			if(ch == 0){
 				/* flush output on rawoff -> rawon */

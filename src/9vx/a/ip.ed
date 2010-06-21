@@ -1,0 +1,2297 @@
+diff -e ip.orig/arp.c ip/arp.c
+643c
+	QUNLOCK(arp);
+.
+613,614c
+	RUNLOCK(ifc);
+	QLOCK(arp);
+.
+609c
+	QUNLOCK(arp);	/* for icmpns */
+.
+589c
+		if((a->rxtsrem <= 0) || !(CANRLOCK(ifc)) || (a->ifcid != ifc->ifcid)){
+.
+574c
+	QLOCK(arp);
+.
+557c
+		QUNLOCK(arp);
+.
+554c
+		QLOCK(arp);
+.
+511c
+		QUNLOCK(arp);
+.
+481c
+		QLOCK(arp);
+.
+444c
+		QUNLOCK(arp);
+.
+426c
+		QLOCK(arp);
+.
+398c
+	QUNLOCK(arp);
+.
+380c
+					RUNLOCK(ifc);
+.
+375c
+					RLOCK(ifc);
+.
+372c
+						RUNLOCK(ifc);
+.
+366c
+			QUNLOCK(arp);
+.
+337c
+	QLOCK(arp);
+.
+292c
+	QUNLOCK(arp);
+.
+260c
+	QUNLOCK(arp);
+.
+258c
+arprelease(Arp *arp, Arpent* ae)
+.
+250c
+	QUNLOCK(arp);
+.
+219c
+	QLOCK(arp);
+.
+50c
+int 	ReTransTimer = RETRANS_TIMER;
+.
+48c
+#define haship(s) ((ulong)((s)[IPaddrlen-1])%NHASH)
+.
+36c
+	QLock	qlock;
+.
+14d
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/chandial.c ip/chandial.c
+6,7c
+#include	"error.h"
+#include	"ip/ip.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/devip.c ip/devip.c
+1430c
+	QUNLOCK(c);
+.
+1418c
+		QUNLOCK(c);
+.
+1404,1411c
+		QUNLOCK(c);
+.
+1399c
+	QLOCK(c);
+.
+1349c
+	QUNLOCK(c);
+.
+1326,1328d
+1322,1323d
+1318c
+			QUNLOCK(c);
+.
+1310c
+		if(CANQLOCK(c)){
+.
+1294c
+			QLOCK(c);
+.
+1185c
+		QUNLOCK(c);
+.
+1130c
+			QUNLOCK(c);
+.
+1128c
+		QLOCK(c);
+.
+1033c
+	QLOCK(c);
+.
+1029c
+		QLOCK(c);
+.
+1027c
+	QUNLOCK(c);
+.
+980c
+	QLOCK(c);
+.
+976c
+		QLOCK(c);
+.
+974c
+	QUNLOCK(c);
+.
+831c
+	QUNLOCK(p);
+.
+820,826c
+	QUNLOCK(p);
+.
+793c
+	QLOCK(p);
+.
+765c
+	QUNLOCK(p);
+.
+760c
+			QUNLOCK(p);
+.
+748c
+	QLOCK(p);
+.
+582c
+	QUNLOCK(cv);
+.
+561c
+		QUNLOCK(cv);
+.
+558c
+	QLOCK(cv);
+.
+516c
+ipremove(Chan* _)
+.
+510c
+ipcreate(Chan* _, char* __, int ___, ulong ____)
+.
+494c
+			QUNLOCK(cv);
+.
+487c
+			QLOCK(cv);
+.
+470c
+		QUNLOCK(cv);
+.
+468c
+		QLOCK(cv);
+.
+447,448c
+		QUNLOCK(cv);
+		QUNLOCK(p);
+.
+431,432c
+			QUNLOCK(cv);
+			QUNLOCK(p);
+.
+429c
+		QLOCK(cv);
+.
+427c
+		QLOCK(p);
+.
+415c
+		QUNLOCK(p);
+.
+411c
+			QUNLOCK(p);
+.
+409c
+		QLOCK(p);
+.
+174c
+ipgen(Chan *c, char* __ch, Dirtab* __dt, int __i, int s, Dir *dp)
+.
+50c
+#define QID(p, c, y) 	( ((uint)(p)<<(Shiftproto)) | ((uint)(c)<<Shiftconv) | (y) )
+.
+6,7c
+#include	"error.h"
+#include	"ip/ip.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/esp.c ip/esp.c
+1106a
+
+
+#ifdef notdef
+enum {
+	RC4forward= 10*1024*1024,	/* maximum skip forward */
+	RC4back = 100*1024,	/* maximum look back */
+};
+
+typedef struct Esprc4 Esprc4;
+struct Esprc4
+{
+	ulong	cseq;		/* current byte sequence number */
+	RC4state current;
+
+	int	ovalid;		/* old is valid */
+	ulong	lgseq;		/* last good sequence */
+	ulong	oseq;		/* old byte sequence number */
+	RC4state old;
+};
+
+static void rc4espinit(Espcb *ecb, char *name, uchar *k, int n);
+
+static int
+rc4cipher(Espcb *ecb, uchar *p, int n)
+{
+	Esprc4 *esprc4;
+	RC4state tmpstate;
+	ulong seq;
+	long d, dd;
+
+	if(n < 4)
+		return 0;
+
+	esprc4 = ecb->espstate;
+	if(ecb->incoming) {
+		seq = nhgetl(p);
+		p += 4;
+		n -= 4;
+		d = seq-esprc4->cseq;
+		if(d == 0) {
+			rc4(&esprc4->current, p, n);
+			esprc4->cseq += n;
+			if(esprc4->ovalid) {
+				dd = esprc4->cseq - esprc4->lgseq;
+				if(dd > RC4back)
+					esprc4->ovalid = 0;
+			}
+		} else if(d > 0) {
+print("esp rc4cipher: missing packet: %uld %ld\n", seq, d); /* this link is hosed */
+			if(d > RC4forward) {
+				strcpy(up->errstr, "rc4cipher: skipped too much");
+				return 0;
+			}
+			esprc4->lgseq = seq;
+			if(!esprc4->ovalid) {
+				esprc4->ovalid = 1;
+				esprc4->oseq = esprc4->cseq;
+				memmove(&esprc4->old, &esprc4->current,
+					sizeof(RC4state));
+			}
+			rc4skip(&esprc4->current, d);
+			rc4(&esprc4->current, p, n);
+			esprc4->cseq = seq+n;
+		} else {
+print("esp rc4cipher: reordered packet: %uld %ld\n", seq, d);
+			dd = seq - esprc4->oseq;
+			if(!esprc4->ovalid || -d > RC4back || dd < 0) {
+				strcpy(up->errstr, "rc4cipher: too far back");
+				return 0;
+			}
+			memmove(&tmpstate, &esprc4->old, sizeof(RC4state));
+			rc4skip(&tmpstate, dd);
+			rc4(&tmpstate, p, n);
+			return 1;
+		}
+
+		/* move old state up */
+		if(esprc4->ovalid) {
+			dd = esprc4->cseq - RC4back - esprc4->oseq;
+			if(dd > 0) {
+				rc4skip(&esprc4->old, dd);
+				esprc4->oseq += dd;
+			}
+		}
+	} else {
+		hnputl(p, esprc4->cseq);
+		p += 4;
+		n -= 4;
+		rc4(&esprc4->current, p, n);
+		esprc4->cseq += n;
+	}
+	return 1;
+}
+
+static void
+rc4espinit(Espcb *ecb, char *name, uchar *k, int n)
+{
+	Esprc4 *esprc4;
+
+	/* bits to bytes */
+	n = (n+7)>>3;
+	esprc4 = smalloc(sizeof(Esprc4));
+	memset(esprc4, 0, sizeof(Esprc4));
+	setupRC4state(&esprc4->current, k, n);
+	ecb->espalg = name;
+	ecb->espblklen = 4;
+	ecb->espivlen = 4;
+	ecb->cipher = rc4cipher;
+	ecb->espstate = esprc4;
+}
+#endif
+.
+1056,1081d
+1048,1050c
+	ecb->espblklen = 8;
+	ecb->espivlen = 8;
+.
+1045c
+	for(i=0; i<8; i++)
+.
+1040,1042c
+	/* bits to bytes */
+	n = (n+7)>>3;
+	if(n > 8)
+		n = 8;
+.
+1037c
+	uchar key[8], ivec[8];
+.
+1035c
+desespinit(Espcb *ecb, char *name, uchar *k, int n)
+.
+1019,1033d
+1013,1014c
+		memmove(p, ds->ivec, 8);
+		for(p += 8; p < ep; p += 8){
+			pp = p;
+			ip = ds->ivec;
+			for(eip = ip+8; ip < eip; )
+				*pp++ ^= *ip++;
+			block_cipher(ds->expanded, p, 0);
+			memmove(ds->ivec, p, 8);
+		}
+.
+1010,1011c
+		memmove(ds->ivec, p, 8);
+		p += 8;
+		while(p < ep){
+			memmove(tmp, p, 8);
+			block_cipher(ds->expanded, p, 1);
+			tp = tmp;
+			ip = ds->ivec;
+			for(eip = ip+8; ip < eip; ){
+				*p++ ^= *ip;
+				*ip++ = *tp++;
+			}
+		}
+.
+1008a
+	ep = p + n;
+.
+1006a
+	uchar tmp[8];
+	uchar *pp, *tp, *ip, *eip, *ep;
+.
+999,1003d
+993c
+	ecb->ahlen = 12;
+.
+990c
+	klen >>= 3;		/* convert to bytes */
+
+.
+986c
+md5ahinit(Espcb *ecb, char *name, uchar *key, int klen)
+.
+979c
+	seanq_hmac_md5(hash, t, tlen, (uchar*)ecb->ahstate, 16);
+.
+968c
+	digest = md5(opad, 64, nil, nil);
+.
+966c
+	digest = md5(ipad, 64, nil, nil);
+.
+959,962c
+	for(i=0; i<64; i++){
+		ipad[i] = 0x36;
+		opad[i] = 0x5c;
+	}
+	ipad[64] = opad[64] = 0;
+	for(i=0; i<klen; i++){
+.
+957a
+	uchar innerhash[MD5dlen];
+.
+956d
+954a
+	uchar ipad[65], opad[65];
+.
+796,952c
+void
+.
+790c
+	ecb->ahlen = 12;
+.
+786c
+	klen >>= 8;		/* convert to bytes */
+.
+782c
+shaahinit(Espcb *ecb, char *name, uchar *key, int klen)
+.
+775c
+	seanq_hmac_sha1(hash, t, tlen, (uchar*)ecb->ahstate, 16);
+.
+772a
+	int r;
+.
+771d
+764c
+	digest = sha1(opad, 64, nil, nil);
+.
+762c
+	digest = sha1(ipad, 64, nil, nil);
+.
+755,758c
+	for(i=0; i<64; i++){
+		ipad[i] = 0x36;
+		opad[i] = 0x5c;
+	}
+	ipad[64] = opad[64] = 0;
+	for(i=0; i<klen; i++){
+.
+753a
+	uchar innerhash[SHA1dlen];
+.
+752d
+750a
+	uchar ipad[65], opad[65];
+.
+743,748c
+void
+.
+735c
+nullahinit(Espcb *ecb, char *name, uchar* _, int __)
+.
+729c
+nullauth(Espcb* _, uchar* __, int ___, uchar* ____)
+.
+720c
+nullespinit(Espcb *ecb, char *name, uchar* _, int __)
+.
+714c
+nullcipher(Espcb* _, uchar* __, int ___)
+.
+708,712d
+647c
+	QUNLOCK(c);
+.
+642c
+	QLOCK(c);
+.
+632c
+	QUNLOCK(c);
+.
+627c
+	QLOCK(c);
+.
+606c
+	QUNLOCK(esp);
+.
+600,601c
+	spi = nhgets(h->espspi);
+	QLOCK(esp);
+	c = convlookup(esp, spi);
+.
+597,598c
+	h = (Esp4hdr*)(bp->rp);
+.
+595c
+	ulong spi;
+.
+593a
+	Esp4hdr *h;
+.
+590d
+568c
+	QUNLOCK(c);
+.
+565c
+		qpass(c->rq, bp);
+.
+560,561c
+		netlog(f, Logesp, "esp: qfull %I -> %I.%uld\n", raddr,
+			laddr, spi);
+.
+557,558d
+547c
+	bp->rp += hdrlen + ecb->espivlen;
+.
+539,541c
+		QUNLOCK(c);
+		netlog(f, Logesp, "esp: short packet after decrypt %I -> %I!%d\n",
+			raddr, laddr, spi);
+.
+535c
+	et = (Esptail*)(bp->rp + hdrlen + payload);
+.
+523,529c
+	if(!ecb->cipher(ecb, bp->rp + hdrlen, payload)) {
+		QUNLOCK(c);
+print("esp: cipher failed %I -> %I!%ld: %s\n", raddr, laddr, spi, up->errstr);
+		netlog(f, Logesp, "esp: cipher failed %I -> %I!%d: %s\n", raddr,
+			laddr, spi, up->errstr);
+.
+517,519c
+		QUNLOCK(c);
+		netlog(f, Logesp, "esp: bad length %I -> %I!%d payload=%d BLEN=%d\n",
+			raddr, laddr, spi, payload, BLEN(bp));
+.
+515c
+	payload = BLEN(bp) - hdrlen - ecb->ahlen;
+.
+507,510c
+		QUNLOCK(c);
+print("esp: bad auth %I -> %I!%ld\n", raddr, laddr, spi);
+		netlog(f, Logesp, "esp: bad auth %I -> %I!%d\n", raddr,
+			laddr, spi);
+.
+502,505c
+	espspi = version == V4? ((Esp4hdr*)bp->rp)->espspi:
+				((Esp6hdr*)bp->rp)->espspi;
+.
+493,496c
+	if(BLEN(bp) < hdrlen + ecb->espivlen + Esptaillen + ecb->ahlen) {
+		QUNLOCK(c);
+		netlog(f, Logesp, "esp: short block %I -> %I!%d\n", raddr,
+			laddr, spi);
+.
+485,486c
+	QLOCK(c);
+	QUNLOCK(esp);
+.
+477,479c
+		QUNLOCK(esp);
+		netlog(f, Logesp, "esp: no conv %I -> %I!%d\n", raddr,
+			laddr, spi);
+.
+475c
+	c = convlookup(esp, spi);
+.
+473c
+	if (version == V4) {
+		eh4 = (Esp4hdr*)bp->rp;
+		spi = nhgetl(eh4->espspi);
+		v4tov6(raddr, eh4->espsrc);
+		v4tov6(laddr, eh4->espdst);
+	} else {
+		eh6 = (Esp6hdr*)bp->rp;
+		spi = nhgetl(eh6->espspi);
+		ipmove(raddr, eh6->src);
+		ipmove(laddr, eh6->dst);
+	}
+
+	QLOCK(esp);
+.
+471d
+464,466c
+	bp = pullupblock(bp, hdrlen + Esptaillen);
+.
+462a
+	if (bp == nil || BLEN(bp) == 0) {
+		/* get enough to identify the IP version */
+		bp = pullupblock(bp, IP4HDR);
+		if(bp == nil) {
+			netlog(f, Logesp, "esp: short packet\n");
+			return;
+		}
+	}
+	eh4 = (Esp4hdr*)bp->rp;
+	version = ((eh4->vihl & 0xf0) == IP_VER4? V4: V6);
+	hdrlen = version == V4? Esp4hdrlen: Esp6hdrlen;
+.
+459,460c
+	uchar *auth, *espspi;
+	ulong spi;
+	int payload, nexthdr, version, hdrlen;
+.
+457c
+	uchar raddr[IPaddrlen], laddr[IPaddrlen];
+.
+453,454c
+	Esp4hdr *eh4;
+	Esp6hdr *eh6;
+	Esptail *et;
+	Userhdr *uh;
+.
+451c
+espiput(Proto *esp, Ipifc* _, Block *bp)
+.
+446,449d
+440c
+	if (version == V4)
+.
+438c
+	QUNLOCK(c);
+.
+434,435c
+	ecb->auth(ecb, bp->rp + iphdrlen, (hdrlen - iphdrlen) +
+.
+429,431d
+425a
+		hnputl(eh6->espspi, ecb->spi);
+		hnputl(eh6->espseq, ++ecb->seq);
+.
+424d
+420,422d
+414a
+		hnputl(eh4->espspi, ecb->spi);
+		hnputl(eh4->espseq, ++ecb->seq);
+.
+411,413c
+	/* fill in head */
+	if (version == V4) {
+.
+407,409c
+	ecb->cipher(ecb, bp->rp + hdrlen, payload + pad + Esptaillen);
+	auth = bp->rp + hdrlen + payload + pad + Esptaillen;
+.
+401c
+	eh4 = (Esp4hdr *)bp->rp;
+	eh6 = (Esp6hdr *)bp->rp;
+	et = (Esptail*)(bp->rp + hdrlen + payload + pad);
+.
+383,384c
+	bp = padblock(bp, hdrlen + ecb->espivlen);
+.
+370c
+			QUNLOCK(c);
+.
+363c
+	QLOCK(c);
+.
+358c
+	version = ipvers(c);
+	iphdrlen = version == V4? IP4HDR: IP6HDR;
+	hdrlen =   version == V4? Esp4hdrlen: Esp6hdrlen;
+
+.
+356c
+	Espcb *ecb;
+	Block *bp;
+	int nexthdr, payload, pad, align, version, hdrlen, iphdrlen;
+	uchar *auth;
+.
+353d
+347,349d
+299,344d
+284,297d
+274c
+ipvers(Conv *c)
+.
+221c
+			QUNLOCK(c->p);
+.
+215c
+			QLOCK(c->p);
+.
+207,210c
+		parseip(c->raddr, argv[1]);
+.
+192c
+	char *p, *pp;
+	char *e = nil;
+.
+182,186c
+	"null",			0,	nullahinit,
+	"hmac_sha1_96",		128,	shaahinit,	/* rfc2404 */
+//	"aes_xcbc_mac_96",	128,	aesahinit,	/* rfc3566 */
+	"hmac_md5_96",		128,	md5ahinit,	/* rfc2403 */
+	nil,			0,	nil,
+.
+170,177c
+	"null",			0,	nullespinit,
+//	"des3_cbc",		192,	des3espinit,	/* rfc2451 */
+//	"aes_128_cbc",		128,	aescbcespinit,	/* rfc3602 */
+//	"aes_ctr",		128,	aesctrespinit,	/* rfc3686 */
+	"des_56_cbc",		64,	desespinit,	/* rfc2405, deprecated */
+//	"rc4_128",		128,	rc4espinit,	/* gone in rfc4305 */
+	nil,			0,	nil,
+.
+163,166c
+static	void nullahinit(Espcb*, char*, uchar *key, int keylen);
+static	void shaahinit(Espcb*, char*, uchar *key, int keylen);
+static	void md5ahinit(Espcb*, char*, uchar *key, int keylen);
+.
+157,161c
+static	void nullespinit(Espcb*, char*, uchar *key, int keylen);
+static	void desespinit(Espcb *ecb, char *name, uchar *k, int n);
+.
+150c
+	void	(*init)(Espcb*, char* name, uchar *key, int keylen);
+.
+143d
+137d
+131d
+127c
+	int	header;		/* user user level header */
+.
+96,107d
+86,87c
+	/* Ip6hdr; */
+	uchar	vcf[4];		/* version:4, traffic class:8, flow label:20 */
+	uchar	ploadlen[2];	/* payload length: packet length - 40 */
+	uchar	proto;		/* next header type */
+	uchar	ttl;		/* hop limit */
+	uchar	src[IPaddrlen];
+	uchar	dst[IPaddrlen];
+
+	/* Esphdr; */
+	uchar	espspi[4];	/* Security parameter index */
+	uchar	espseq[4];	/* Sequence number */
+.
+80c
+	/* Esphdr; */
+	uchar	espspi[4];	/* Security parameter index */
+	uchar	espseq[4];	/* Sequence number */
+.
+58,64c
+ * tunnel-mode layout:		IP | ESP | TCP/UDP | user data.
+ * transport-mode layout is:	ESP | IP | TCP/UDP | user data.
+.
+54d
+42,47d
+32,35c
+enum
+{
+.
+30a
+typedef struct Esppriv Esppriv;
+typedef struct Espcb Espcb;
+typedef struct Algorithm Algorithm;
+.
+26,28d
+20,23c
+typedef struct Esphdr Esphdr;
+.
+14c
+#include	"error.h"
+.
+10c
+#include	"lib.h"
+.
+6,7c
+ * TODO: update to match rfc4303.
+.
+3,4d
+diff -e ip.orig/ethermedium.c ip/ethermedium.c
+536c
+	if((sflag = ipv6anylocal(ifc, ipsrc)) != 0)
+.
+429c
+etherremmulti(Ipifc *ifc, uchar *a, uchar *_)
+.
+407c
+etheraddmulti(Ipifc *ifc, uchar *a, uchar *_)
+.
+401c
+		RUNLOCK(ifc);
+.
+392c
+			RUNLOCK(ifc);
+.
+387c
+		if(!CANRLOCK(ifc)){
+.
+362c
+		RUNLOCK(ifc);
+.
+353c
+			RUNLOCK(ifc);
+.
+348c
+		if(!CANRLOCK(ifc)){
+.
+269c
+ *  called by ipoput with a single block to write with ifc RLOCK'd
+.
+123a
+
+.
+8c
+#include "netif.h"
+.
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/gre.c ip/gre.c
+968c
+	gre->ptclsize = 0;
+.
+919,948d
+894,916c
+	return "unknown control request";
+.
+885,892d
+881,883c
+		else if(strcmp(f[0], "cooked") == 0){
+			gpriv->raw = 0;
+			return nil;
+.
+696,879c
+	gpriv = c->p->priv;
+	if(n == 1){
+		if(strcmp(f[0], "raw") == 0){
+			gpriv->raw = 1;
+			return nil;
+.
+694c
+	GREpriv *gpriv;
+.
+691,692c
+char*
+grectl(Conv *c, char **f, int n)
+.
+681,688c
+	return snprint(buf, len, "gre: len %lud\n", gpriv->lenerr);
+.
+675,679d
+659,660c
+	if(qlen(c->rq) > 64*1024)
+		freeblist(bp);
+.
+651d
+648d
+645c
+		freeblist(bp);
+.
+643c
+	len = nhgets(ghp->len) - GRE_IPONLY;
+.
+639a
+	QUNLOCK(gre);
+
+.
+633,636c
+	if(*p == nil) {
+		QUNLOCK(gre);
+		freeblist(bp);
+.
+590,629c
+		if(c->rport == eproto && 
+			(gpriv->raw || ipcmp(c->raddr, raddr) == 0))
+.
+587d
+553,585c
+	/* Look for a conversation structure for this port and address */
+	c = nil;
+	for(p = gre->conv; *p; p++) {
+.
+547,551c
+	v4tov6(raddr, ghp->src);
+	eproto = nhgets(ghp->eproto);
+	QLOCK(gre);
+.
+536,545c
+	gpriv = gre->priv;
+	ghp = (GREhdr*)(bp->rp);
+.
+534d
+531,532c
+	ushort eproto;
+	uchar raddr[IPaddrlen];
+.
+336,529c
+	int len;
+	GREhdr *ghp;
+.
+334c
+greiput(Proto *gre, Ipifc* __, Block *bp)
+.
+328,329d
+325,326c
+	ghp->proto = IP_GREPROTO;
+	ghp->frag[0] = 0;
+	ghp->frag[1] = 0;
+.
+322c
+		hnputs(ghp->eproto, c->rport);
+.
+318,320c
+				findlocalip(c->p->f, c->laddr, raddr); /* pick interface closest to dest */
+			memmove(ghp->src, c->laddr + IPv4off, IPv4addrlen);
+.
+314,315c
+			memmove(ghp->dst, c->raddr + IPv4off, IPv4addrlen);
+		v4tov6(laddr, ghp->src);
+.
+311,312c
+	if(!((GREpriv*)c->p->priv)->raw){
+		v4tov6(raddr, ghp->dst);
+.
+308,309c
+	ghp = (GREhdr *)(bp->rp);
+	ghp->vihl = IP_VER4;
+.
+295,297d
+287,289c
+	Conv *c = x;
+	GREhdr *ghp;
+.
+283a
+int drop;
+
+.
+281c
+	c->lport = 0;
+	c->rport = 0;
+.
+247,278c
+	qclose(c->rq);
+	qclose(c->wq);
+	qclose(c->eq);
+.
+241c
+	return "pktifc does not support announce";
+.
+239c
+greannounce(Conv* _, char** __, int ___)
+.
+218,235c
+	USED(c);
+	return snprint(state, n, "%s\n", "Datagram");
+.
+211c
+	c->rq = qopen(64*1024, Qmsg, 0, c);
+.
+199c
+	QUNLOCK(p);
+.
+184c
+	QLOCK(p);
+.
+138,171c
+static char*
+.
+136d
+71,134d
+68c
+	ulong		csumerr;		/* checksum errors */
+	ulong		lenerr;			/* short packet */
+.
+66c
+struct GREpriv
+{
+	int		raw;			/* Raw GRE mode */
+
+.
+63c
+} GREhdr;
+.
+54c
+	uchar	Unused;	
+.
+46,47c
+typedef struct GREhdr
+{
+.
+21,43d
+13c
+enum
+{
+.
+9c
+#include "error.h"
+.
+5c
+#include "lib.h"
+.
+diff -e ip.orig/icmp.c ip/icmp.c
+350c
+	if(iplen > n || ((uint)iplen % 1)){
+.
+339,341c
+	netlog(icmp->f, Logicmp, "icmpiput %d %d\n", p->type, p->code);
+.
+324c
+icmpiput(Proto *icmp, Ipifc* __, Block *bp)
+.
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/icmp6.c ip/icmp6.c
+781c
+			bp->rp -= sizeof(IPICMP);
+.
+770c
+			bp->rp += sizeof(IPICMP);
+.
+762c
+		bp->rp -= sizeof(IPICMP);
+.
+750c
+		bp->rp += sizeof(IPICMP);
+.
+711c
+	RUNLOCK(ifc);
+.
+707c
+			RUNLOCK(ifc);
+.
+700c
+		RUNLOCK(ifc);
+.
+698c
+	RLOCK(ifc);
+.
+666c
+			sz = sizeof(IPICMP) + 8;
+.
+661c
+			if(pktsz - sizeof(Ip6hdr) < 8) {
+.
+649c
+			sz = sizeof(IPICMP) + 8;
+.
+641c
+			if(pktsz - sizeof(Ip6hdr) < 16) {
+.
+575c
+	if(iplen > n - IP6HDR || ((uint)iplen % 1) != 0) {
+.
+568c
+	if(n < sizeof(IPICMP)) {
+.
+546c
+	memmove(nbp->rp + sizeof(IPICMP), bp->rp, sz - sizeof(IPICMP));
+.
+537c
+		netlog(f, Logicmp, "icmppkttoobig6 fail -> s%I d%I\n",
+.
+534c
+		netlog(f, Logicmp, "send icmppkttoobig6 -> s%I d%I\n",
+.
+518c
+	int sz = MIN(sizeof(IPICMP) + osz, v6MINTU);
+.
+506c
+	memmove(nbp->rp + sizeof(IPICMP), bp->rp, sz - sizeof(IPICMP));
+.
+498c
+		netlog(f, Logicmp, "icmpttlexceeded6 fail -> s%I d%I\n",
+.
+495c
+		netlog(f, Logicmp, "send icmpttlexceeded6 -> s%I d%I\n",
+.
+479c
+	int sz = MIN(sizeof(IPICMP) + osz, v6MINTU);
+.
+471c
+	RUNLOCK(ifc);
+.
+457c
+	memmove(nbp->rp + sizeof(IPICMP), bp->rp, sz - sizeof(IPICMP));
+.
+445c
+		netlog(f, Logicmp, "icmphostunr fail -> s%I d%I\n",
+.
+442c
+		netlog(f, Logicmp, "send icmphostunr -> s%I d%I\n",
+.
+440c
+	RLOCK(ifc);
+.
+425c
+	int sz = MIN(sizeof(IPICMP) + osz, v6MINTU);
+.
+397c
+	nbp = newIPICMP(sizeof(Ndpkt));
+.
+375c
+		nbp->wp -= sizeof(Ndpkt) - sizeof(NdiscC);
+.
+354c
+	nbp = newIPICMP(sizeof(Ndpkt));
+.
+260c
+	if(blocklen(bp) < sizeof(IPICMP)){
+.
+257c
+		bp = padblock(bp, sizeof(Ip6hdr));
+.
+122c
+	QLock	qlock;
+.
+109,110d
+106d
+101a
+
+.
+99,100c
+	/* ICMPpkt; */
+	uchar	type;
+	uchar	code;
+	uchar	cksum[2];
+	uchar	icmpid[2];
+	uchar	seq[2];
+
+.
+97c
+struct Ndpkt
+{
+	/* NdiscC; */
+	/* IPICMP; */
+	/* Ip6hdr; */
+	uchar	vcf[4];		/* version:4, traffic class:8, flow label:20 */
+	uchar	ploadlen[2];	/* payload length: packet length - 40 */
+	uchar	proto;		/* next header type */
+	uchar	ttl;		/* hop limit */
+	uchar	src[IPaddrlen];
+	uchar	dst[IPaddrlen];
+.
+94d
+91,92c
+	/* ICMPpkt; */
+	uchar	type;
+	uchar	code;
+	uchar	cksum[2];
+	uchar	icmpid[2];
+	uchar	seq[2];
+
+.
+89c
+struct NdiscC
+{
+	/* IPICMP; */
+	/* Ip6hdr; */
+	uchar	vcf[4];		/* version:4, traffic class:8, flow label:20 */
+	uchar	ploadlen[2];	/* payload length: packet length - 40 */
+	uchar	proto;		/* next header type */
+	uchar	ttl;		/* hop limit */
+	uchar	src[IPaddrlen];
+	uchar	dst[IPaddrlen];
+.
+85,86c
+	/* Ip6hdr; */
+	uchar	vcf[4];		/* version:4, traffic class:8, flow label:20 */
+	uchar	ploadlen[2];	/* payload length: packet length - 40 */
+	uchar	proto;		/* next header type */
+	uchar	ttl;		/* hop limit */
+	uchar	src[IPaddrlen];
+	uchar	dst[IPaddrlen];
+
+	/* ICMPpkt; */
+	uchar	type;
+	uchar	code;
+	uchar	cksum[2];
+	uchar	icmpid[2];
+	uchar	seq[2];
+.
+75,82c
+struct ICMPpkt {
+	uchar	type;
+	uchar	code;
+	uchar	cksum[2];
+	uchar	icmpid[2];
+	uchar	seq[2];
+};
+.
+70c
+typedef struct ICMPpkt ICMPpkt;
+.
+9c
+#include "error.h"
+.
+5c
+#include "lib.h"
+.
+diff -e ip.orig/igmp.c ip/igmp.c
+217c
+		mp = Mediacopymulti(m);
+.
+177c
+igmpiput(Media *m, Ipifc *, Block *bp)
+.
+123c
+	byte ip[IPaddrlen];
+.
+97,99c
+	bp->wp += sizeof(IGMPpkt);
+	memset(bp->rp, 0, sizeof(IGMPpkt));
+	hnputl(p->src, Mediagetaddr(m));
+.
+87c
+igmpsendreport(Media *m, byte *addr)
+.
+68c
+	Lock lk;
+
+.
+60c
+	Media		*m;
+.
+51,52d
+43,48c
+	byte	vertype;	/* version and type */
+	byte	unused;
+	byte	igmpcksum[2];		/* checksum of igmp portion */
+	byte	group[IPaddrlen];	/* multicast group */
+.
+31,40c
+	byte	vihl;		/* Version and header length */
+	byte	tos;		/* Type of service */
+	byte	len[2];		/* packet length (including headers) */
+	byte	id[2];		/* Identification */
+	byte	frag[2];	/* Fragment information */
+	byte	Unused;	
+	byte	proto;		/* Protocol */
+	byte	cksum[2];	/* checksum of ip portion */
+	byte	src[IPaddrlen];		/* Ip source */
+	byte	dst[IPaddrlen];		/* Ip destination */
+.
+27a
+typedef char byte;
+
+.
+10c
+#include "error.h"
+.
+6c
+#include "lib.h"
+.
+1,4d
+diff -e ip.orig/inferno.c ip/inferno.c
+28a
+
+Medium tripmedium =
+{
+	"trip",
+};
+.
+25c
+bootpread(char* _, ulong __, int ___)
+.
+23a
+char*
+bootp(Ipifc* _)
+{
+	return "unimplmented";
+}
+
+.
+17a
+Chan*
+commonfdtochan(int fd, int mode, int a, int b)
+{
+	return fdtochan(fd, mode, a, b);
+}
+
+.
+6c
+#include	"error.h"
+#include	"ip.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/ip.c ip/ip.c
+522,524c
+	if(bp->base+sizeof(Ipfrag) >= bp->rp){
+		bp = padblock(bp, sizeof(Ipfrag));
+		bp->rp += sizeof(Ipfrag);
+.
+466,467c
+	for(i = 0; i < Nstats; i++)
+		p = seprint(p, e, "%s: %lud\n", statnames[i], ip->stats[i]);
+.
+383c
+			freeb(bp);
+.
+381a
+		Conv conv;
+
+.
+322d
+320d
+301c
+	RUNLOCK(ifc);
+.
+213c
+		RUNLOCK(ifc);
+.
+211d
+196,199c
+	medialen = ifc->maxtu - ifc->m->hsize;
+.
+189c
+		RUNLOCK(ifc);
+.
+186c
+	if(!CANRLOCK(ifc))
+.
+11a
+/* MIB II counters */
+enum
+{
+	Forwarding,
+	DefaultTTL,
+	InReceives,
+	InHdrErrors,
+	InAddrErrors,
+	ForwDatagrams,
+	InUnknownProtos,
+	InDiscards,
+	InDelivers,
+	OutRequests,
+	OutDiscards,
+	OutNoRoutes,
+	ReasmTimeout,
+	ReasmReqds,
+	ReasmOKs,
+	ReasmFails,
+	FragOKs,
+	FragFails,
+	FragCreates,
+
+	Nstats,
+};
+
+struct Fragment4
+{
+	Block*	blist;
+	Fragment4*	next;
+	ulong 	src;
+	ulong 	dst;
+	ushort	id;
+	ulong 	age;
+};
+
+struct Fragment6
+{
+	Block*	blist;
+	Fragment6*	next;
+	uchar 	src[IPaddrlen];
+	uchar 	dst[IPaddrlen];
+	uint	id;
+	ulong 	age;
+};
+
+struct Ipfrag
+{
+	ushort	foff;
+	ushort	flen;
+};
+
+/* an instance of IP */
+struct IP
+{
+	ulong		stats[Nstats];
+
+	QLock		fraglock4;
+	Fragment4*	flisthead4;
+	Fragment4*	fragfree4;
+	Ref		id4;
+
+	QLock		fraglock6;
+	Fragment6*	flisthead6;
+	Fragment6*	fragfree6;
+	Ref		id6;
+
+	int		iprouting;	/* true if we route like a gateway */
+};
+
+.
+9a
+typedef struct Fragment4	Fragment4;
+typedef struct Fragment6	Fragment6;
+typedef struct Ipfrag		Ipfrag;
+
+.
+6c
+#include	"error.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/ip.h ip/ip.h
+732a
+Chan*		commonfdtochan(int, int, int, int);
+.
+727a
+extern char*	bootp(Ipifc*);
+.
+676a
+extern Medium	tripmedium;
+.
+669c
+#define	NOW	msec()
+.
+578c
+/*	RouteTree; */
+	Route*	right;
+	Route*	left;
+	Route*	mid;
+	uchar	depth;
+	uchar	type;
+	uchar	ifcid;		/* must match ifc->id */
+	Ipifc	*ifc;
+	char	tag[4];
+	int	ref;
+.
+516,517d
+491a
+	Logilmsg=	1<<8,
+.
+488a
+	Logil=		1<<4,
+.
+423c
+	RWlock	rwlock;
+
+	Conv	*conv;		/* link to its conversation structure */
+.
+386c
+	QLock		qlock;
+
+.
+374c
+	Lock	lk;
+
+.
+312c
+	RWlock	rwlock;
+.
+173c
+	QLock	qlock;
+.
+153a
+typedef struct Ip4hdr		Ip4hdr;
+.
+79,152d
+41c
+	Maxincall=	5,
+.
+30,35d
+8,9d
+2,3d
+diff -e ip.orig/ipaux.c ip/ipaux.c
+366c
+	UNLOCK(ht);
+.
+363c
+		UNLOCK(ht);
+.
+352c
+			UNLOCK(ht);
+.
+340c
+			UNLOCK(ht);
+.
+328c
+			UNLOCK(ht);
+.
+316c
+			UNLOCK(ht);
+.
+309c
+	LOCK(ht);
+.
+290c
+	UNLOCK(ht);
+.
+282c
+	LOCK(ht);
+.
+272c
+	UNLOCK(ht);
+.
+269c
+	LOCK(ht);
+.
+241c
+	return (ulong)(sa[IPaddrlen-1]<<24 ^ sp<< 16 ^ da[IPaddrlen-1]<<8 ^ dp) % Nhash;
+.
+6c
+#include	"error.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/ipifc.c ip/ipifc.c
+1575c
+			RUNLOCK(nifc);
+.
+1565c
+				RUNLOCK(nifc);
+.
+1562c
+			RLOCK(nifc);
+.
+1555c
+			RUNLOCK(nifc);
+.
+1541c
+				RUNLOCK(nifc);
+.
+1538c
+			RLOCK(nifc);
+.
+1518d
+1511d
+1498c
+		WUNLOCK(ifc);
+.
+1494c
+		WLOCK(ifc);
+.
+1491c
+			WUNLOCK(ifc);
+.
+1455c
+		WUNLOCK(ifc);
+.
+1451c
+		WLOCK(ifc);
+.
+1448c
+			WUNLOCK(ifc);
+.
+1301c
+	QUNLOCK(f->ipifc);
+.
+1265,1266c
+				if((atypel > atype && atype < atyper) ||
+				   (atypel < atype && atype > atyper)){
+.
+1232,1234c
+	QLOCK(f->ipifc);
+.
+1154c
+	    (isv6mcast(addr) && (addr[1] & 0xF) <= Link_local_scop))
+.
+1054c
+	QUNLOCK(f->self);
+.
+1040c
+	QLOCK(f->self);
+.
+1021c
+	QUNLOCK(f->self);
+.
+951c
+	QLOCK(f->self);
+.
+888c
+	QUNLOCK(f->self);
+.
+839c
+	QLOCK(f->self);
+.
+689c
+	WUNLOCK(ifc);
+.
+683c
+	WLOCK(ifc);
+.
+680c
+		WUNLOCK(ifc);
+.
+619c
+	WUNLOCK(ifc);
+.
+604c
+	WLOCK(ifc);
+.
+539c
+ *  always called with ifc WLOCK'd
+.
+531c
+	WUNLOCK(ifc);
+.
+417c
+	WLOCK(ifc);
+.
+319c
+	c->sq = qopen(2*QMAX, 0, 0, 0);
+.
+306c
+	RUNLOCK(ifc);
+.
+299c
+		RUNLOCK(ifc);
+.
+294c
+	if(!CANRLOCK(ifc)){
+.
+266c
+	RUNLOCK(ifc);
+.
+259c
+	RLOCK(ifc);
+.
+244c
+	RUNLOCK(ifc);
+.
+238c
+	RLOCK(ifc);
+.
+212c
+	WUNLOCK(ifc);
+.
+181c
+	WLOCK(ifc);
+.
+178c
+		WUNLOCK(ifc);
+.
+162c
+	WUNLOCK(ifc);
+.
+124c
+		WUNLOCK(ifc);
+.
+120c
+		WUNLOCK(ifc);
+.
+118c
+	WLOCK(ifc);
+.
+58c
+#define hashipa(a) ( (ulong)(((a)[IPaddrlen-2]<<8) | (a)[IPaddrlen-1])%NHASH )
+.
+39c
+	QLock	qlock;
+.
+18c
+	QMAX		= 64*1024-1,
+.
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/ipmux.c ip/ipmux.c
+811c
+	RUNLOCK(f);
+.
+809c
+	RLOCK(f);
+.
+742c
+	RUNLOCK(f);
+.
+680c
+	RLOCK(f);
+.
+631,633c
+	WLOCK(f);
+	i = (Ipmux *)c->p->priv;
+	ipmuxremove(&i, r->chain);
+	WUNLOCK(f);
+.
+617a
+	Ipmux *i;
+.
+610c
+ipmuxannounce(Conv* _, char** __, int ___)
+.
+583c
+	WUNLOCK(f);
+.
+581c
+	WLOCK(f);
+.
+9c
+#include "error.h"
+.
+5c
+#include "lib.h"
+.
+diff -e ip.orig/iproute.c ip/iproute.c
+469c
+				while((p = f->queue) != nil) {
+.
+425c
+				while((p = f->queue) != nil) {
+.
+359c
+		while((p = f->queue) != nil) {
+.
+313c
+		while((p = f->queue) != nil) {
+.
+213,214c
+	dl = 0; if((l = p->left) != nil) dl = l->depth;
+	dr = 0; if((r = p->right) != nil) dr = r->depth;
+.
+6c
+#include	"error.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/ipv6.c ip/ipv6.c
+506,508c
+	if(bp->base+sizeof(Ipfrag) >= bp->rp){
+		bp = padblock(bp, sizeof(Ipfrag));
+		bp->rp += sizeof(Ipfrag);
+.
+218c
+	RUNLOCK(ifc);
+.
+122c
+		RUNLOCK(ifc);
+.
+110c
+		RUNLOCK(ifc);
+.
+106c
+	if(!CANRLOCK(ifc))
+.
+29a
+/* MIB II counters */
+enum
+{
+	Forwarding,
+	DefaultTTL,
+	InReceives,
+	InHdrErrors,
+	InAddrErrors,
+	ForwDatagrams,
+	InUnknownProtos,
+	InDiscards,
+	InDelivers,
+	OutRequests,
+	OutDiscards,
+	OutNoRoutes,
+	ReasmTimeout,
+	ReasmReqds,
+	ReasmOKs,
+	ReasmFails,
+	FragOKs,
+	FragFails,
+	FragCreates,
+
+	Nstats,
+};
+
+static char *statnames[] =
+{
+[Forwarding]	"Forwarding",
+[DefaultTTL]	"DefaultTTL",
+[InReceives]	"InReceives",
+[InHdrErrors]	"InHdrErrors",
+[InAddrErrors]	"InAddrErrors",
+[ForwDatagrams]	"ForwDatagrams",
+[InUnknownProtos]	"InUnknownProtos",
+[InDiscards]	"InDiscards",
+[InDelivers]	"InDelivers",
+[OutRequests]	"OutRequests",
+[OutDiscards]	"OutDiscards",
+[OutNoRoutes]	"OutNoRoutes",
+[ReasmTimeout]	"ReasmTimeout",
+[ReasmReqds]	"ReasmReqds",
+[ReasmOKs]	"ReasmOKs",
+[ReasmFails]	"ReasmFails",
+[FragOKs]	"FragOKs",
+[FragFails]	"FragFails",
+[FragCreates]	"FragCreates",
+};
+
+struct Fragment4
+{
+	Block*	blist;
+	Fragment4*	next;
+	ulong 	src;
+	ulong 	dst;
+	ushort	id;
+	ulong 	age;
+};
+
+struct Fragment6
+{
+	Block*	blist;
+	Fragment6*	next;
+	uchar 	src[IPaddrlen];
+	uchar 	dst[IPaddrlen];
+	uint	id;
+	ulong 	age;
+};
+
+struct Ipfrag
+{
+	ushort	foff;
+	ushort	flen;
+};
+
+/* an instance of IP */
+struct IP
+{
+	ulong		stats[Nstats];
+
+	QLock		fraglock4;
+	Fragment4*	flisthead4;
+	Fragment4*	fragfree4;
+	Ref		id4;
+
+	QLock		fraglock6;
+	Fragment6*	flisthead6;
+	Fragment6*	fragfree6;
+	Ref		id6;
+
+	int		iprouting;	/* true if we route like a gateway */
+};
+
+.
+22a
+typedef struct	Fragment4	Fragment4;
+typedef struct	Fragment6	Fragment6;
+typedef struct	Ipfrag	Ipfrag;
+
+.
+6c
+#include	"error.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/ipv6.h ip/ipv6.h
+145c
+struct	Routinghdr {
+.
+134c
+struct	Opthdr {
+.
+130,131c
+	uchar	vcf[4];		/* version:4, traffic class:8, flow label:20 */
+	uchar	ploadlen[2];	/* payload length: packet length - 40 */
+	uchar	proto;		/* next header type */
+	uchar	ttl;		/* hop limit */
+	uchar	src[IPaddrlen];
+	uchar	dst[IPaddrlen];
+.
+120,128d
+81c
+	IP6HDR		= 20,		/* sizeof(Ip6hdr) */
+.
+26a
+#undef ESP
+
+.
+diff -e ip.orig/loopbackmedium.c ip/loopbackmedium.c
+99c
+		RUNLOCK(ifc);
+.
+92c
+			RUNLOCK(ifc);
+.
+87c
+		if(!CANRLOCK(ifc)){
+.
+58c
+loopbackbwrite(Ipifc *ifc, Block *bp, int _, uchar* __)
+.
+26c
+loopbackbind(Ipifc *ifc, int _, char** __)
+.
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/netdevmedium.c ip/netdevmedium.c
+144c
+		RUNLOCK(ifc);
+.
+136c
+			RUNLOCK(ifc);
+.
+131c
+		if(!CANRLOCK(ifc)){
+.
+85c
+netdevbwrite(Ipifc *ifc, Block *bp, int _, uchar* __)
+.
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/netlog.c ip/netlog.c
+260c
+	wakeup(&f->alog->rendez);
+.
+258c
+	UNLOCK(f->alog);
+.
+242c
+	LOCK(f->alog);
+.
+228c
+	char buf[128], *t, *fp;
+.
+185c
+	set = 1;
+.
+160c
+	QUNLOCK(f->alog);
+.
+157c
+		sleep(&f->alog->rendez, netlogready, f);
+.
+155c
+			UNLOCK(f->alog);
+.
+146c
+			UNLOCK(f->alog);
+.
+134c
+		LOCK(f->alog);
+.
+129c
+		QUNLOCK(f->alog);
+.
+127c
+	QLOCK(f->alog);
+.
+122c
+netlogread(Fs *f, void *a, ulong _, long n)
+.
+109c
+	UNLOCK(f->alog);
+.
+101c
+		UNLOCK(f->alog);
+.
+99c
+	LOCK(f->alog);
+.
+92c
+	UNLOCK(f->alog);
+.
+82c
+		UNLOCK(f->alog);
+.
+80c
+	LOCK(f->alog);
+.
+28,29c
+	QLock	qlock;
+	Rendez	rendez;
+.
+17c
+	Lock	lk;
+.
+6,7c
+#include	"error.h"
+#include	"ip/ip.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/nullmedium.c ip/nullmedium.c
+22c
+nullbwrite(Ipifc* _, Block* __, int ___, uchar* ____)
+.
+17c
+nullunbind(Ipifc* _)
+.
+11c
+nullbind(Ipifc* _, int __, char** ___)
+.
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/pktmedium.c ip/pktmedium.c
+51c
+pktbwrite(Ipifc *ifc, Block *bp, int _, uchar* __)
+.
+43c
+pktunbind(Ipifc* _)
+.
+36d
+34c
+pktbind(Ipifc* _, int argc, char **argv)
+.
+6c
+#include "error.h"
+.
+2c
+#include "lib.h"
+.
+diff -e ip.orig/ptclbsum.c ip/ptclbsum.c
+68c
+	while((hisum = losum>>16))
+.
+6c
+#include	"error.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/rudp.c ip/rudp.c
+693c
+	rudp->nc = 16;
+.
+11c
+#include	"error.h"
+.
+7c
+#include	"lib.h"
+.
+diff -e ip.orig/tcp.c ip/tcp.c
+3171c
+		QUNLOCK(c);
+.
+3154c
+		if(!CANQLOCK(c))
+.
+3127c
+		p = seprint(p, e, "%s: %lud\n", statnames[i], priv->stats[i]);
+.
+3101c
+/* called with c QLOCKed */
+.
+3085c
+	QUNLOCK(tcp);
+.
+3080c
+			QUNLOCK(s);
+.
+3073,3074c
+			QLOCK(s);
+			QUNLOCK(tcp);
+.
+3064c
+	QLOCK(tcp);
+.
+2871,2873d
+2869c
+	if(seg->mss != 0 && seg->mss < tcb->mss)
+.
+2859d
+2842c
+	QUNLOCK(s);
+.
+2830c
+		netlog(s->p->f, Logtcprxmt, "timeout rexmit 0x%lux %d/%d\n", tcb->snd.una, tcb->timer.start, NOW);
+.
+2817c
+	QLOCK(s);
+.
+2814c
+		QUNLOCK(s);
+.
+2768c
+tcpsetchecksum(Conv *s, char **f, int _)
+.
+2737c
+	QUNLOCK(s);
+.
+2728c
+	QLOCK(s);
+.
+2725c
+		QUNLOCK(s);
+.
+2641c
+			QLOCK(s);
+.
+2638,2639c
+		if((uint)(msgs%4) == 1){
+			QUNLOCK(s);
+.
+2563c
+			netlog(f, Logtcp, "rexmit: %I.%d -> %I.%d ptr %lux nxt %lux\n",
+.
+2421c
+	QUNLOCK(s);
+.
+2417c
+	QUNLOCK(s);
+.
+2351c
+				QUNLOCK(s);
+.
+2189c
+		QUNLOCK(s);
+.
+2172,2174d
+2144c
+		QUNLOCK(s);
+.
+2095,2096c
+	QLOCK(s);
+	QUNLOCK(tcp);
+.
+2092c
+		QUNLOCK(s);
+.
+2072c
+			QUNLOCK(tcp);
+.
+2064c
+			QUNLOCK(tcp);
+.
+2053c
+		QUNLOCK(tcp);
+.
+2050,2051c
+		netlog(f, Logtcp, "iphtlook failed\n");
+.
+2045c
+	QLOCK(tcp);
+.
+1942c
+tcpiput(Proto *tcp, Ipifc* _, Block *bp)
+.
+1862c
+		netlog(s->p->f, Logtcp, "rxt next %lud, cwin %ud\n", seg->ack, tcb->cwind);
+.
+1817c
+		netlog(s->p->f, Logtcprxmt, "dupack %lud ack %lud sndwnd %d advwin %d\n",
+.
+1685,1686d
+1683c
+	if(lp->mss != 0 && lp->mss < tcb->mss)
+.
+1626c
+		netlog(s->p->f, Logtcp, "tcpincoming s %I,%ux/%I,%ux d %I,%ux/%I,%ux v %d/%d\n",
+.
+1562c
+	QUNLOCK(tcp);
+.
+1529c
+	if(!CANQLOCK(tcp))
+.
+1421,1422d
+1334c
+ *  called with s QLOCKed
+.
+1245,1246d
+1231,1232d
+1210,1211d
+1208c
+			if(optlen == MSS_LENGTH)
+.
+995d
+873c
+ *  called with s QLOCKed
+.
+861,862d
+805d
+609c
+	QUNLOCK(s);
+.
+603c
+	QLOCK(s);
+.
+600c
+		QUNLOCK(s);
+.
+583,584d
+569c
+	QUNLOCK(s);
+.
+551c
+	QLOCK(s);
+.
+548c
+		QUNLOCK(s);
+.
+352c
+	ulong	stats[Nstats];
+.
+317d
+293d
+231c
+	ulong	window;			/* Recevive window */
+.
+229c
+	ushort	mss;			/* Mean segment size */
+.
+193c
+ *  the QLOCK in the Conv locks this structure
+.
+49,50c
+	DEF_MSS		= 1460,		/* Default mean segment */
+	DEF_MSS6	= 1280,		/* Default mean segment (min) for v6 */
+.
+44c
+	MSS_LENGTH	= 4,		/* Mean segment size */
+.
+6c
+#include	"error.h"
+.
+2c
+#include	"lib.h"
+.
+diff -e ip.orig/udp.c ip/udp.c
+590,591c
+	return snprint(buf, len, "InDatagrams: %lud\nNoPorts: %lud\nInErrors: %lud\nOutDatagrams: %lud\n",
+.
+580c
+	QUNLOCK(udp);
+.
+575c
+			QUNLOCK(s);
+.
+571,572c
+			QLOCK(s);
+			QUNLOCK(udp);
+.
+562c
+	QLOCK(udp);
+.
+510c
+	QUNLOCK(c);
+.
+502c
+		QUNLOCK(c);
+.
+475c
+		QUNLOCK(c);
+.
+456,457c
+	QLOCK(c);
+	QUNLOCK(udp);
+.
+447c
+				QUNLOCK(udp);
+.
+410c
+		QUNLOCK(udp);
+.
+404c
+	QLOCK(udp);
+.
+197c
+	netlog(c->p->f, Logudp, "udp: kick\n");
+.
+103c
+	QLock	qlock;
+.
+78c
+	ulong	udpOutDatagrams;
+.
+75c
+	ulong	udpInDatagrams;
+.
+6c
+#include	"error.h"
+.
+2c
+#include	"lib.h"
+.

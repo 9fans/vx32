@@ -180,7 +180,7 @@ dupfgrp(Fgrp *f)
 	lock(&f->ref.lk);
 	/* Make new fd list shorter if possible, preserving quantization */
 	new->nfd = f->maxfd+1;
-	i = new->nfd%DELTAFD;
+	i = (uint)new->nfd%DELTAFD;
 	if(i != 0)
 		new->nfd += DELTAFD - i;
 	new->fd = malloc(new->nfd*sizeof(Chan*));

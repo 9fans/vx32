@@ -31,7 +31,7 @@ enum
  */
 struct Netfile
 {
-	QLock lk;
+	QLock	qlock; 
 
 	int	inuse;
 	ulong	mode;
@@ -64,7 +64,7 @@ struct Netaddr
  */
 struct Netif
 {
-	QLock lk;
+	QLock	qlock;
 
 	/* multiplexing */
 	char	name[KNAMELEN];		/* for top level directory */
@@ -87,8 +87,8 @@ struct Netif
 
 	/* statistics */
 	int	misses;
-	int	inpackets;
-	int	outpackets;
+	uvlong	inpackets;
+	uvlong	outpackets;
 	int	crcs;		/* input crc errors */
 	int	oerrs;		/* output errors */
 	int	frames;		/* framing errors */

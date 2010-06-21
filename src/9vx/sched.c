@@ -174,7 +174,7 @@ struct Pwaiter
 };
 
 void
-plock(Psleep *p)
+__plock(Psleep *p)
 {
 	int r;
 
@@ -193,7 +193,7 @@ plock(Psleep *p)
 }
 
 void
-punlock(Psleep *p)
+__punlock(Psleep *p)
 {
 	int r;
 
@@ -202,7 +202,7 @@ punlock(Psleep *p)
 }
 
 void
-psleep(Psleep *p)
+__psleep(Psleep *p)
 {
 	int r;
 	Pwaiter w;
@@ -218,7 +218,7 @@ psleep(Psleep *p)
 }
 
 void
-pwakeup(Psleep *p)
+__pwakeup(Psleep *p)
 {
 	int r;
 	Pwaiter *w;

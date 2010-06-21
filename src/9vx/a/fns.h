@@ -167,8 +167,53 @@ void	*uvalidaddr(ulong addr, ulong len, int write);
 int	isuaddr(void*);
 void	setsigsegv(int invx32);
 
-void	plock(Psleep*);
-void	punlock(Psleep*);
-void	pwakeup(Psleep*);
-void	psleep(Psleep*);
+#define GSHORT(p)	(((p)[1]<<8)|(p)[0])
+#define GLONG(p)	((GSHORT(p+2)<<16)|GSHORT(p))
+
+void	__plock(Psleep*);
+void	__punlock(Psleep*);
+void	__pwakeup(Psleep*);
+void	__psleep(Psleep*);
+
+extern int tracelock;
+
+#define lockfngen(type)	__ ## type
+
+#define lockgen(type, arg) 								\
+	do {										\
+		if (tracelock) {							\
+			iprint("%s %p %s %d\n", (#type), (arg), __FILE__, __LINE__);	\
+			lockfngen(type)((arg));						\
+		} else {								\
+			lockfngen(type)((arg));						\
+		}									\
+	} while (0)
+
+#define qlock(x)	lockgen(qlock, (x))
+#define qunlock(x)	lockgen(qunlock, (x))
+#define rlock(x)	lockgen(rlock, (x))
+#define runlock(x)	lockgen(runlock, (x))
+#define wlock(x)	lockgen(wlock, (x))
+#define wunlock(x)	lockgen(wunlock, (x))
+#define plock(x)	lockgen(plock, (x))
+#define punlock(x)	lockgen(punlock, (x))
+#define pwakeup(x)	lockgen(pwakeup, (x))
+#define psleep(x)	lockgen(psleep, (x))
+// #define lock(x)		lockgen(lock, (x))
+// #define unlock(x)	lockgen(unlock, (x))
+#define lock(x) __lock(x)
+#define unlock(x) __unlock(x)
+#define canqlock	__canqlock
+#define canrlock	__canrlock
+
+#define	LOCK(x)		lock(&((x)->lk))
+#define	UNLOCK(x)	unlock(&((x)->lk))
+#define CANQLOCK(x)	canqlock(&((x)->qlock))
+#define	QLOCK(x)	qlock(&((x)->qlock))
+#define	QUNLOCK(x)	qunlock(&((x)->qlock))
+#define CANRLOCK(x)	canrlock(&((x)->rwlock))
+#define	RLOCK(x)	rlock(&((x)->rwlock))
+#define	RUNLOCK(x)	runlock(&((x)->rwlock))
+#define	WLOCK(x)	wlock(&((x)->rwlock))
+#define	WUNLOCK(x)	wunlock(&((x)->rwlock))
 

@@ -28,7 +28,7 @@ struct Elemlist
 {
 	char	*aname;	/* original name */
 	char	*name;	/* copy of name, so '/' can be overwritten */
-	int	nelems;
+	uint	nelems;
 	char	**elems;
 	int	*off;
 	int	mustbedir;

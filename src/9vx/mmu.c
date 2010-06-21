@@ -26,7 +26,7 @@ int tracemmu;
  * Plan 9 assumes this, and while it's not a ton of work to break that
  * assumption, it was easier not to.
  */
-#define MEMSIZE (256<<20)
+#define MEMSIZE (256<<20)	// same as ../a/devether.c:13 (TODO: var)
 
 static int pagefile;
 static char* pagebase;
@@ -34,6 +34,19 @@ static char* pagebase;
 static Uspace uspace[16];
 static Uspace *ulist[nelem(uspace)];
 int nuspace = 1;
+
+#ifdef __i386__
+#define BIT32 0
+#define HINT nil
+#elif defined(__amd64__)
+#ifdef linux
+#define BIT32 MAP_32BIT
+#define HINT nil
+#elif defined(__FreeBSD__)
+#define BIT32 MAP_FIXED
+#define HINT (caddr_t)0x40000000
+#endif
+#endif
 
 int
 isuaddr(void *v)
@@ -56,15 +69,14 @@ mapzero(void)
 {
 	int fd, bit32;
 	void *v;
+	void *hint;
 	
-#ifdef i386
-	bit32 = 0;
-#else
-	bit32 = MAP_32BIT;
-#endif
+	bit32 = BIT32;
+	hint = HINT;
+
 	/* First try mmaping /dev/zero.  Some OS'es don't allow this. */
 	if((fd = open("/dev/zero", O_RDONLY)) >= 0){
-		v = mmap(nil, USTKTOP, PROT_NONE, bit32|MAP_PRIVATE, fd, 0);
+		v = mmap(hint, USTKTOP, PROT_NONE, bit32|MAP_PRIVATE, fd, 0);
 		if(v != MAP_FAILED) {
 			if((uint32_t)(uintptr)v != (uintptr)v) {
 				iprint("mmap returned 64-bit pointer %p\n", v);
@@ -75,7 +87,7 @@ mapzero(void)
 	}
 	
 	/* Next try an anonymous map. */
-	v = mmap(nil, USTKTOP, PROT_NONE, bit32|MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	v = mmap(hint, USTKTOP, PROT_NONE, bit32|MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 	if(v != MAP_FAILED) {
 		if((uint32_t)(uintptr)v != (uintptr)v) {
 			iprint("mmap returned 64-bit pointer %p\n", v);

@@ -25,13 +25,24 @@
 #include	"arg.h"
 #include	"tos.h"
 
+#include "fs.h"
+
+#include "netif.h"
+#include "etherif.h"
+#include "vether.h"
+
 #define Image IMAGE
 #include	"draw.h"
 #include	"memdraw.h"
 #include	"cursor.h"
 #include	"screen.h"
 
+#define	BOOTLINELEN	64
+#define	BOOTARGSLEN	(3584-0x200-BOOTLINELEN)
+#define	MAXCONF		100
+
 extern Dev ipdevtab;
+extern Dev pipdevtab;
 extern Dev drawdevtab;
 extern Dev fsdevtab;
 extern Dev audiodevtab;
@@ -42,8 +53,14 @@ char*	argv0;
 char*	conffile = "9vx";
 Conf	conf;
 
+static char*	inifile;
+static char	inibuf[BOOTARGSLEN];
+static char	*iniline[MAXCONF];
 static int	bootboot;	/* run /boot/boot instead of bootscript */
+static int	nofork;	/* do not fork at init */
 static int	initrc;	/* run rc instead of init */
+static int	nogui;	/* do not start the gui */
+static int	usetty;	/* use tty for input/output */
 static char*	username;
 static Mach mach0;
 
@@ -56,13 +73,19 @@ static int singlethread;
 static void	bootinit(void);
 static void	siginit(void);
 
+static int	readini(char *fn);
+static void	inifields(void (*fp)(char*, char*));
+static void	iniopt(char *name, char *value);
+static void	inienv(char *name, char *value);
+
 static char*	getuser(void);
 static char*	findroot(void);
 
 void
 usage(void)
 {
-	fprint(2, "usage: 9vx [-gt] [-r root] [-u user]\n");
+	// TODO(yy): add debug and other options by ron
+	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-n [tap] [netdev]] [-m macaddr] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -74,9 +97,8 @@ nop(void)
 int
 main(int argc, char **argv)
 {
-	int usetty;
-	int nogui;
-	int nofork;
+	int vetap;
+	char *vedev;
 	char buf[1024];
 	
 	/* Minimal set up to make print work. */
@@ -87,6 +109,7 @@ main(int argc, char **argv)
 	nogui = 0;
 	nofork = 0;
 	usetty = 0;
+	nve = 0;
 	localroot = nil;
 	ARGBEGIN{
 	/* debugging options */
@@ -101,9 +124,6 @@ main(int argc, char **argv)
 		break;
 	case 'K':
 		tracekdev++;
-		break;
-	case 'F':
-		nofork = 1;
 		break;
 	case 'M':
 		tracemmu++;
@@ -125,12 +145,35 @@ main(int argc, char **argv)
 	case 'b':
 		bootboot = 1;
 		break;
+	case 'f':
+		nofork = 1;
+		break;
 	case 'g':
 		nogui = 1;
 		usetty = 1;
 		break;
 	case 'i':
 		initrc = 1;
+		break;
+	case 'p':
+		inifile = EARGF(usage());
+		break;
+	case 'm':
+		setmac(EARGF(usage()));
+		break;
+	case 'n':
+		vetap = 0;
+		vedev = ARGF();
+		if(vedev != nil && strcmp(vedev, "tap") == 0){
+			vetap = 1;
+			vedev = ARGF();
+		}
+		if(vedev != nil && vedev[0] == '-'){
+			vedev = nil;
+			argc++;
+			argv--;
+		}
+		addve(vedev, vetap);
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -148,6 +191,13 @@ main(int argc, char **argv)
 	if(argc != 0)
 		usage();
 	
+	if(inifile){
+		if(readini(inifile) != 0)
+			panic("error reading config file %s", inifile);
+		conffile=inifile;
+		inifields(&iniopt);
+	}
+
 	if(!bootboot){
 		if(localroot == nil && (localroot = findroot()) == nil)
 			panic("cannot find plan 9 root; use -r");
@@ -188,14 +238,34 @@ main(int argc, char **argv)
 	/*
 	 * Debugging: tell user what options we guessed.
 	 */
-	print("9vx %s-r %s -u %s\n", usetty ? "-t " : "", localroot, username);
+	print("9vx ");
+	if(inifile)
+		print("-p %s ", inifile);
+	if(bootboot | nofork | nogui | initrc | usetty)
+		print("-%s%s%s%s%s ", bootboot ? "b" : "", nofork ? "f " : "",
+			nogui ? "g" : "", initrc ? "i " : "", usetty ? "t " : "");
+	for(int i=0; i<nve; i++){
+		print("-n %s", ve[i].tap ? "tap ": "");
+		if(ve[i].dev != nil)
+			print("%s ", ve[i].dev);
+		if(ve[i].mac != nil)
+			print("-m %s ", ve[i].mac);
+	}
+	print("-r %s -u %s\n", localroot, username);
+
+	if(nve == 0)
+		ipdevtab = pipdevtab;
 
 	printinit();
 	procinit0();
 	initseg();
+	if(nve > 0)
+		links();
+
 	chandevreset();
 	if(!singlethread){
-		makekprocdev(&ipdevtab);
+		if(nve == 0)
+			makekprocdev(&ipdevtab);
 		makekprocdev(&fsdevtab);
 		makekprocdev(&drawdevtab);
 		makekprocdev(&audiodevtab);
@@ -218,6 +288,144 @@ main(int argc, char **argv)
 }
 
 /*
+ *  read configuration file
+ */
+int
+readini(char *fn)
+{
+	int blankline, incomment, inspace, n, fd;
+	char *cp, *p, *q;
+
+	if(strcmp(fn, "-") == 0)
+		fd = stdin;
+	else if((fd = open(fn, OREAD)) < 0)
+		return -1;
+
+	cp = inibuf;
+	*cp = 0;
+	n = read(fd, cp, BOOTARGSLEN-1);
+	close(fd);
+	if(n <= 0)
+		return -1;
+
+	cp[n] = 0;
+
+	/*
+	 * Strip out '\r', change '\t' -> ' '.
+	 * Change runs of spaces into single spaces.
+	 * Strip out trailing spaces, blank lines.
+	 *
+	 * We do this before we make the copy so that if we 
+	 * need to change the copy, it is already fairly clean.
+	 * The main need is in the case when plan9.ini has been
+	 * padded with lots of trailing spaces, as is the case 
+	 * for those created during a distribution install.
+	 */
+	p = cp;
+	blankline = 1;
+	incomment = inspace = 0;
+	for(q = cp; *q; q++){
+		if(*q == '\r')
+			continue;
+		if(*q == '\t')
+			*q = ' ';
+		if(*q == ' '){
+			inspace = 1;
+			continue;
+		}
+		if(*q == '\n'){
+			if(!blankline){
+				if(!incomment)
+					*p++ = '\n';
+				blankline = 1;
+			}
+			incomment = inspace = 0;
+			continue;
+		}
+		if(inspace){
+			if(!blankline && !incomment)
+				*p++ = ' ';
+			inspace = 0;
+		}
+		if(blankline && *q == '#')
+			incomment = 1;
+		blankline = 0;
+		if(!incomment)
+			*p++ = *q;	
+	}
+	if(p > cp && p[-1] != '\n')
+		*p++ = '\n';
+	*p++ = 0;
+
+	getfields(cp, iniline, MAXCONF, 0, "\n");
+
+	return 0;
+}
+
+void
+inifields(void (*fp)(char*, char*))
+{
+	int i;
+	char *cp;
+
+	for(i = 0; i < MAXCONF; i++){
+		if(!iniline[i])
+			break;
+		cp = strchr(iniline[i], '=');
+		if(cp == 0)
+			continue;
+		*cp++ = 0;
+		if(cp - iniline[i] >= NAMELEN+1)
+			*(iniline[i]+NAMELEN-1) = 0;
+		(fp)(iniline[i], cp);
+		*(cp-1) = '=';
+	}
+}
+
+void
+iniopt(char *name, char *value)
+{
+	char *vedev;
+	int vetap;
+
+	if(*name == '*')
+		name++;
+	if(strcmp(name, "bootboot") == 0)
+		bootboot = 1;
+	else if(strcmp(name, "initrc") == 0)
+		initrc = 1;
+	else if(strcmp(name, "nofork") == 0)
+		nofork = 1;
+	else if(strcmp(name, "localroot") == 0 && !localroot)
+		localroot = value;
+	else if(strcmp(name, "user") == 0 && !username)
+		username = value;
+	else if(strcmp(name, "usetty") == 0)
+		usetty = 1;
+	else if(strcmp(name, "macaddr") == 0)
+		setmac(value);
+	else if(strcmp(name, "netdev") == 0){
+		if(strncmp(value, "tap", 3) == 0) {
+			vetap = 1;
+			value += 4;
+		}
+		vedev = value;
+		addve(vedev, vetap);
+	}
+	else if(strcmp(name, "nogui") == 0){
+		nogui = 1;
+		usetty = 1;
+	}
+}
+
+void
+inienv(char *name, char *value)
+{
+	if(*name != '*')
+		ksetenv(name, value, 0);
+}
+
+/*
  * Search for Plan 9 /386/bin/rc to find root.
  */
 static char*
@@ -228,8 +436,7 @@ findroot(void)
 	char buf[1024];
 	char *dir[] = {
 		cwd,
-		"/Users/rsc/9vx",
-		"/home/rsc/plan9/4e"
+		"/usr/local/9vx"
 	};
 	
 	if(getcwd(cwd, sizeof cwd) == nil){
@@ -304,6 +511,10 @@ bootinit(void)
 	 */
 	extern uchar factotumcode[];
 	extern long factotumlen;
+	extern uchar fossilcode[];
+	extern long fossillen;
+	extern uchar venticode[];
+	extern long ventilen;
 
 	if(bootboot){
 		extern uchar bootcode[];
@@ -314,6 +525,8 @@ bootinit(void)
 	else
 		addbootfile("boot", (uchar*)bootscript, strlen(bootscript));
 	addbootfile("factotum", factotumcode, factotumlen);
+	addbootfile("fossil", fossilcode, fossillen);
+	addbootfile("venti", venticode, ventilen);
 }
 
 static uchar *sp;	/* user stack of init proc */
@@ -484,7 +697,8 @@ init0(void)
 		ksetenv("service", "terminal", 0);
 	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
-	
+	inifields(&inienv);
+
 	/* if we're not running /boot/boot, mount / and create /srv/boot */
 	if(!bootboot){
 		kbind("#Zplan9/", "/", MAFTER);
@@ -556,8 +770,13 @@ sigsegv(int signo, siginfo_t *info, void *v)
 #elif defined(__FreeBSD__)
 	mcontext_t *mc;
 	mc = &uc->uc_mcontext;
+#ifdef __i386__
 	eip = mc->mc_eip;
 	esp = mc->mc_esp;
+#elif defined(__amd64__)
+	eip = mc->mc_rip;
+	esp = mc->mc_rsp;
+#endif
 	addr = (ulong)info->si_addr;
 	if(__FreeBSD__ < 7){
 		/*

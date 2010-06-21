@@ -1,7 +1,11 @@
 ifeq ($(ARCH),x86_64)
 VX32_RUN = run64.o
 else
+ifeq ($(ARCH),amd64)
+VX32_RUN = run64.o
+else
 VX32_RUN = run32.o 
+endif
 endif
 
 ifeq ($(OS),darwin)

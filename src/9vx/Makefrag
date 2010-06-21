@@ -29,13 +29,12 @@ PLAN9_OBJS = \
 		devaudio.o \
 		devaudio-$(PLAN9AUDIO).o \
 		devfs-posix.o \
-		devip.o \
-		devip-posix.o \
 		devmntloop.o \
 		devmouse.o \
 		devram.o \
 		devtab.o \
 		factotum.o \
+		fossil.o \
 		kprocdev.o \
 		label.o \
 		main.o \
@@ -47,6 +46,7 @@ PLAN9_OBJS = \
 		time.o \
 		trap.o \
 		tty.o \
+		venti.o \
 		vx32.o \
 	)
 
@@ -58,7 +58,6 @@ PLAN9_A_OBJS = \
 	$(addprefix 9vx/a/, \
 		allocb.o \
 		auth.o \
-		bo.o \
 		chan.o \
 		classmask.o \
 		cleanname.o \
@@ -91,6 +90,7 @@ PLAN9_A_OBJS = \
 		page.o \
 		parse.o \
 		parseip.o \
+		part.o \
 		pgrp.o \
 		print.o \
 		proc.o \
@@ -110,6 +110,48 @@ PLAN9_A_OBJS = \
 		unthwack.o \
 		utf.o \
 	)
+
+PLAN9_IP_OBJS = \
+	$(addprefix 9vx/,\
+		devip.o \
+		devip-posix.o \
+		etherpcap.o \
+		ethertap.o \
+		vether.o \
+	) \
+	$(addprefix 9vx/a/,\
+		devaoe.o \
+		devether.o \
+		netif.o \
+		sdaoe.o \
+	) \
+	$(addprefix 9vx/a/ip/,\
+		arp.o \
+		chandial.o \
+		devip.o \
+		esp.o \
+		ethermedium.o \
+		gre.o \
+		icmp.o \
+		icmp6.o \
+		il.o \
+		inferno.o \
+		ip.o \
+		ipaux.o \
+		ipifc.o \
+		ipmux.o \
+		iproute.o \
+		ipv6.o \
+		loopbackmedium.o \
+		netdevmedium.o \
+		netlog.o \
+		nullmedium.o \
+		pktmedium.o \
+		ptclbsum.o \
+		tcp.o \
+		udp.o \
+	)
+PLAN9_IP_LIBS = -lpcap
 
 PLAN9_nogui_OBJS = \
 	$(addprefix 9vx/,\
@@ -142,6 +184,7 @@ PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
 PLAN9_DEPS = \
 	$(PLAN9_OBJS) \
 	$(PLAN9_A_OBJS) \
+	$(PLAN9_IP_OBJS) \
 	$(PLAN9_GUI_OBJS) \
 	9vx/libsec/libsec.a \
 	9vx/libmemlayer/libmemlayer.a \
@@ -150,7 +193,7 @@ PLAN9_DEPS = \
 	libvx32/libvx32.a \
 
 9vx/9vx: $(PLAN9_DEPS)
-	$(HOST_CC) -o $@ $(PLAN9_DEPS) $(PLAN9_GUI_LIBS) -lpthread
+	$(HOST_CC) -o $@ $(PLAN9_DEPS) $(PLAN9_GUI_LIBS) $(PLAN9_IP_LIBS) -lpthread
 
 9vx/a/%.o: 9vx/a/%.c
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
@@ -176,6 +219,12 @@ PLAN9_DEPS = \
 9vx/factotum.S: 9vx/data2s 9vx/factotum.9
 	./9vx/data2s factotum < 9vx/factotum.9 >$@_ && mv $@_ $@
 
+9vx/fossil.S: 9vx/data2s 9vx/fossil.9
+	./9vx/data2s fossil < 9vx/fossil.9 >$@_ && mv $@_ $@
+
+9vx/venti.S: 9vx/data2s 9vx/venti.9
+	./9vx/data2s venti < 9vx/venti.9 > $@_ && mv $@_ $@
+
 9vx/a/errstr.h: 9vx/a/error.h
 	sed 's/extern //; s!;.*/\* ! = "!; s! \*\/!";!' 9vx/a/error.h >9vx/a/errstr.h
 
@@ -199,7 +248,10 @@ CLEAN_FILES += \
 	9vx/a/errstr.h \
 	9vx/9vx \
 	9vx/data2s \
-	9vx/bootcode.S
+	9vx/bootcode.S \
+	9vx/factotum.S \
+	9vx/fossil.S \
+	9vx/venti.S
 
 include 9vx/libdraw/Makefrag
 include 9vx/libmemlayer/Makefrag

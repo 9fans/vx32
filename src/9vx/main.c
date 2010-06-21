@@ -107,13 +107,12 @@ main(int argc, char **argv)
 	coherence = nop;
 	quotefmtinstall();
 
+	localroot = nil;
 	memsize = 0;	
 	nogui = 0;
 	nofork = 0;
 	nve = 0;
 	usetty = 0;
-	nve = 0;
-	localroot = nil;
 	ARGBEGIN{
 	/* debugging options */
 	case '1':

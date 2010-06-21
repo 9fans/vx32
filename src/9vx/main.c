@@ -160,9 +160,6 @@ main(int argc, char **argv)
 	case 'i':
 		initrc = 1;
 		break;
-	case 'p':
-		inifile = EARGF(usage());
-		break;
 	case 'm':
 		memsize = atoi(EARGF(usage()));
 		break;
@@ -179,6 +176,9 @@ main(int argc, char **argv)
 			argv--;
 		}
 		addve(vedev, vetap);
+		break;
+	case 'p':
+		inifile = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());

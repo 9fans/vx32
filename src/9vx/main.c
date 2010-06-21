@@ -252,7 +252,7 @@ main(int argc, char **argv)
 		print("-%s%s%s%s%s ", bootboot ? "b" : "", nofork ? "f " : "",
 			nogui ? "g" : "", initrc ? "i " : "", usetty ? "t " : "");
 	if(memsize != 0)
-		print("-m %i", memsize);
+		print("-m %d ", memsize);
 	for(int i=0; i<nve; i++){
 		print("-n %s", ve[i].tap ? "tap ": "");
 		if(ve[i].dev != nil)

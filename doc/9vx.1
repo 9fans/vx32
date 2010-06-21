@@ -72,6 +72,9 @@ Run rc instead of init
 .BI -t
 Use tty for input/output
 .TP
+.BI -m " memsize"
+Memory size
+.TP
 .BI -n " [ tap ] [ device ]"
 Create virtual ethernet devices. The
 .I tap
@@ -108,6 +111,7 @@ pairs in a similar fasion to plan9.ini(8). Available options are
 .I nogui,
 .I initrc,
 .I usetty,
+.I memsize,
 .I net,
 .I macaddr,
 .I localroot

@@ -57,6 +57,7 @@ static char*	inifile;
 static char	inibuf[BOOTARGSLEN];
 static char	*iniline[MAXCONF];
 static int	bootboot;	/* run /boot/boot instead of bootscript */
+static int	memsize;	/* memory size */
 static int	nofork;	/* do not fork at init */
 static int	initrc;	/* run rc instead of init */
 static int	nogui;	/* do not start the gui */
@@ -97,7 +98,6 @@ nop(void)
 int
 main(int argc, char **argv)
 {
-	int memsize;
 	int vetap;
 	char *vedev;
 	char buf[1024];
@@ -405,6 +405,8 @@ iniopt(char *name, char *value)
 		initrc = 1;
 	else if(strcmp(name, "nofork") == 0)
 		nofork = 1;
+	else if(strcmp(name, "memsize") == 0)
+		memsize = atoi(value);
 	else if(strcmp(name, "localroot") == 0 && !localroot)
 		localroot = value;
 	else if(strcmp(name, "user") == 0 && !username)

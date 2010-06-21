@@ -10,7 +10,7 @@
 
 #include "etherif.h"
 
-#define MEMSIZE (256<<20)	// same as ../mmu.c:29 (TODO: var)
+extern int memsize;
 
 static Ether *etherxx[MaxEther];
 
@@ -433,7 +433,7 @@ etherprobe(int cardno, int ctlrno)
 		lg = 14;
 	/* allocate larger output queues for higher-speed interfaces */
 	bsz = 1UL << (lg + 17);		/* 2ⁱ⁷ = 128K, bsz = 2ⁿ × 128K */
-	while (bsz > MEMSIZE && bsz >= 128*1024)
+	while (bsz > memsize && bsz >= 128*1024)
 		bsz /= 2;
 
 	netifinit(&ether->ni, name, Ntypes, bsz);

@@ -85,7 +85,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-n [tap] [netdev]] [-a macaddr] [-r root] [-u user]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-m memsize] [-n [tap] [netdev]] [-a macaddr] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -97,6 +97,7 @@ nop(void)
 int
 main(int argc, char **argv)
 {
+	int memsize;
 	int vetap;
 	char *vedev;
 	char buf[1024];
@@ -105,11 +106,12 @@ main(int argc, char **argv)
 	setmach(&mach0);
 	coherence = nop;
 	quotefmtinstall();
-	
+
+	memsize = 0;	
 	nogui = 0;
 	nofork = 0;
-	usetty = 0;
 	nve = 0;
+	usetty = 0;
 	localroot = nil;
 	ARGBEGIN{
 	/* debugging options */
@@ -160,6 +162,9 @@ main(int argc, char **argv)
 		break;
 	case 'p':
 		inifile = EARGF(usage());
+		break;
+	case 'm':
+		memsize = atoi(EARGF(usage()));
 		break;
 	case 'n':
 		vetap = 0;
@@ -212,6 +217,8 @@ main(int argc, char **argv)
 	if(eve == nil)
 		panic("strdup eve");
 
+	mmusize(memsize);
+
 	mach0init();
 	mmuinit();
 	confinit();
@@ -244,6 +251,8 @@ main(int argc, char **argv)
 	if(bootboot | nofork | nogui | initrc | usetty)
 		print("-%s%s%s%s%s ", bootboot ? "b" : "", nofork ? "f " : "",
 			nogui ? "g" : "", initrc ? "i " : "", usetty ? "t " : "");
+	if(memsize != 0)
+		print("-m %i", memsize);
 	for(int i=0; i<nve; i++){
 		print("-n %s", ve[i].tap ? "tap ": "");
 		if(ve[i].dev != nil)

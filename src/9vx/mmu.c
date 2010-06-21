@@ -25,8 +25,10 @@ int tracemmu;
  * so that kernel 0 = user 0, so that pointers can be shared.
  * Plan 9 assumes this, and while it's not a ton of work to break that
  * assumption, it was easier not to.
+ *
+ * This value may be changed with the -m switch.
  */
-#define MEMSIZE (256<<20)	// same as ../a/devether.c:13 (TODO: var)
+int memsize = (256<<20);
 
 static int pagefile;
 static char* pagebase;
@@ -108,13 +110,13 @@ mmuinit(void)
 	
 	if((pagefile = mkstemp(tmp)) < 0)
 		panic("mkstemp: %r");
-	if(ftruncate(pagefile, MEMSIZE) < 0)
+	if(ftruncate(pagefile, memsize) < 0)
 		panic("ftruncate pagefile: %r");
 	unlink(tmp);	/* "remove on close" */
 
 	/* Map pages for direct access at pagebase, wherever that is */
 	/* MAP_SHARED means write the changes back to the file */
-	v = mmap(nil, MEMSIZE, PROT_READ|PROT_WRITE,
+	v = mmap(nil, memsize, PROT_READ|PROT_WRITE,
 		MAP_SHARED, pagefile, 0);
 	if(v == MAP_FAILED)	
 		panic("mmap pagefile: %r");
@@ -132,10 +134,10 @@ mmuinit(void)
 	}
 
 	conf.mem[0].base = 0;
-	conf.mem[0].npage = MEMSIZE / BY2PG;
+	conf.mem[0].npage = memsize / BY2PG;
 	
 	palloc.mem[0].base = 0;
-	palloc.mem[0].npage = MEMSIZE / BY2PG;
+	palloc.mem[0].npage = memsize / BY2PG;
 }
 
 /*
@@ -145,14 +147,14 @@ mmuinit(void)
 void*
 tmpmap(Page *pg)
 {
-	assert(pg->pa < MEMSIZE);
+	assert(pg->pa < memsize);
 	return pagebase + pg->pa;
 }
 
 void
 tmpunmap(void *v)
 {
-	assert(pagebase <= (char*)v && (char*)v < pagebase + MEMSIZE);
+	assert(pagebase <= (char*)v && (char*)v < pagebase + memsize);
 }
 
 KMap*
@@ -214,7 +216,7 @@ putmmu(ulong va, ulong pa, Page *p)
 	if(tracemmu || (pa&~(PTEWRITE|PTEVALID)) != p->pa)
 		iprint("putmmu va %lux pa %lux p->pa %lux\n", va, pa, p->pa);
 
-	assert(p->pa < MEMSIZE && pa < MEMSIZE);
+	assert(p->pa < memsize && pa < memsize);
 	assert(up);
 	us = up->pmmu.us;
 	assert(us);
@@ -386,4 +388,13 @@ printlinuxmaps(void)
 	char buf[100];
 	sprint(buf, "cat /proc/%d/maps", getpid());
 	system(buf);
+}
+
+void
+mmusize(int size)
+{
+	static int set = 0;
+	if(!set && size){
+		memsize = (size << 20);
+	}
 }

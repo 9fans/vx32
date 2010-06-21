@@ -85,7 +85,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-n [tap] [netdev]] [-m macaddr] [-r root] [-u user]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-n [tap] [netdev]] [-a macaddr] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -142,6 +142,9 @@ main(int argc, char **argv)
 		break;
 	
 	/* real options */
+	case 'a':
+		setmac(EARGF(usage()));
+		break;
 	case 'b':
 		bootboot = 1;
 		break;
@@ -157,9 +160,6 @@ main(int argc, char **argv)
 		break;
 	case 'p':
 		inifile = EARGF(usage());
-		break;
-	case 'm':
-		setmac(EARGF(usage()));
 		break;
 	case 'n':
 		vetap = 0;
@@ -249,7 +249,7 @@ main(int argc, char **argv)
 		if(ve[i].dev != nil)
 			print("%s ", ve[i].dev);
 		if(ve[i].mac != nil)
-			print("-m %s ", ve[i].mac);
+			print("-a %s ", ve[i].mac);
 	}
 	print("-r %s -u %s\n", localroot, username);
 

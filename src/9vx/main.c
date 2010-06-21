@@ -394,7 +394,7 @@ inifields(void (*fp)(char*, char*))
 void
 iniopt(char *name, char *value)
 {
-	char *vedev;
+	char *cp, *vedev;
 	int vetap;
 
 	if(*name == '*')
@@ -421,7 +421,18 @@ iniopt(char *name, char *value)
 			value += 4;
 		}
 		vedev = value;
-		addve(vedev, vetap);
+		cp = vedev;
+		if((value = strchr(vedev, ' ')) != 0){
+			cp = strchr(value+1, '=');
+			*value=0;
+			*cp=0;
+		}
+		addve(*vedev == 0 ? nil : vedev, vetap);
+		if(cp != vedev){
+			iniopt(value+1, cp+1);
+			*value=' ';
+			*cp='=';
+		}
 	}
 	else if(strcmp(name, "nogui") == 0){
 		nogui = 1;

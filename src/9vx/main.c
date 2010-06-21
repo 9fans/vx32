@@ -112,6 +112,7 @@ main(int argc, char **argv)
 	nofork = 0;
 	nve = 0;
 	usetty = 0;
+	nve = 0;
 	localroot = nil;
 	ARGBEGIN{
 	/* debugging options */

@@ -19,6 +19,12 @@ endif
 # If you don't have/want X11
 #PLAN9GUI=nogui
 
+# Virtual ethernet devices
+PLAN9PCAP=etherpcap
+#PLAN9PCAP=nopcap
+PLAN9TAP=ethertap
+#PLAN9TAP=notap
+
 ifeq ($(PLAN9VX),1)
 
 all: 9vx/9vx
@@ -115,8 +121,8 @@ PLAN9_IP_OBJS = \
 	$(addprefix 9vx/,\
 		devip.o \
 		devip-posix.o \
-		etherpcap.o \
-		ethertap.o \
+		$(PLAN9PCAP).o \
+		$(PLAN9TAP).o \
 		vether.o \
 	) \
 	$(addprefix 9vx/a/,\
@@ -151,7 +157,11 @@ PLAN9_IP_OBJS = \
 		tcp.o \
 		udp.o \
 	)
+ifneq ($(PLAN9PCAP), nopcap)
 PLAN9_IP_LIBS = -lpcap
+else
+PLAN9_IP_LIBS =
+endif
 
 PLAN9_nogui_OBJS = \
 	$(addprefix 9vx/,\

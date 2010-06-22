@@ -461,10 +461,8 @@ findroot(void)
 		"/usr/local/9vx"
 	};
 	
-	if(getcwd(cwd, sizeof cwd) == nil){
-		oserrstr();
+	if(getcwd(cwd, sizeof cwd) == nil)
 		panic("getcwd: %r");
-	}
 
 	for(i=0; i<nelem(dir); i++){
 		snprint(buf, sizeof buf, "%s/386/bin/rc", dir[i]);

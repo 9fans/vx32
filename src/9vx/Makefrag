@@ -32,6 +32,7 @@ all: 9vx/9vx
 PLAN9_OBJS = \
 	$(addprefix 9vx/, \
 		bootcode.o \
+		conf.o \
 		devaudio.o \
 		devaudio-$(PLAN9AUDIO).o \
 		devfs-posix.o \

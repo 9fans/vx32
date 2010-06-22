@@ -25,21 +25,19 @@
 #include	"arg.h"
 #include	"tos.h"
 
-#include "fs.h"
+#include	"fs.h"
 
-#include "netif.h"
-#include "etherif.h"
-#include "vether.h"
+#include	"conf.h"
+
+#include	"netif.h"
+#include	"etherif.h"
+#include	"vether.h"
 
 #define Image IMAGE
 #include	"draw.h"
 #include	"memdraw.h"
 #include	"cursor.h"
 #include	"screen.h"
-
-#define	BOOTLINELEN	64
-#define	BOOTARGSLEN	(3584-0x200-BOOTLINELEN)
-#define	MAXCONF		100
 
 extern Dev ipdevtab;
 extern Dev pipdevtab;
@@ -53,15 +51,6 @@ char*	argv0;
 char*	conffile = "9vx";
 Conf	conf;
 
-static char	inibuf[BOOTARGSLEN];
-static char	*iniline[MAXCONF];
-static int	bootboot;	/* run /boot/boot instead of bootscript */
-static int	memsize;	/* memory size */
-static int	nofork;	/* do not fork at init */
-static int	initrc;	/* run rc instead of init */
-static int	nogui;	/* do not start the gui */
-static int	usetty;	/* use tty for input/output */
-static char*	username;
 static Mach mach0;
 
 extern char*	localroot;
@@ -72,11 +61,6 @@ static int singlethread;
 
 static void	bootinit(void);
 static void	siginit(void);
-
-static int	readini(char *fn);
-static void	inifields(void (*fp)(char*, char*));
-static void	iniopt(char *name, char *value);
-static void	inienv(char *name, char *value);
 
 static char*	getuser(void);
 
@@ -246,25 +230,7 @@ main(int argc, char **argv)
 	 */
 	siginit();
 
-	/*
-	 * Debugging: tell user what options we guessed.
-	 */
-	print("9vx ");
-	for(i=0; i<n; i++)
-		print("-p %s ", inifile[i]);
-	if(bootboot | nofork | nogui | initrc | usetty)
-		print("-%s%s%s%s%s ", bootboot ? "b" : "", nofork ? "f " : "",
-			nogui ? "g" : "", initrc ? "i " : "", usetty ? "t " : "");
-	if(memsize != 0)
-		print("-m %d ", memsize);
-	for(i=0; i<nve; i++){
-		print("-n %s", ve[i].tap ? "tap ": "");
-		if(ve[i].dev != nil)
-			print("%s ", ve[i].dev);
-		if(ve[i].mac != nil)
-			print("-a %s ", ve[i].mac);
-	}
-	print("-r %s -u %s\n", localroot, username);
+	printconfig(argv0, inifile, n);
 
 	if(nve == 0)
 		ipdevtab = pipdevtab;
@@ -298,159 +264,6 @@ main(int argc, char **argv)
 	active.thunderbirdsarego = 1;
 	schedinit();
 	return 0;  // Not reached
-}
-
-/*
- *  read configuration file
- */
-int
-readini(char *fn)
-{
-	int blankline, incomment, inspace, n, fd;
-	static int nfields = 0;
-	static char *buf = inibuf;
-	char *cp, *p, *q;
-
-	if(strcmp(fn, "-") == 0)
-		fd = fileno(stdin);
-	else if((fd = open(fn, OREAD)) < 0)
-		return -1;
-
-	cp = buf;
-	*buf = 0;
-	while((n = read(fd, buf, BOOTARGSLEN-1)) > 0)
-		buf += n;
-	close(fd);
-	*buf = 0;
-	if(buf == cp)
-		return -1;
-
-	/*
-	 * Strip out '\r', change '\t' -> ' '.
-	 * Change runs of spaces into single spaces.
-	 * Strip out trailing spaces, blank lines.
-	 *
-	 * We do this before we make the copy so that if we 
-	 * need to change the copy, it is already fairly clean.
-	 * The main need is in the case when plan9.ini has been
-	 * padded with lots of trailing spaces, as is the case 
-	 * for those created during a distribution install.
-	 */
-	p = cp;
-	blankline = 1;
-	incomment = inspace = 0;
-	for(q = cp; *q; q++){
-		if(*q == '\r')
-			continue;
-		if(*q == '\t')
-			*q = ' ';
-		if(*q == ' '){
-			inspace = 1;
-			continue;
-		}
-		if(*q == '\n'){
-			if(!blankline){
-				if(!incomment)
-					*p++ = '\n';
-				blankline = 1;
-			}
-			incomment = inspace = 0;
-			continue;
-		}
-		if(inspace){
-			if(!blankline && !incomment)
-				*p++ = ' ';
-			inspace = 0;
-		}
-		if(blankline && *q == '#')
-			incomment = 1;
-		blankline = 0;
-		if(!incomment)
-			*p++ = *q;	
-	}
-	if(p > cp && p[-1] != '\n')
-		*p++ = '\n';
-	*p++ = 0;
-
-	nfields += getfields(cp, &iniline[nfields], MAXCONF-nfields, 0, "\n");
-
-	return 0;
-}
-
-void
-inifields(void (*fp)(char*, char*))
-{
-	int i;
-	char *cp;
-
-	for(i = 0; i < MAXCONF; i++){
-		if(!iniline[i])
-			break;
-		cp = strchr(iniline[i], '=');
-		if(cp == 0)
-			continue;
-		*cp++ = 0;
-		if(cp - iniline[i] >= NAMELEN+1)
-			*(iniline[i]+NAMELEN-1) = 0;
-		(fp)(iniline[i], cp);
-		*(cp-1) = '=';
-	}
-}
-
-void
-iniopt(char *name, char *value)
-{
-	char *cp, *vedev;
-	int vetap;
-
-	if(*name == '*')
-		name++;
-	if(strcmp(name, "bootboot") == 0)
-		bootboot = 1;
-	else if(strcmp(name, "initrc") == 0)
-		initrc = 1;
-	else if(strcmp(name, "nofork") == 0)
-		nofork = 1;
-	else if(strcmp(name, "memsize") == 0)
-		memsize = atoi(value);
-	else if(strcmp(name, "localroot") == 0 && !localroot)
-		localroot = value;
-	else if(strcmp(name, "user") == 0 && !username)
-		username = value;
-	else if(strcmp(name, "usetty") == 0)
-		usetty = 1;
-	else if(strcmp(name, "macaddr") == 0)
-		setmac(value);
-	else if(strcmp(name, "netdev") == 0){
-		if(strncmp(value, "tap", 3) == 0) {
-			vetap = 1;
-			value += 4;
-		}
-		vedev = value;
-		cp = vedev;
-		if((value = strchr(vedev, ' ')) != 0){
-			cp = strchr(value+1, '=');
-			*value=0;
-			*cp=0;
-		}
-		addve(*vedev == 0 ? nil : vedev, vetap);
-		if(cp != vedev){
-			iniopt(value+1, cp+1);
-			*value=' ';
-			*cp='=';
-		}
-	}
-	else if(strcmp(name, "nogui") == 0){
-		nogui = 1;
-		usetty = 1;
-	}
-}
-
-void
-inienv(char *name, char *value)
-{
-	if(*name != '*')
-		ksetenv(name, value, 0);
 }
 
 static char*

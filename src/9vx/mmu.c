@@ -28,7 +28,7 @@ int tracemmu;
  *
  * This value may be changed with the -m switch.
  */
-int memsize = (256<<20);
+static int memsize = (256<<20);
 
 static int pagefile;
 static char* pagebase;

@@ -34,7 +34,7 @@ enum
 };
 
 extern Path *addelem(Path*, char*, Chan*);
-char	*localroot = "/home/rsc/plan9/4e";
+char	*localroot;
 
 static char *uidtoname(int);
 static char *gidtoname(int);

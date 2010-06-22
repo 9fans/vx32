@@ -306,7 +306,7 @@ readini(char *fn)
 	char *cp, *p, *q;
 
 	if(strcmp(fn, "-") == 0)
-		fd = stdin;
+		fd = fileno(stdin);
 	else if((fd = open(fn, OREAD)) < 0)
 		return -1;
 

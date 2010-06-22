@@ -52,12 +52,13 @@ setup(char *dev, uchar *ea)
 	ea[0], ea[1], ea[2],ea[3], ea[4], ea[5]) == -1)
 		return veerror("cannot create pcap filter");
 
-	if (!dev && (dev = pcap_lookupdev(errbuf)) == nil)
-		return veerror("cannot find network device");
-
-//	if ((pd = pcap_open_live(netdev, 1514, 1, 1, errbuf)) == nil)
-	if ((pd = pcap_open_live(dev, 65000, 1, 1, errbuf)) == nil)
-		return nil;
+	if ((pd = pcap_open_live(dev, 65000, 1, 1, errbuf)) == nil){
+		// try to find a device
+		if ((dev = pcap_lookupdev(errbuf)) == nil)
+			return veerror("cannot find network device");
+		if ((pd = pcap_open_live(dev, 65000, 1, 1, errbuf)) == nil)
+			return nil;
+	}
 
 	pcap_lookupnet(dev, &net, &mask, errbuf);
 	pcap_compile(pd, &prog, filter, 0, net);

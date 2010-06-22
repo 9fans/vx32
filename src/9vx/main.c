@@ -80,13 +80,12 @@ static void	iniopt(char *name, char *value);
 static void	inienv(char *name, char *value);
 
 static char*	getuser(void);
-static char*	findroot(void);
 
 void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-m memsize] [-n [tap] [netdev]] [-a macaddr] [-r root] [-u user]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-bfgit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-r root] [-u user]\n");
 	exit(1);
 }
 
@@ -100,6 +99,7 @@ main(int argc, char **argv)
 {
 	int vetap;
 	char *vedev;
+	char cwd[1024];
 	char buf[1024];
 	
 	/* Minimal set up to make print work. */
@@ -170,11 +170,8 @@ main(int argc, char **argv)
 			vetap = 1;
 			vedev = ARGF();
 		}
-		if(vedev != nil && vedev[0] == '-'){
-			vedev = nil;
-			argc++;
-			argv--;
-		}
+		if(vedev == nil)
+			usage();
 		addve(vedev, vetap);
 		break;
 	case 'p':
@@ -192,7 +189,7 @@ main(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 0)
 		usage();
 	
@@ -204,8 +201,11 @@ main(int argc, char **argv)
 	}
 
 	if(!bootboot){
-		if(localroot == nil && (localroot = findroot()) == nil)
-			panic("cannot find plan 9 root; use -r");
+		if(localroot == nil){
+			if(getcwd(cwd, sizeof cwd) == nil)
+				panic("getcwd: %r");
+			localroot = cwd;
+		}
 		snprint(buf, sizeof buf, "%s/386/bin/rc", localroot);
 		if(access(buf, 0) < 0)
 			panic("%s does not exist", buf);
@@ -445,33 +445,6 @@ inienv(char *name, char *value)
 {
 	if(*name != '*')
 		ksetenv(name, value, 0);
-}
-
-/*
- * Search for Plan 9 /386/bin/rc to find root.
- */
-static char*
-findroot(void)
-{
-	static char cwd[1024];
-	int i;
-	char buf[1024];
-	char *dir[] = {
-		cwd,
-		"/usr/local/9vx"
-	};
-	
-	if(getcwd(cwd, sizeof cwd) == nil){
-		oserrstr();
-		panic("getcwd: %r");
-	}
-
-	for(i=0; i<nelem(dir); i++){
-		snprint(buf, sizeof buf, "%s/386/bin/rc", dir[i]);
-		if(access(buf, 0) >= 0)
-			return dir[i];
-	}
-	return nil;
 }
 
 static char*

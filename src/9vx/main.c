@@ -107,6 +107,7 @@ main(int argc, char **argv)
 	coherence = nop;
 	quotefmtinstall();
 
+	memset(iniline, 0, MAXCONF);
 	localroot = nil;
 	memsize = 0;	
 	nogui = 0;
@@ -176,6 +177,8 @@ main(int argc, char **argv)
 		break;
 	case 'p':
 		inifile = EARGF(usage());
+		if(readini(inifile) != 0)
+			panic("error reading config file %s", inifile);
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -189,16 +192,9 @@ main(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-
+	
 	if(argc != 0)
 		usage();
-	
-	if(inifile){
-		if(readini(inifile) != 0)
-			panic("error reading config file %s", inifile);
-		conffile=inifile;
-		inifields(&iniopt);
-	}
 
 	if(!bootboot){
 		if(localroot == nil){
@@ -217,8 +213,9 @@ main(int argc, char **argv)
 	if(eve == nil)
 		panic("strdup eve");
 
-	mmusize(memsize);
+	inifields(&iniopt);
 
+	mmusize(memsize);
 	mach0init();
 	mmuinit();
 	confinit();
@@ -303,10 +300,11 @@ int
 readini(char *fn)
 {
 	int blankline, incomment, inspace, n, fd;
+	static int nfields = 0;
 	char *cp, *p, *q;
 
 	if(strcmp(fn, "-") == 0)
-		fd = stdin;
+		fd = fileno(stdin);
 	else if((fd = open(fn, OREAD)) < 0)
 		return -1;
 
@@ -366,7 +364,7 @@ readini(char *fn)
 		*p++ = '\n';
 	*p++ = 0;
 
-	getfields(cp, iniline, MAXCONF, 0, "\n");
+	nfields += getfields(cp, &iniline[nfields], MAXCONF-nfields, 0, "\n");
 
 	return 0;
 }

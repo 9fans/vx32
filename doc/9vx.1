@@ -43,14 +43,12 @@ and removes the tap device when finished.
 .PP
 Options can be passed to
 .I 9vx
-as command line arguments or in a configuration file with the
+as command line arguments or in configuration files specified with the
 .I -p
 option (see below). If no
 .I root
-argument is present, the current directory or
-.I /usr/local/9vx
-is used.
-Alternatively, a file system can be specified in the 9vx.ini file.
+argument is present, the current directory is used.
+Alternatively, a file system can be specified in a 9vx.ini file.
 If an
 .I user
 is not specified, the current user in the host operating system will be used.
@@ -75,18 +73,16 @@ Use tty for input/output
 .BI -m " memsize"
 Memory size
 .TP
-.BI -n " [ tap ] [ device ]"
+.BI -n " [ tap ] device"
 Create virtual ethernet devices. The
 .I tap
 option tells that
 .I device
 is a tap device. Else, the virtual device will use pcap(3) to intercept packets going to
 .I device,
-and will therefore need root privileges. If a host
+and will therefore need root privileges. If the host
 .I device
-is not specified, pcap will use the first one available, and tap will use the
-.I tap0
-device. More than one virtual ethernet device can be used. In absence of virtual devices, the network stack of the host system will be used.
+is not valid, pcap will use the first one available. More than one virtual ethernet device can be used. In absence of virtual devices, the network stack of the host system will be used.
 .TP
 .BI -a " macaddress"
 Use the hardware address
@@ -95,15 +91,15 @@ for the last given virtual network device.
 .SS 9vx.ini configuration files
 Configuration parameters can also be given to
 .I 9vx
-in the configuration file specified with the
+in one or more configuration files specified with the
 .I -p
 command line option.
-The file name
+A file name
 .L -
 means the standard input.
-The file
+A
 .I 9vx.ini
-has to contain a list of
+file contains a list of
 .I parameter=value
 pairs in a similar fasion to plan9.ini(8). Available options are
 .I bootboot,

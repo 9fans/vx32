@@ -53,7 +53,6 @@ char*	argv0;
 char*	conffile = "9vx";
 Conf	conf;
 
-static char*	inifile;
 static char	inibuf[BOOTARGSLEN];
 static char	*iniline[MAXCONF];
 static int	bootboot;	/* run /boot/boot instead of bootscript */
@@ -98,7 +97,9 @@ int
 main(int argc, char **argv)
 {
 	int vetap;
+	int i, n;
 	char *vedev;
+	char *inifile[32];
 	char cwd[1024];
 	char buf[1024];
 	
@@ -109,7 +110,8 @@ main(int argc, char **argv)
 
 	memset(iniline, 0, MAXCONF);
 	localroot = nil;
-	memsize = 0;	
+	memsize = 0;
+	n = 0;
 	nogui = 0;
 	nofork = 0;
 	nve = 0;
@@ -176,9 +178,7 @@ main(int argc, char **argv)
 		addve(vedev, vetap);
 		break;
 	case 'p':
-		inifile = EARGF(usage());
-		if(readini(inifile) != 0)
-			panic("error reading config file %s", inifile);
+		inifile[n++] = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -196,6 +196,15 @@ main(int argc, char **argv)
 	if(argc != 0)
 		usage();
 
+	/*
+	 * Loop in reverse direction to overwrite older options
+	 */
+	for(i=n-1; i>=0; i--)
+		if(readini(inifile[i]) != 0)
+			panic("error reading config file %s", inifile[i]);
+
+	inifields(&iniopt);
+
 	if(!bootboot){
 		if(localroot == nil){
 			if(getcwd(cwd, sizeof cwd) == nil)
@@ -212,8 +221,6 @@ main(int argc, char **argv)
 	eve = strdup(username);
 	if(eve == nil)
 		panic("strdup eve");
-
-	inifields(&iniopt);
 
 	mmusize(memsize);
 	mach0init();
@@ -243,14 +250,14 @@ main(int argc, char **argv)
 	 * Debugging: tell user what options we guessed.
 	 */
 	print("9vx ");
-	if(inifile)
-		print("-p %s ", inifile);
+	for(i=0; i<n; i++)
+		print("-p %s ", inifile[i]);
 	if(bootboot | nofork | nogui | initrc | usetty)
 		print("-%s%s%s%s%s ", bootboot ? "b" : "", nofork ? "f " : "",
 			nogui ? "g" : "", initrc ? "i " : "", usetty ? "t " : "");
 	if(memsize != 0)
 		print("-m %d ", memsize);
-	for(int i=0; i<nve; i++){
+	for(i=0; i<nve; i++){
 		print("-n %s", ve[i].tap ? "tap ": "");
 		if(ve[i].dev != nil)
 			print("%s ", ve[i].dev);
@@ -301,6 +308,7 @@ readini(char *fn)
 {
 	int blankline, incomment, inspace, n, fd;
 	static int nfields = 0;
+	static char *buf = inibuf;
 	char *cp, *p, *q;
 
 	if(strcmp(fn, "-") == 0)
@@ -308,14 +316,14 @@ readini(char *fn)
 	else if((fd = open(fn, OREAD)) < 0)
 		return -1;
 
-	cp = inibuf;
-	*cp = 0;
-	n = read(fd, cp, BOOTARGSLEN-1);
+	cp = buf;
+	*buf = 0;
+	while((n = read(fd, buf, BOOTARGSLEN-1)) > 0)
+		buf += n;
 	close(fd);
-	if(n <= 0)
+	*buf = 0;
+	if(buf == cp)
 		return -1;
-
-	cp[n] = 0;
 
 	/*
 	 * Strip out '\r', change '\t' -> ' '.

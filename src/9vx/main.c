@@ -84,7 +84,7 @@ main(int argc, char **argv)
 	int vetap;
 	int i, n;
 	char *vedev;
-	char *inifile[32];
+	char *inifile;
 	
 	/* Minimal set up to make print work. */
 	setmach(&mach0);
@@ -157,7 +157,7 @@ main(int argc, char **argv)
 		addve(vedev, vetap);
 		break;
 	case 'p':
-		inifile[n++] = EARGF(usage());
+		inifile = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -172,12 +172,8 @@ main(int argc, char **argv)
 		usage();
 	}ARGEND
 
-	/*
-	 * Loop in reverse direction to overwrite older options
-	 */
-	for(i = n-1; i >= 0; i--)
-		if(readini(inifile[i]) != 0)
-			panic("error reading config file %s", inifile[i]);
+	if(inifile && readini(inifile) != 0)
+		panic("error reading config file %s", inifile);
 
 	bootargc = argc;
 	bootargv = argv;

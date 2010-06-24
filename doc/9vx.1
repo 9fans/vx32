@@ -59,7 +59,7 @@ arguments will be passed to boot/boot as explained in boot(8), with the addition
 the local method also supports local directories. The
 .I -r
 option sets
-.I nobootprompt=local!#Z/localroot
+.I nobootprompt=local!#Z/root
 to boot from a local directory containing a Plan 9 tree.
 If an
 .I user
@@ -118,10 +118,11 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 .I initrc,
 .I usetty,
 .I memsize,
-.I netdev
-and
+.I netdev,
 .I macaddr
-(that can also be part of a netdev line).
+(that can also be part of a netdev line)
+and
+.I localroot.
 .SH BUGS
 The menu system of plan9.ini(8) is not supported in
 .I 9vx.ini

@@ -12,6 +12,7 @@ int	memsize;	/* memory size */
 int	bootargc;
 char**	bootargv;
 char*	inifile;
+char*	localroot;
 char*	username;
 
 int	readini(char *fn);

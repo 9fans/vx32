@@ -49,7 +49,6 @@ int	doabort = 1;	// for now
 int	abortonfault;
 char*	argv0;
 char*	conffile = "9vx";
-char*	localroot;
 Conf	conf;
 
 static Mach mach0;
@@ -82,7 +81,6 @@ int
 main(int argc, char **argv)
 {
 	int vetap;
-	int i, n;
 	char *vedev;
 	char *inifile;
 	

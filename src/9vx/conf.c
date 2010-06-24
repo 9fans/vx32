@@ -118,14 +118,14 @@ iniopt(char *name, char *value)
 
 	if(*name == '*')
 		name++;
-	if(strcmp(name, "initrc") == 0)
-		initrc = 1;
-	else if(strcmp(name, "nofork") == 0)
+	if(strcmp(name, "nofork") == 0)
 		nofork = 1;
 	else if(strcmp(name, "nogui") == 0){
 		nogui = 1;
 		usetty = 1;
 	}
+	else if(strcmp(name, "initrc") == 0)
+		initrc = 1;
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;
 	else if(strcmp(name, "memsize") == 0)
@@ -151,6 +151,8 @@ iniopt(char *name, char *value)
 	}
 	else if(strcmp(name, "macaddr") == 0)
 		setmac(value);
+	else if(strcmp(name, "localroot") == 0 && !localroot)
+		localroot = value;
 	else if(strcmp(name, "user") == 0 && !username)
 		username = value;
 }
@@ -184,6 +186,8 @@ printconfig(char *argv0){
 		if(ve[i].mac != nil)
 			print(" -a %s", ve[i].mac);
 	}
+	if(localroot)
+		print(" -r %s", localroot);
 	print(" -u %s", username);
 	for(i = 0; i < bootargc; i++)
 		print(" %s", bootargv[i]);

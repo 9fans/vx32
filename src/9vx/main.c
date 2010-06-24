@@ -91,9 +91,9 @@ main(int argc, char **argv)
 	coherence = nop;
 	quotefmtinstall();
 
+	inifile = nil;
 	memset(iniline, 0, MAXCONF);
 	memsize = 0;
-	n = 0;
 	nogui = 0;
 	nofork = 0;
 	nve = 0;
@@ -172,7 +172,7 @@ main(int argc, char **argv)
 		usage();
 	}ARGEND
 
-	if(inifile && readini(inifile) != 0)
+	if(inifile != nil && readini(inifile) != 0)
 		panic("error reading config file %s", inifile);
 
 	bootargc = argc;

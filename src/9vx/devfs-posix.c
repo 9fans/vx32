@@ -34,8 +34,6 @@ enum
 };
 
 extern Path *addelem(Path*, char*, Chan*);
-char	*localroot;
-
 static char *uidtoname(int);
 static char *gidtoname(int);
 static int nametouid(char*);
@@ -48,12 +46,11 @@ struct UnixFd
 {
 	int	fd;
 	int	issocket;
-	int	plan9;	// rooted at localroot?
 	DIR*	dir;
 	vlong	diroffset;
 	QLock	dirlock;
 	struct dirent *nextde;
-	Path	*path;	// relative to localroot
+	Path	*path;
 };
 
 void
@@ -106,34 +103,20 @@ fsattach(char *spec)
 	struct stat st;
 	Chan *c;
 	UnixFd *ufd;
-	int plan9, dev;
+	int dev;
 	
 	dev = 1;
-	plan9 = 0;
 	if(spec && spec[0]){
-		if(strcmp(spec, "plan9") == 0) {
-			plan9 = 1;
-			dev = 2;
-		} else{
-			snprint(up->genbuf, sizeof up->genbuf, "no file system #%C%s", FsChar, spec);
-			error(up->genbuf);
-		}
+		snprint(up->genbuf, sizeof up->genbuf, "no file system #%C%s", FsChar, spec);
+		error(up->genbuf);
 	}
 
-	if(plan9){
-		if(localroot == nil)
-			error("no #Zplan9 root without -r");
-		if(stat(localroot, &st) < 0)
-			oserror();
-	}else{
-		if(stat("/", &st) < 0)
-			oserror();
-	}
+	if(stat("/", &st) < 0)
+		oserror();
 
-	c = devattach(FsChar, spec);
+	c = devattach(FsChar, 0);
 	ufd = mallocz(sizeof(UnixFd), 1);
 	ufd->path = newpath("/");
-	ufd->plan9 = plan9;
 	ufd->fd = -1;
 
 	c->aux = ufd;
@@ -182,20 +165,11 @@ fspath(Chan *c, char *suffix)
 	
 	ufd = c->aux;
 	s = ufd->path->s;
-	if(ufd->plan9){
-		len = strlen(localroot)+strlen(s)+1;
-		if(suffix)
-			len += 1+strlen(suffix);
-		t = smalloc(len);
-		strcpy(t, localroot);
-		strcat(t, s);
-	}else{
-		len = strlen(s)+1;
-		if(suffix)
-			len += 1+strlen(suffix);
-		t = smalloc(len);
-		strcpy(t, s);
-	}
+	len = strlen(s)+1;
+	if(suffix)
+		len += 1+strlen(suffix);
+	t = smalloc(len);
+	strcpy(t, s);
 	if(suffix){
 		if(s[strlen(s)-1] != '/')
 			strcat(t, "/");

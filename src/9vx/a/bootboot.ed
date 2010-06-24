@@ -1,0 +1,58 @@
+diff -e plan9/sys/src/9/boot/aux.c 9vx/sys/src/9/boot/aux.c
+73,74c
+	exits(buf);
+.
+diff -e plan9/sys/src/9/boot/boot.c 9vx/sys/src/9/boot/boot.c
+154a
+Init:
+.
+94a
+	if(localroot){
+		srvcreate("boot", fd);
+		goto Init;
+	}
+.
+6a
+char *localroot;
+.
+diff -e plan9/sys/src/9/boot/boot.h 9vx/sys/src/9/boot/boot.h
+16a
+extern char*	localroot;
+.
+diff -e plan9/sys/src/9/boot/local.c 9vx/sys/src/9/boot/local.c
+278d
+276a
+	if((fd = connectlocalroot()) < 0)
+.
+264a
+connectlocalroot(void)
+{
+	int fd;
+	char buf[1024];
+
+	if(stat(buf, statbuf, sizeof statbuf) < 0)
+		return -1;
+	localroot = disk;
+
+	/* create working fd for /srv/boot */
+	fd = open("#~/mntloop", ORDWR);
+	if(fd < 0){
+		print("open #~/mntloop: %r\n");
+		return -1;
+	}
+	write(fd, disk, strlen(disk));
+	return fd;
+}
+
+int
+.
+171c
+			return;
+.
+diff -e plan9/sys/src/9/pc/pcf 9vx/sys/src/9/pc/pcf
+119a
+	tcp
+.
+117,118c
+boot boot #Z/usr/local/9vx
+.

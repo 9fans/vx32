@@ -12,8 +12,6 @@
 #include	"etherif.h"
 #include 	"vether.h"
 
-extern char*	localroot;
-
 /*
  *  read configuration file
  */
@@ -120,9 +118,7 @@ iniopt(char *name, char *value)
 
 	if(*name == '*')
 		name++;
-	if(strcmp(name, "bootboot") == 0)
-		bootboot = 1;
-	else if(strcmp(name, "initrc") == 0)
+	if(strcmp(name, "initrc") == 0)
 		initrc = 1;
 	else if(strcmp(name, "nofork") == 0)
 		nofork = 1;
@@ -155,8 +151,6 @@ iniopt(char *name, char *value)
 	}
 	else if(strcmp(name, "macaddr") == 0)
 		setmac(value);
-	else if(strcmp(name, "localroot") == 0 && !localroot)
-		localroot = value;
 	else if(strcmp(name, "user") == 0 && !username)
 		username = value;
 }
@@ -172,23 +166,26 @@ inienv(char *name, char *value)
  * Debugging: tell user what options we guessed.
 */
 void
-printconfig(char *argv0, char **inifile, int n){
+printconfig(char *argv0){
 	int i;
 
-	print("%s ", argv0);
-	for(i=0; i<n; i++)
-		print("-p %s ", inifile[i]);
-	if(bootboot | nofork | nogui | initrc | usetty)
-		print("-%s%s%s%s%s ", bootboot ? "b" : "", nofork ? "f " : "",
-			nogui ? "g" : "", initrc ? "i " : "", usetty ? "t " : "");
+	print(argv0);
+	if(inifile)
+		print(" -p %s", inifile);
+	if(nofork | nogui | initrc | usetty)
+		print(" -%s%s%s%s", nofork ? "f " : "", nogui ? "g" : "",
+			initrc ? "i " : "", usetty ? "t " : "");
 	if(memsize != 0)
-		print("-m %d ", memsize);
+		print(" -m %d", memsize);
 	for(i=0; i<nve; i++){
-		print("-n %s", ve[i].tap ? "tap ": "");
+		print(" -n %s", ve[i].tap ? "tap ": "");
 		if(ve[i].dev != nil)
-			print("%s ", ve[i].dev);
+			print(" %s", ve[i].dev);
 		if(ve[i].mac != nil)
-			print("-a %s ", ve[i].mac);
+			print(" -a %s", ve[i].mac);
 	}
-	print("-r %s -u %s\n", localroot, username);
+	print(" -u %s", username);
+	for(i = 0; i < bootargc; i++)
+		print(" %s", bootargv[i]);
+	print("\n");
 }

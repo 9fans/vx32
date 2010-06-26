@@ -212,6 +212,13 @@ main(int argc, char **argv)
 #endif
 
 	/*
+	 * After fork to deal with the correct pid.
+	 * The cpu limiter will run in a new process.
+	 */
+	if(cpulimit != 0)
+		plimit(getpid(), cpulimit);
+
+	/*
 	 * Have to do this after fork; on OS X child does
 	 * not inherit sigaltstack.
 	 */

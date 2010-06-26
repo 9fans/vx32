@@ -63,3 +63,4 @@ typedef long long int64;
 
 #define USED(x) ((void)(x))
 
+void plimit(pid_t, int);

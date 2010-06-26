@@ -4,6 +4,7 @@
 
 char	inibuf[BOOTARGSLEN];
 char	*iniline[MAXCONF];
+int	cpulimit;	/* max cpu usage */
 int	initrc;	/* run rc instead of init */
 int	nofork;	/* do not fork at init */
 int	nogui;	/* do not start the gui */

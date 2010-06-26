@@ -68,7 +68,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-fgit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-r root] [-u user] [bootargs]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-fgit] [-l cpulimit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-r root] [-u user] [bootargs]\n");
 	exit(1);
 }
 
@@ -89,6 +89,7 @@ main(int argc, char **argv)
 	coherence = nop;
 	quotefmtinstall();
 
+	cpulimit = 0;
 	inifile = nil;
 	memset(iniline, 0, MAXCONF);
 	memsize = 0;
@@ -139,6 +140,9 @@ main(int argc, char **argv)
 		break;
 	case 'i':
 		initrc = 1;
+		break;
+	case 'l':
+		cpulimit = atoi(EARGF(usage()));
 		break;
 	case 'm':
 		memsize = atoi(EARGF(usage()));

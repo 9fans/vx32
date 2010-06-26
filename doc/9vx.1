@@ -49,7 +49,7 @@ and removes the tap device when finished.
 .PP
 Options can be passed to
 .I 9vx
-as command line arguments or in configuration files specified with the
+as command line arguments or in a configuration file specified with the
 .I -p
 option (see below). The host file server will be visible from inside as
 .I #Z.
@@ -80,6 +80,9 @@ Run rc instead of init (sets
 .TP
 .BI -t
 Use tty for input/output
+.TP
+.BI -l " cpulimit"
+Maximum cpu usage (in percentage)
 .TP
 .BI -m " memsize"
 Memory size
@@ -117,6 +120,7 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 .I nogui,
 .I initrc,
 .I usetty,
+.I cpulimit,
 .I memsize,
 .I netdev,
 .I macaddr

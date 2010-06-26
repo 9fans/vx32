@@ -128,6 +128,8 @@ iniopt(char *name, char *value)
 		initrc = 1;
 	else if(strcmp(name, "usetty") == 0)
 		usetty = 1;
+	else if(strcmp(name, "cpulimit") == 0)
+		cpulimit = atoi(value);
 	else if(strcmp(name, "memsize") == 0)
 		memsize = atoi(value);
 	else if(strcmp(name, "netdev") == 0){
@@ -177,6 +179,8 @@ printconfig(char *argv0){
 	if(nofork | nogui | initrc | usetty)
 		print(" -%s%s%s%s", nofork ? "f " : "", nogui ? "g" : "",
 			initrc ? "i " : "", usetty ? "t " : "");
+	if(cpulimit != 0)
+		print(" -l %d", cpulimit);
 	if(memsize != 0)
 		print(" -m %d", memsize);
 	for(i=0; i<nve; i++){

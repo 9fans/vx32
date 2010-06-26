@@ -83,7 +83,7 @@ main(int argc, char **argv)
 	int vetap;
 	char *vedev;
 	char *inifile;
-	
+
 	/* Minimal set up to make print work. */
 	setmach(&mach0);
 	coherence = nop;

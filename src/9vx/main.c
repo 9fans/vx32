@@ -49,6 +49,7 @@ int	doabort = 1;	// for now
 int	abortonfault;
 char*	argv0;
 char*	conffile = "9vx";
+char*	defaultroot = "local!#Z/usr/local/9vx";
 Conf	conf;
 
 static Mach mach0;
@@ -426,6 +427,8 @@ bootargs(void *base)
 	av[ac++] = pusharg("9vx");
 	for(i = 0; i < bootargc && ac < 32; i++)
 		av[ac++] = pusharg(bootargv[i]);
+	if(i == 0)
+		av[ac++] = pusharg(defaultroot);
 
 	/* 4 byte word align stack */
 	sp = (uchar*)((uintptr)sp & ~3);

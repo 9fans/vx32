@@ -1,12 +1,12 @@
 diff -e plan9/sys/src/9//boot/aux.c 9vx/sys/src/9//boot/aux.c
 73,74c
-	exits(buf);
+	exits(smprint("boot: %s: %s\n", s, buf));
 .
 diff -e plan9/sys/src/9//boot/boot.c 9vx/sys/src/9//boot/boot.c
 154a
 Init:
 .
-94a
+92a
 	if(localroot){
 		bind(localroot, "/", MAFTER);
 		srvcreate("boot", fd);
@@ -14,15 +14,20 @@ Init:
 	}
 .
 6a
-char	*localroot;
+char*	localroot;
 .
 diff -e plan9/sys/src/9//boot/boot.h 9vx/sys/src/9//boot/boot.h
 16a
 extern char*	localroot;
 .
+diff -e plan9/sys/src/9//boot/bootip.c 9vx/sys/src/9//boot/bootip.c
+76,77c
+			// if(w->msg[0] != 0)
+			//	fatal(w->msg);
+.
 diff -e plan9/sys/src/9//boot/local.c 9vx/sys/src/9//boot/local.c
 278c
-	//if((fd = connectlocalkfs()) < 0)
+	// if((fd = connectlocalkfs()) < 0)
 .
 276a
 	if((fd = connectlocalroot()) < 0)
@@ -33,7 +38,7 @@ connectlocalroot(void)
 	int fd;
 	char buf[1024];
 
-	snprint(buf, sizeof buf, "%s/386/bin/rc", disk);
+	snprint(buf, sizeof buf, "%s/%s/bin/rc", disk, cputype);
 	if(stat(buf, statbuf, sizeof statbuf) < 0)
 		return -1;
 	localroot = disk;
@@ -51,12 +56,6 @@ connectlocalroot(void)
 int
 .
 171c
+			//fatal("open /net/ipifc/clone for loopback");
 			return;
-.
-diff -e plan9/sys/src/9//pc/pcf 9vx/sys/src/9//pc/pcf
-119a
-	tcp
-.
-117,118c
-boot boot #Z/usr/local/9vx
 .

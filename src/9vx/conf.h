@@ -9,7 +9,7 @@ int	initrc;	/* run rc instead of init */
 int	nofork;	/* do not fork at init */
 int	nogui;	/* do not start the gui */
 int	usetty;	/* use tty for input/output */
-int	memsize;	/* memory size */
+int	memmb;	/* memory size in mb */
 int	bootargc;
 char**	bootargv;
 char*	inifile;

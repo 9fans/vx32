@@ -92,7 +92,7 @@ main(int argc, char **argv)
 	cpulimit = 0;
 	inifile = nil;
 	memset(iniline, 0, MAXCONF);
-	memsize = 0;
+	memmb = 0;
 	nogui = 0;
 	nofork = 0;
 	nve = 0;
@@ -145,7 +145,7 @@ main(int argc, char **argv)
 		cpulimit = atoi(EARGF(usage()));
 		break;
 	case 'm':
-		memsize = atoi(EARGF(usage()));
+		memmb = atoi(EARGF(usage()));
 		break;
 	case 'n':
 		vetap = 0;
@@ -193,7 +193,7 @@ main(int argc, char **argv)
 	if(eve == nil)
 		panic("strdup eve");
 
-	mmusize(memsize);
+	mmusize(memmb);
 	mach0init();
 	mmuinit();
 	confinit();
@@ -505,6 +505,7 @@ init0(void)
 		inienv("init", "/386/bin/rc -i");
 	if(localroot)
 		inienv("nobootprompt", nobootprompt(localroot));
+	inienv("cputype", "386");
 
 	poperror();
 

@@ -131,7 +131,7 @@ iniopt(char *name, char *value)
 	else if(strcmp(name, "cpulimit") == 0)
 		cpulimit = atoi(value);
 	else if(strcmp(name, "memsize") == 0)
-		memsize = atoi(value);
+		memmb = atoi(value);
 	else if(strcmp(name, "netdev") == 0){
 		if(strncmp(value, "tap", 3) == 0) {
 			vetap = 1;
@@ -181,8 +181,8 @@ printconfig(char *argv0){
 			initrc ? "i " : "", usetty ? "t " : "");
 	if(cpulimit != 0)
 		print(" -l %d", cpulimit);
-	if(memsize != 0)
-		print(" -m %d", memsize);
+	if(memmb != 0)
+		print(" -m %d", memmb);
 	for(i=0; i<nve; i++){
 		print(" -n %s", ve[i].tap ? "tap ": "");
 		if(ve[i].dev != nil)

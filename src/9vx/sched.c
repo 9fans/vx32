@@ -162,6 +162,27 @@ runproc(void)
 }
 
 /*
+ * Limit CPU usage going to sleep while holding the run lock
+ */
+void
+plimitproc(void *v)
+{
+	int lim;
+	uint sleeping, working;
+
+	lim = *((int*)v);
+	sleeping = 100000 * (100 - lim) / 100;
+	working = 100000 * lim / 100;
+
+	for(;;){
+		usleep(working);
+		plock(&run);
+		usleep(sleeping);
+		punlock(&run);
+	}
+}
+
+/*
  * Host OS process sleep and wakeup.
  */
 static pthread_mutex_t initmutex = PTHREAD_MUTEX_INITIALIZER;

@@ -47,6 +47,7 @@ extern Dev audiodevtab;
 
 int	doabort = 1;	// for now
 int	abortonfault;
+int	nocpuload;
 char*	argv0;
 char*	conffile = "9vx";
 char*	defaultroot = "local!#Z/usr/local/9vx";
@@ -111,6 +112,9 @@ main(int argc, char **argv)
 		break;
 	case 'K':
 		tracekdev++;
+		break;
+	case 'L':
+		nocpuload++;
 		break;
 	case 'M':
 		tracemmu++;
@@ -213,13 +217,6 @@ main(int argc, char **argv)
 #endif
 
 	/*
-	 * After fork to deal with the correct pid.
-	 * The cpu limiter will run in a new process.
-	 */
-	if(cpulimit != 0)
-		plimit(getpid(), cpulimit);
-
-	/*
 	 * Have to do this after fork; on OS X child does
 	 * not inherit sigaltstack.
 	 */
@@ -243,6 +240,10 @@ main(int argc, char **argv)
 		makekprocdev(&fsdevtab);
 		makekprocdev(&drawdevtab);
 		makekprocdev(&audiodevtab);
+		if(nocpuload == 0)
+			kproc("pload", &ploadproc, nil);
+		if(cpulimit > 0 && cpulimit < 100)
+			kproc("plimit", &plimitproc, &cpulimit);
 	}
 	bootinit();
 	pageinit();

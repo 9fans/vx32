@@ -32,7 +32,6 @@ all: 9vx/9vx
 PLAN9_OBJS = \
 	$(addprefix 9vx/, \
 		bootcode.o \
-		plimit-$(OS).o \
 		conf.o \
 		devaudio.o \
 		devaudio-$(PLAN9AUDIO).o \
@@ -45,6 +44,7 @@ PLAN9_OBJS = \
 		fossil.o \
 		kprocdev.o \
 		label.o \
+		load.o \
 		main.o \
 		mmu.o \
 		sched.o \

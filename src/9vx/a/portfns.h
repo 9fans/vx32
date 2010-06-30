@@ -410,3 +410,5 @@ void	uartecho(char*, int);
 void	vx32sysr1(void);
 void	vxnewproc(Proc*);
 void	mmusize(int);
+void	plimitproc(void*);
+void	ploadproc(void*);

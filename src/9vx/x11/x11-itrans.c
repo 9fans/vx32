@@ -229,7 +229,7 @@ _xtoplan9mouse(XEvent *e, Mouse *m)
 	if(s & Button2Mask)
 		m->buttons |= 2;
 	if(s & Button3Mask)
-		m->buttons |= 4;
+		m->buttons |= s & ShiftMask ? 2 : 4;
 	if(s & Button4Mask)
 		m->buttons |= 8;
 	if(s & Button5Mask)

@@ -158,6 +158,14 @@ runproc(void)
 			m->machno, p->pid, p->text, kprocq.n, nrunproc);
 	unlock(&kprocq.lk);
 	punlock(&run);
+	/*
+	 * To avoid the "double sleep" bug
+	 * Full history begins at:
+	 * http://9fans.net/archive/2010/06/71
+	 * Who knows where it will end
+	 */
+	while (p->mach)
+		sched_yield();
 	return p;
 }
 

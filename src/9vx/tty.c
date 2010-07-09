@@ -13,6 +13,7 @@
 
 static int ttyprint = 0;
 static int ttyecho = 0;
+static struct termios ttprevmode;
 
 /*
  * Normal prints and console output go to standard output.
@@ -28,11 +29,9 @@ uartputs(char *buf, int n)
 void
 restoretty(void)
 {
-	static struct termios ttmode;
-	
-	if(ttyecho && tcgetattr(0, &ttmode) >= 0){
-		ttmode.c_lflag |= (ECHO|ICANON);
-		tcsetattr(0, TCSANOW, &ttmode);
+	if(ttyecho && tcsetattr(0, TCSANOW, &ttprevmode) < 0){
+		ttyecho = 0;
+		panic("could not restore previous tty mode");
 	}
 }
 
@@ -51,11 +50,13 @@ uartreader(void *v)
 	static struct termios ttmode;
 	
 	/*
-	 * Try to disable host echo,
-	 * but restore it at exit. 
+	 * Try to disable host echo, save
+	 * current state to restore it at exit. 
 	 * If successful, remember to echo
 	 * what gets typed ourselves.
 	 */
+	if(tcgetattr(0, &ttprevmode) < 0)
+		panic("could not read tty current mode");
 	if(tcgetattr(0, &ttmode) >= 0){
 		ttmode.c_lflag &= ~(ECHO|ICANON);
 		if(tcsetattr(0, TCSANOW, &ttmode) >= 0)

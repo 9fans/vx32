@@ -26,6 +26,18 @@ uartputs(char *buf, int n)
 }
 
 void
+restoretty(int sig)
+{
+	static struct termios ttmode;
+	
+	if(ttyecho && tcgetattr(0, &ttmode) >= 0){
+		ttmode.c_lflag |= (ECHO|ICANON);
+		tcsetattr(0, TCSANOW, &ttmode);
+	}
+	exit(0);
+}
+
+void
 uartreader(void *v)
 {
 	char buf[256];
@@ -33,7 +45,8 @@ uartreader(void *v)
 	static struct termios ttmode;
 	
 	/*
-	 * Try to disable host echo. 
+	 * Try to disable host echo,
+	 * but restore it at exit. 
 	 * If successful, remember to echo
 	 * what gets typed ourselves.
 	 */
@@ -42,6 +55,8 @@ uartreader(void *v)
 		if(tcsetattr(0, TCSANOW, &ttmode) >= 0)
 			ttyecho = 1;
 	}
+	signal(SIGINT, restoretty);
+	signal(SIGTERM, restoretty);
 	while((n = read(0, buf, sizeof buf)) > 0)
 		echo(buf, n);
 }

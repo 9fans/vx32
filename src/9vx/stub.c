@@ -529,6 +529,7 @@ panic(char *fmt, ...)
 	va_end(arg);
 	buf[n] = '\n';
 	write(2, buf, n+1);
+	restoretty();
 	if(doabort){
 #ifdef __APPLE__
 		fprint(2, "sleeping, so you can attach gdb to pid %d\n", (int)getpid());

@@ -174,6 +174,8 @@ void	__punlock(Psleep*);
 void	__pwakeup(Psleep*);
 void	__psleep(Psleep*);
 
+void restoretty(void);
+
 extern int tracelock;
 
 #define lockfngen(type)	__ ## type

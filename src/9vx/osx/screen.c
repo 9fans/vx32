@@ -209,6 +209,7 @@ cmdhandler(EventHandlerCallRef next, EventRef event, void *arg)
 static OSStatus
 quithandler(EventHandlerCallRef next, EventRef event, void *arg)
 {
+	restoretty();	// XXX: should we?
 	exit(0);
 	return 0;
 }
@@ -233,6 +234,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			typeHICommand, nil, sizeof cmd, nil, &cmd);
 		switch(cmd.commandID){
 		case kHICommandQuit:
+			restoretty();	// XXX: should we?
 			exit(0);
 		
 		case CmdFullScreen:
@@ -247,6 +249,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 	case kEventClassWindow:;
 		switch(GetEventKind(event)){
 		case kEventWindowClosed:
+			restoretty();	// XXX: should we?
 			exit(0);
 		
 		case kEventWindowBoundsChanged:

@@ -49,6 +49,7 @@ static int
 xioerror(XDisplay *d)
 {
 	/*print("X I/O error\n"); */
+	restoretty();
 	exit(0);
 	/*sysfatal("X I/O error\n");*/
 	abort();

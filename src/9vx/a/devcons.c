@@ -300,6 +300,7 @@ panic(char *fmt, ...)
 	putstrn(buf, n+1);
 	dumpstack();
 
+	restoretty();
 	exit(1);
 }
 
@@ -483,6 +484,7 @@ echo(char *buf, int n)
 			killbig("^t ^t k");
 			return;
 		case 'r':
+			restoretty();
 			exit(0);
 			return;
 		}

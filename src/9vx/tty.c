@@ -26,7 +26,7 @@ uartputs(char *buf, int n)
 }
 
 void
-restoretty(int sig)
+restoretty(void)
 {
 	static struct termios ttmode;
 	
@@ -34,6 +34,12 @@ restoretty(int sig)
 		ttmode.c_lflag |= (ECHO|ICANON);
 		tcsetattr(0, TCSANOW, &ttmode);
 	}
+}
+
+void
+bye(int sig)
+{
+	restoretty();
 	exit(0);
 }
 
@@ -55,8 +61,8 @@ uartreader(void *v)
 		if(tcsetattr(0, TCSANOW, &ttmode) >= 0)
 			ttyecho = 1;
 	}
-	signal(SIGINT, restoretty);
-	signal(SIGTERM, restoretty);
+	signal(SIGINT, bye);
+	signal(SIGTERM, bye);
 	while((n = read(0, buf, sizeof buf)) > 0)
 		echo(buf, n);
 }

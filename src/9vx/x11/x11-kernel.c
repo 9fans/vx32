@@ -61,8 +61,10 @@ runxevent(XEvent *xev)
 		break;
 	
 	case DestroyNotify:
-		if(_xdestroy(xev))
-			exit(0);
+		if(_xdestroy(xev)){
+			restoretty();
+			bye(0);
+		}
 		break;
 
 	case ConfigureNotify:

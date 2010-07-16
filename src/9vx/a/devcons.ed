@@ -1,3 +1,6 @@
+,s!\.\./port/!!g
+/authsrv\.h/ s/[<>]/"/g
+g/exit(/ s/exit/restoretty(); &/
 g/"pool.h"/d
 ,s!QLock;!QLock lk;!g
 /vlong	fasthz/ s!;! = 1000000000ULL;  // Plan 9 VX = nsecs!
@@ -7,14 +10,10 @@ g/^kbd/ s/Queue\*,/Queue *q,/
 ,s!(a = strchr(a, ' '))!(&)!g
 ,s!MACHP(0)->ticks!msec()!g
 /^long2le/-1 s!static!/*static*/!
-/fasthz == 0/,/fastticks/d
-/fasthz == 0/,/fastticks/d
 /static int ctrlt, pid/ s/, pid//
 /^		snprint(tmp/,/imagmem/c
 		tmp[0] = 0;
 .
-,s/\.0lud/lud/g
-,s/\.0llud/llud/g
 /^Queue\*	serialoq/d
 /^consactive/-1i
 #if 0 // Plan 9 VX
@@ -34,7 +33,7 @@ g/^kbd/ s/Queue\*,/Queue *q,/
 /^}/a
 #endif
 .
-/^putstrn0/
+/^putstrn0/ s;^;;
 /	int m/d
 /	char \*t/d
 /	if(serialoq == nil)/i
@@ -47,7 +46,7 @@ g/^kbd/ s/Queue\*,/Queue *q,/
 /^static Lock iprintlock/i
 #if 0 // Plan 9 VX
 .
-/^_assert/
+/^_assert/ s;^;;
 /^}/a
 #endif
 .

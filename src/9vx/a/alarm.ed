@@ -1,2 +1,0 @@
-,s;alarmkproc(void\*);alarmkproc(void *v);
-,s;lock(\&alarms);lock(\&alarms.lk);g

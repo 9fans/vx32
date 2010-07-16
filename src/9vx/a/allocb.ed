@@ -1,4 +1,8 @@
+,s!"\.\./port/lib\.h"!"lib.h"!
 ,s!Lock;!Lock lk;!
 ,s!lock(&ialloc)!lock(\&ialloc.lk)!g
 ,s!msize(b)!sizeof(Block)+size+Hdrspc!
 ,s/exit(0)/panic("iallocb")/
+/_xinc/d
+/_xdec/s/ ||.*0//
+,s/ref < 0/0/

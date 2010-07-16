@@ -1,7 +1,8 @@
+,s!"\.\./port/lib\.h"!"lib.h"!
+,s!"\.\./port/error\.h"!"error.h"!
 ,s!Lock;!Lock lk;!g
 /dumpmount/-1 s!static !/*static*/ !
 ,s!lock(r)!lock(\&r->lk)!g
-/static Lock l/d
 ,s!lock(\&chanalloc)!lock(\&chanalloc.lk)!g
 ,s!->ref!->ref.ref!g
 ,s!r->ref.ref!r->ref!g
@@ -18,3 +19,19 @@ g/^cl/ s/(void\*)/(void *v)/
 ,s!ref(cnew)!ref(\&cnew->ref)!g
 ,s!ref(cnew->path)!ref(\&cnew->path->ref)!g
 /^addelem/-1 s;static;/*static*/;
+/DBG("namec/i
+	if(tracesyscalls)
+		iprint("\tnamec %s\n", aname);
+.
+,s/(ulong)name < KZERO/isuaddr(name)/
+/validaddr/d
+/ename = vmemchr(name, 0, (1<<16))/c
+		char *p;
+		uint t;
+		p = name;
+		t = BY2PG-((ulong)p&(BY2PG-1));
+		while((ename=vmemchr(p, 0, t)) == nil){
+			p += t;
+			t = BY2PG;
+		}
+.

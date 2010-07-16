@@ -1,34 +1,43 @@
+,s!"\.\./port/portdat\.h"!"portdat.h"!
 /BIOS32ci/,/BIOS32ci;/d
 /^#define up/c
 #define up (machp[0]->externup)
 .
 v/typedef/ s!Lock;!Lock lk;!g
-/mmupdb/c
-	ulong lo;	// Plan 9 VX
-	ulong hi;	// Plan 9 VX
+/^struct PMMU/+2;/^}/-1c
 	struct vxproc *vxproc;	// Plan 9 VX
-	struct vxmmap *vxmm;	// Plan 9 VX
-	void *sigstack;	// Plan 9 VX
+	struct vxmem vxmem;
+	struct vxmmap vxmm;	// Plan 9 VX
+	Uspace *us;
+	uchar *uzero;
 .
+g/^#pragma/d
 g/mmufree/d
 g/mmuused/d
 g/lastkmap/d
 g/kmaptable/d
 g/nkmap/d
-/^struct Label/+1a
-	ulong	bp;  // Plan 9 VX
-	ulong	bx;
-	ulong	si;
-	ulong	di;
+/	Mach	\*m/s/m/m_/
+/^struct Label/+2;/^}/-1c
+	uint64	bp;  // Plan 9 VX
+	uint64	bx;
+	uint64	si;
+	uint64	di;
+	uint64	sp;
+	uint64	pc;
+	uint64	r12;
+	uint64	r13;
+	uint64	r14;
+	uint64	r15;
 .
 g/BIOS32ci/d
 1i
 #include <ucontext.h>
+#include "libvx32/vx32.h"
 
 .
-/	ulong\*	pbd/d
+/	ulong\*	pdb/d
 /	Tss\*	tss/d
-/	Segdesc\*	gdt/d
 /	Proc\*	externup/d
 /	ulong	ticks/d
 /	Lock	alarmlock/d
@@ -40,10 +49,29 @@ g/^	vlong	mtrr/d
 	int	spl;	// Plan 9 VX
 	void	*sigstack;
 .
-/^Mach\*	machp/ s/^/extern /
 /^extern Mach	\*m/c
-extern __thread Mach	*m;	// Plan 9 VX
-extern __thread Proc	*up;	// Plan 9 VX
+#ifdef TLS
+	extern __thread Mach	*m;	// Plan 9 VX
+	extern __thread Proc	*up;	// Plan 9 VX
+#	define thismach m
+#	define setmach(x) (m = (x))
+#else
+	extern Mach *getmach(void);
+	extern void setmach(Mach*);
+#	define up getmach()->externup
+#	ifdef WANT_M
+#		define m getmach()
+#	endif
+#endif
+.
+/^struct Mach/+1a
+#ifndef TLS
+	Proc*	externup;
+#endif
+	int	new;
+.
+/^struct PMMU/i
+typedef struct Uspace Uspace;
 .
 /^#define up/d
 $a
@@ -51,4 +79,24 @@ $a
 // Plan 9 VX
 extern int traceprocs;
 extern int tracesyscalls;
+extern int doabort;
+
+/* Pthreads-based sleep and wakeup. */
+typedef struct Psleep Psleep;
+typedef struct Pwaiter Pwaiter;
+struct Psleep
+{
+	int init;
+	pthread_mutex_t mutex;
+	Pwaiter *waiter;
+};
+
+struct Uspace
+{
+	Proc *p;	// proc currently mapped
+	uchar *uzero;
+	ulong lo;
+	ulong hi;
+};
 .
+g/^	u32int	e..;$/d

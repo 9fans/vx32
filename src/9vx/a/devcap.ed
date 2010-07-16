@@ -1,27 +1,8 @@
-197c
-capwrite(Chan *c, void *va, long n, vlong vl)
-.
-183c
-capread(Chan *c, void *va, long n, vlong vl)
-.
-178c
-capclose(Chan *c)
-.
-174c
-	qunlock(&capalloc.l);
-.
-156c
-	qlock(&capalloc.l);
-.
-154c
-	p->ticks = msec();
-.
-140c
-	qunlock(&capalloc.l);
-.
-126c
-	qlock(&capalloc.l);
-.
-30c
-	QLock l;
-.
+,s!\.\./port/!!g
+/libsec\.h/ s/[<>]/"/g
+/^capwrite/ s/vlong/vlong vl/
+/^capread/ s/vlong/vlong vl/
+/^capclose/ s/Chan\*/Chan *c/
+,s/m->ticks/msec()/
+,s/QLock/QLock l/
+g/lock/ s/capalloc/capalloc.l/

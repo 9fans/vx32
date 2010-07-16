@@ -28,7 +28,7 @@ struct Elemlist
 {
 	char	*aname;	/* original name */
 	char	*name;	/* copy of name, so '/' can be overwritten */
-	uint	nelems;
+	int	nelems;
 	char	**elems;
 	int	*off;
 	int	mustbedir;
@@ -63,12 +63,12 @@ dumpmount(void)		/* DEBUGGING */
 	he = &pg->mnthash[MNTHASH];
 	for(h = pg->mnthash; h < he; h++){
 		for(f = *h; f; f = f->hash){
-			print("head: %p: %s 0x%llux.%lud %C %lud -> \n", f,
+			print("head: %#p: %s %#llux.%lud %C %lud -> \n", f,
 				f->from->path->s, f->from->qid.path,
 				f->from->qid.vers, devtab[f->from->type]->dc,
 				f->from->dev);
 			for(t = f->mount; t; t = t->next)
-				print("\t%p: %s (umh %p) (path %.8llux dev %C %lud)\n", t, t->to->path->s, t->to->umh, t->to->qid.path, devtab[t->to->type]->dc, t->to->dev);
+				print("\t%#p: %s (umh %#p) (path %#.8llux dev %C %lud)\n", t, t->to->path->s, t->to->umh, t->to->qid.path, devtab[t->to->type]->dc, t->to->dev);
 		}
 	}
 	poperror();
@@ -113,7 +113,7 @@ decref(Ref *r)
 	x = --r->ref;
 	unlock(&r->lk);
 	if(x < 0)
-		panic("decref pc=0x%lux", getcallerpc(&r));
+		panic("decref pc=%#p", getcallerpc(&r));
 
 	return x;
 }
@@ -190,6 +190,7 @@ chandevreset(void)
 {
 	int i;
 
+	todinit();	/* avoid later reentry causing infinite recursion */
 	for(i=0; devtab[i] != nil; i++)
 		devtab[i]->reset();
 }
@@ -281,7 +282,7 @@ newpath(char *s)
 	 * allowed, but other names with / in them draw warnings.
 	 */
 	if(strchr(s, '/') && strcmp(s, "#/") != 0 && strcmp(s, "/") != 0)
-		print("newpath: %s from %lux\n", s, getcallerpc(&s));
+		print("newpath: %s from %#p\n", s, getcallerpc(&s));
 
 	p->mlen = 1;
 	p->malen = PATHMSLOP;
@@ -472,7 +473,7 @@ void
 cclose(Chan *c)
 {
 	if(c->flag&CFREE)
-		panic("cclose %lux", getcallerpc(&c));
+		panic("cclose %#p", getcallerpc(&c));
 
 	DBG("cclose %p name=%s ref=%ld\n", c, c->path->s, c->ref.ref);
 	if(decref(&c->ref))
@@ -503,7 +504,7 @@ void
 ccloseq(Chan *c)
 {
 	if(c->flag&CFREE)
-		panic("cclose %lux", getcallerpc(&c));
+		panic("cclose %#p", getcallerpc(&c));
 
 	DBG("ccloseq %p name=%s ref=%ld\n", c, c->path->s, c->ref.ref);
 
@@ -637,7 +638,7 @@ cmount(Chan **newp, Chan *old, int flag, char *spec)
 		error(Emount);
 
 	if(old->umh)
-		print("cmount: unexpected umh, caller %.8lux\n", getcallerpc(&newp));
+		print("cmount: unexpected umh, caller %#p\n", getcallerpc(&newp));
 
 	order = flag&MORDER;
 
@@ -911,7 +912,7 @@ undomount(Chan *c, Path *path)
 	Chan *nc;
 
 	if(path->ref.ref != 1 || path->mlen == 0)
-		print("undomount: path %s ref %ld mlen %d caller %lux\n",
+		print("undomount: path %s ref %ld mlen %d caller %#p\n",
 			path->s, path->ref.ref, path->mlen, getcallerpc(&c));
 
 	if(path->mlen>0 && (nc=path->mtpt[path->mlen-1]) != nil){
@@ -1313,9 +1314,8 @@ namec(char *aname, int amode, int omode, ulong perm)
 		free(aname);
 		nexterror();
 	}
-if(tracesyscalls)
-	iprint("\tnamec %s\n", aname);
-
+	if(tracesyscalls)
+		iprint("\tnamec %s\n", aname);
 	DBG("namec %s %d %d\n", aname, amode, omode);
 	name = aname;
 
@@ -1682,8 +1682,7 @@ char isfrog[256]={
 static char*
 validname0(char *aname, int slashok, int dup, ulong pc)
 {
-	char *p, *ename, *name, *s;
-	uint t;
+	char *ename, *name, *s;
 	int c, n;
 	Rune r;
 
@@ -1691,6 +1690,8 @@ validname0(char *aname, int slashok, int dup, ulong pc)
 	if(isuaddr(name)){
 		if(!dup)
 			print("warning: validname called from %lux with user pointer", pc);
+		char *p;
+		uint t;
 		p = name;
 		t = BY2PG-((ulong)p&(BY2PG-1));
 		while((ename=vmemchr(p, 0, t)) == nil){

@@ -23,6 +23,7 @@ typedef vlong		Tval;
 typedef struct Ureg	Ureg;
 typedef struct Vctl	Vctl;
 
+
 #define MAXSYSARG	5	/* for mount(fd, afd, mpt, flag, arg) */
 
 /*
@@ -180,10 +181,10 @@ struct Mach
 #ifndef TLS
 	Proc*	externup;
 #endif
+	int	new;
 	int	machno;			/* physical id of processor (KNOWN TO ASSEMBLY) */
 	ulong	splpc;			/* pc of last caller to splhi */
 
-	ulong*	pdb;			/* page directory base for this processor (va) */
 	Segdesc	*gdt;			/* gdt for this processor */
 
 	Proc*	proc;			/* current process on this processor */
@@ -199,7 +200,6 @@ struct Mach
 	int	tlbfault;
 	int	tlbpurge;
 	int	pfault;
-	int	new;
 	int	cs;
 	int	syscall;
 	int	load;
@@ -228,6 +228,7 @@ struct Mach
 
 
 	int	spl;	// Plan 9 VX
+	void	*sigstack;
 	int	stack[1];
 };
 
@@ -318,6 +319,7 @@ extern PCArch	*arch;			/* PC architecture */
  * the clock which is only maintained by the bootstrap processor (0).
  */
 Mach* machp[MAXMACH];
+	
 #define	MACHP(n)	(machp[n])
 
 #ifdef TLS
@@ -373,4 +375,3 @@ struct Uspace
 	ulong lo;
 	ulong hi;
 };
-

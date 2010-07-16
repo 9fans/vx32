@@ -5,7 +5,7 @@
 #include	"fns.h"
 #include	"error.h"
 
-#include "authsrv.h"
+#include	"authsrv.h"
 
 void	(*consdebug)(void) = nil;
 void	(*screenputs)(char*, int) = nil;
@@ -300,8 +300,7 @@ panic(char *fmt, ...)
 	putstrn(buf, n+1);
 	dumpstack();
 
-	restoretty();
-	exit(1);
+	restoretty(); exit(1);
 }
 
 /* libmp at least contains a few calls to sysfatal; simulate with panic */
@@ -320,7 +319,7 @@ sysfatal(char *fmt, ...)
 void
 _assert(char *fmt)
 {
-	panic("assert failed at 0x%lux: %s", getcallerpc(&fmt), fmt);
+	panic("assert failed at %#p: %s", getcallerpc(&fmt), fmt);
 }
 #endif
 
@@ -465,7 +464,7 @@ echo(char *buf, int n)
 				consdebug = rdb;
 			else
 				consdebug = nil;
-			print("consdebug now 0x%p\n", consdebug);
+			print("consdebug now %#p\n", consdebug);
 			return;
 		case 'D':
 			if(consdebug == nil)
@@ -484,8 +483,7 @@ echo(char *buf, int n)
 			killbig("^t ^t k");
 			return;
 		case 'r':
-			restoretty();
-			exit(0);
+			restoretty(); exit(0);
 			return;
 		}
 	}
@@ -786,7 +784,6 @@ consread(Chan *c, void *buf, long n, vlong off)
 		while(!qcanread(lineq)){
 			if(qread(kbdq, &ch, 1) == 0)
 				continue;
-			//XXX TODO: startup blocks here
 			send = 0;
 			if(ch == 0){
 				/* flush output on rawoff -> rawon */
@@ -967,7 +964,7 @@ consread(Chan *c, void *buf, long n, vlong off)
 		return n;
 
 	default:
-		print("consread 0x%llux\n", c->qid.path);
+		print("consread %#llux\n", c->qid.path);
 		error(Egreg);
 	}
 	return -1;		/* never reached */
@@ -1122,7 +1119,7 @@ conswrite(Chan *c, void *va, long n, vlong off)
 		break;
 
 	default:
-		print("conswrite: 0x%llux\n", c->qid.path);
+		print("conswrite: %#llux\n", c->qid.path);
 		error(Egreg);
 	}
 	return n;

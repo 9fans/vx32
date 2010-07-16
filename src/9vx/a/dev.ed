@@ -1,4 +1,3 @@
-,s!\.\./port/!!g
 g/^decreate/ s/(Chan\*, char\*, int, ulong)/(Chan *c, char *name, int mode, ulong perm)/
 g/^devremove/ s/(Chan\*)/(Chan *c)/
 g/^devwstat/ s/(Chan\*, uchar\*, int)/(Chan *c, uchar *stat, int nstat)/

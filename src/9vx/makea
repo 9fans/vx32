@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Usage:
+# 	makea [-r plan9root] [files]
+
+orig=$HOME/plan9
+if [ $# -gt 0 ]; then
+	if [ $1 == "-r" ]; then
+		shift
+		orig=$1/sys/src/9
+		shift
+	fi
+fi
+
+files=a/*.ed
+if [ $# -gt 0 ]; then
+	files=$*
+fi
+
+for f in $files; do
+	name=`echo $f | sed 's,.*/,,;s,\.ed,,'`
+	ofile=`(ls $orig/port/$name.[ch] || ls $orig/pc/$name.[ch]) 2>/dev/null`
+	dfile=`echo $ofile | sed 's,.*/,a/,'`
+	echo -e ",p\nq" | cat $f - | ed -s $ofile | sed '
+/^#include/s,../port/,,
+/^#include[ 	]+<(libsec\.h|authsrv\.ed|draw\.h|memdraw\.h|memlayer\.h|cursor\.h)>/s,[<>],",g
+	' > $dfile
+done

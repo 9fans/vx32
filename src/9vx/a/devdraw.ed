@@ -18,12 +18,22 @@ g/^	int s;/d
 #define blankscreen(x)
 #define ishwimage(x) (0)
 .
-/^drawlookupscreen/
+/^drawlookupscreen/ s;^;;
 /	return 0/ s/return 0/for(;;)/
 g/Edepth/d
+/l = dimage->image;/d
+-1i
+	l = dimage->image;
+	dimage->dscreen = nil;	/* paranoia */
+	dimage->image = nil;
+.
+/^drawattach/ s;^;;
+/initscreenimage/s/(.*)/(!conf.monitor || !initscreenimage())/
+/freememimage(dimage->image);/ s/dimage->image/l/
 ,s/dunlock/drawqunlock/g
 ,s/candlock/drawcanqlock/g
 ,s/dlock(/drawqlock(/g
+,s;MACHP(0)->ticks;msec()/1000;g
 /^drawqlock/-1 s/static //
 /^drawqunlock/-1 s/static //
 /^drawcanqlock/-1 s/static //
@@ -36,5 +46,62 @@ drawflushr(Rectangle r)
 	drawqlock();
 	flushmemscreen(r);
 	drawqunlock();
+}
+
+void
+drawreplacescreenimage(Memimage *m)
+{
+	int i;
+	DImage *di;
+
+	if(screendimage == nil)
+		return;
+
+	/*
+	 * Replace the screen image because the screen
+	 * was resized.  Clients still have references to the
+	 * old screen image, so we can't free it just yet.
+	 */
+	drawqlock();
+	di = allocdimage(m);
+	if(di == nil){
+		print("no memory to replace screen image\n");
+		freememimage(m);
+		drawqunlock();
+		return;
+	}
+	
+	/* Replace old screen image in global name lookup. */
+	for(i=0; i<sdraw.nname; i++){
+		if(sdraw.name[i].dimage == screendimage)
+		if(sdraw.name[i].client == nil){
+			sdraw.name[i].dimage = di;
+			break;
+		}
+	}
+
+	drawfreedimage(screendimage);
+	screendimage = di;
+	screenimage = m;
+
+	/*
+	 * Every client, when it starts, gets a copy of the
+	 * screen image as image 0.  Clients only use it 
+	 * for drawing if there is no /dev/winname, but
+	 * this /dev/draw provides a winname (early ones
+	 * didn't; winname originated in rio), so the
+	 * image only ends up used to find the screen
+	 * resolution and pixel format during initialization.
+	 * Silently remove the now-outdated image 0s.
+	 */
+	for(i=0; i<sdraw.nclient; i++){
+		if(sdraw.client[i] && !waserror()){
+			drawuninstall(sdraw.client[i], 0);
+			poperror();
+		}
+	}
+
+	drawqunlock();
+	mouseresize();
 }
 .

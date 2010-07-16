@@ -1,4 +1,3 @@
-,s!"\.\./port/portdat\.h"!"portdat.h"!
 /BIOS32ci/,/BIOS32ci;/d
 /^#define up/c
 #define up (machp[0]->externup)

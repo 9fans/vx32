@@ -1,5 +1,3 @@
-,s!\.\./port/!!g
-/libsec\.h/ s/[<>]/"/g
 /^capwrite/ s/vlong/vlong vl/
 /^capread/ s/vlong/vlong vl/
 /^capclose/ s/Chan\*/Chan *c/

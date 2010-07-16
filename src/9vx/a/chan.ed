@@ -1,5 +1,3 @@
-,s!"\.\./port/lib\.h"!"lib.h"!
-,s!"\.\./port/error\.h"!"error.h"!
 ,s!Lock;!Lock lk;!g
 /dumpmount/-1 s!static !/*static*/ !
 ,s!lock(r)!lock(\&r->lk)!g

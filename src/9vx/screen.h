@@ -64,7 +64,6 @@ uchar*	attachscreen(Rectangle*, ulong*, int*, int*, int*, void**);
 int	drawcanqlock(void);
 void	drawqlock(void);
 void	drawqunlock(void);
-void	drawreplacescreenimage(Memimage*);
 void	getcolor(ulong, ulong*, ulong*, ulong*);
 char*	getsnarf(void);
 void	flushmemscreen(Rectangle);

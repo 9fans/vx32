@@ -6,10 +6,10 @@
 #include	"error.h"
 
 #define	Image	IMAGE
-#include	"draw.h"
-#include	"memdraw.h"
-#include	"memlayer.h"
-#include	"cursor.h"
+#include	<draw.h>
+#include	<memdraw.h>
+#include	<memlayer.h>
+#include	<cursor.h>
 #include	"screen.h"
 
 #define blankscreen(x)
@@ -678,6 +678,8 @@ drawfreedimage(DImage *dimage)
 		drawfreedimage(dimage->fromname);
 		goto Return;
 	}
+//	if(dimage->image == screenimage)	/* don't free the display */
+//		goto Return;
 	ds = dimage->dscreen;
 	l = dimage->image;
 	dimage->dscreen = nil;	/* paranoia */
@@ -963,63 +965,6 @@ makescreenimage(void)
 		poperror();
 	}
 	return di;
-}
-
-void
-drawreplacescreenimage(Memimage *m)
-{
-	int i;
-	DImage *di;
-
-	if(screendimage == nil)
-		return;
-
-	/*
-	 * Replace the screen image because the screen
-	 * was resized.  Clients still have references to the
-	 * old screen image, so we can't free it just yet.
-	 */
-	drawqlock();
-	di = allocdimage(m);
-	if(di == nil){
-		print("no memory to replace screen image\n");
-		freememimage(m);
-		drawqunlock();
-		return;
-	}
-	
-	/* Replace old screen image in global name lookup. */
-	for(i=0; i<sdraw.nname; i++){
-		if(sdraw.name[i].dimage == screendimage)
-		if(sdraw.name[i].client == nil){
-			sdraw.name[i].dimage = di;
-			break;
-		}
-	}
-
-	drawfreedimage(screendimage);
-	screendimage = di;
-	screenimage = m;
-
-	/*
-	 * Every client, when it starts, gets a copy of the
-	 * screen image as image 0.  Clients only use it 
-	 * for drawing if there is no /dev/winname, but
-	 * this /dev/draw provides a winname (early ones
-	 * didn't; winname originated in rio), so the
-	 * image only ends up used to find the screen
-	 * resolution and pixel format during initialization.
-	 * Silently remove the now-outdated image 0s.
-	 */
-	for(i=0; i<sdraw.nclient; i++){
-		if(sdraw.client[i] && !waserror()){
-			drawuninstall(sdraw.client[i], 0);
-			poperror();
-		}
-	}
-
-	drawqunlock();
-	mouseresize();
 }
 
 static int
@@ -2245,9 +2190,9 @@ drawactive(int active)
 {
 	if(active){
 		drawblankscreen(0);
-		sdraw.blanktime = msec();
+		sdraw.blanktime = msec()/1000;
 	}else{
-		if(blanktime && sdraw.blanktime && (msec() - sdraw.blanktime)/1000/60 >= blanktime)
+		if(blanktime && sdraw.blanktime && TK2SEC(msec()/1000 - sdraw.blanktime)/60 >= blanktime)
 			drawblankscreen(1);
 	}
 }
@@ -2255,7 +2200,7 @@ drawactive(int active)
 int
 drawidletime(void)
 {
-	return (msec() - sdraw.blanktime)/1000/60;
+	return TK2SEC(msec()/1000 - sdraw.blanktime)/60;
 }
 
 /* why is this here? why can't caller use drawqlock himself? */
@@ -2265,4 +2210,61 @@ drawflushr(Rectangle r)
 	drawqlock();
 	flushmemscreen(r);
 	drawqunlock();
+}
+
+void
+drawreplacescreenimage(Memimage *m)
+{
+	int i;
+	DImage *di;
+
+	if(screendimage == nil)
+		return;
+
+	/*
+	 * Replace the screen image because the screen
+	 * was resized.  Clients still have references to the
+	 * old screen image, so we can't free it just yet.
+	 */
+	drawqlock();
+	di = allocdimage(m);
+	if(di == nil){
+		print("no memory to replace screen image\n");
+		freememimage(m);
+		drawqunlock();
+		return;
+	}
+	
+	/* Replace old screen image in global name lookup. */
+	for(i=0; i<sdraw.nname; i++){
+		if(sdraw.name[i].dimage == screendimage)
+		if(sdraw.name[i].client == nil){
+			sdraw.name[i].dimage = di;
+			break;
+		}
+	}
+
+	drawfreedimage(screendimage);
+	screendimage = di;
+	screenimage = m;
+
+	/*
+	 * Every client, when it starts, gets a copy of the
+	 * screen image as image 0.  Clients only use it 
+	 * for drawing if there is no /dev/winname, but
+	 * this /dev/draw provides a winname (early ones
+	 * didn't; winname originated in rio), so the
+	 * image only ends up used to find the screen
+	 * resolution and pixel format during initialization.
+	 * Silently remove the now-outdated image 0s.
+	 */
+	for(i=0; i<sdraw.nclient; i++){
+		if(sdraw.client[i] && !waserror()){
+			drawuninstall(sdraw.client[i], 0);
+			poperror();
+		}
+	}
+
+	drawqunlock();
+	mouseresize();
 }

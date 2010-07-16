@@ -1,5 +1,3 @@
-,s!\.\./port/!!g
-/authsrv\.h/ s/[<>]/"/g
 g/exit(/ s/exit/restoretty(); &/
 g/"pool.h"/d
 ,s!QLock;!QLock lk;!g

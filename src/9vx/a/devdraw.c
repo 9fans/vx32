@@ -6,10 +6,10 @@
 #include	"error.h"
 
 #define	Image	IMAGE
-#include	<draw.h>
-#include	<memdraw.h>
-#include	<memlayer.h>
-#include	<cursor.h>
+#include	"draw.h"
+#include	"memdraw.h"
+#include	"memlayer.h"
+#include	"cursor.h"
 #include	"screen.h"
 
 #define blankscreen(x)

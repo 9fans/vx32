@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Usage:
-# 	makea [-r plan9root] [files]
+# 	makea [-r plan9root] [ed files]
 
 orig=$HOME/plan9
 if [ $# -gt 0 ]; then
@@ -21,8 +21,8 @@ for f in $files; do
 	name=`echo $f | sed 's,.*/,,;s,\.ed,,'`
 	ofile=`(ls $orig/port/$name.[ch] || ls $orig/pc/$name.[ch]) 2>/dev/null`
 	dfile=`echo $ofile | sed 's,.*/,a/,'`
-	echo -e ",p\nq" | cat $f - | ed -s $ofile | sed '
+	echo -e ",p\nq" | cat $f - | ed -s $ofile | sed -r '
 /^#include/s,../port/,,
-/^#include[ 	]+<(libsec\.h|authsrv\.ed|draw\.h|memdraw\.h|memlayer\.h|cursor\.h)>/s,[<>],",g
+/^#include[ 	]+<(libsec\.h|authsrv\.h|draw\.h|memdraw\.h|memlayer\.h|cursor\.h)>/s,[<>],",g
 	' > $dfile
 done

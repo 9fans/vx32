@@ -7,9 +7,15 @@ orig=$HOME/plan9
 if [ $# -gt 0 ]; then
 	if [ $1 == "-r" ]; then
 		shift
-		orig=$1/sys/src/9
+		orig=$1
 		shift
 	fi
+fi
+orig=$orig/sys/src/9
+
+if [ ! -d $orig ]; then
+	echo "Error: $orig is not a valid Plan9 root" 1>&2
+	exit 1
 fi
 
 files=a/*.ed

@@ -11,7 +11,6 @@
 #include "etherif.h"
 
 extern int memsize;
-
 static Ether *etherxx[MaxEther];
 
 Chan*
@@ -163,11 +162,7 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 	/* is it for me? */
 	tome = memcmp(pkt->d, ether->ea, sizeof(pkt->d)) == 0;
 	fromme = memcmp(pkt->s, ether->ea, sizeof(pkt->s)) == 0;
-	// if(tome||fromme)
-	//	iprint("XXX PACK: %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux -> %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux%s[%d]%s\n",
-	//	pkt->s[0], pkt->s[1], pkt->s[2],pkt->s[3], pkt->s[4], pkt->s[5],
-	//	pkt->d[0], pkt->d[1], pkt->d[2],pkt->d[3], pkt->d[4], pkt->d[5],
-	//	(tome ? " <<--" : ""), len, (fromme ? " -->>" : ""));
+
 	/*
 	 * Multiplex the packet to all the connections which want it.
 	 * If the packet is not to be used subsequently (fromwire != 0),
@@ -175,7 +170,7 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 	 * saving a copy of the data (usual case hopefully).
 	 */
 	for(fp = ether->ni.f; fp < ep; fp++){
-		if((f = *fp) != nil)
+		if(f = *fp)
 		if(f->type == type || f->type < 0)
 		if(tome || multi || f->prom){
 			/* Don't want to hear bridged packets */
@@ -184,14 +179,18 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 			if(!f->headersonly){
 				if(fromwire && fx == 0)
 					fx = f;
-				else if((xbp = iallocb(len)) != nil){
+				else if(xbp = iallocb(len)){
 					memmove(xbp->wp, pkt, len);
 					xbp->wp += len;
-					if(qpass(f->in, xbp) < 0)
+					if(qpass(f->in, xbp) < 0) {
+						print("soverflow for f->in\n");
 						ether->ni.soverflows++;
+					}
 				}
-				else
+				else {
+					print("soverflow iallocb\n");
 					ether->ni.soverflows++;
+				}
 			}
 			else
 				etherrtrace(f, pkt, len);
@@ -199,8 +198,10 @@ etheriq(Ether* ether, Block* bp, int fromwire)
 	}
 
 	if(fx){
-		if(qpass(fx->in, bp) < 0)
+		if(qpass(fx->in, bp) < 0) {
+			print("soverflow for fx->in\n");
 			ether->ni.soverflows++;
+		}
 		return 0;
 	}
 	if(fromwire){
@@ -238,6 +239,8 @@ etheroq(Ether* ether, Block* bp)
 	}
 
 	if(!loopback){
+		if(qfull(ether->oq))
+			print("etheroq: WARNING: ether->oq full!\n");
 		qbwrite(ether->oq, bp);
 		if(ether->transmit != nil)
 			ether->transmit(ether);
@@ -378,7 +381,7 @@ etherprobe(int cardno, int ctlrno)
 	memset(ether, 0, sizeof(Ether));
 	ether->ctlrno = ctlrno;
 	ether->tbdf = BUSUNKNOWN;
-	ether->ni.mbps = 100;
+	ether->ni.mbps = 10;
 	ether->minmtu = ETHERMINTU;
 	ether->maxmtu = ETHERMAXTU;
 
@@ -433,23 +436,20 @@ etherprobe(int cardno, int ctlrno)
 		lg = 14;
 	/* allocate larger output queues for higher-speed interfaces */
 	bsz = 1UL << (lg + 17);		/* 2ⁱ⁷ = 128K, bsz = 2ⁿ × 128K */
-	while (bsz > memsize && bsz >= 128*1024)
+	while (bsz > memsize && bsz > 128*1024)
 		bsz /= 2;
 
 	netifinit(&ether->ni, name, Ntypes, bsz);
-	while (ether->oq == nil && bsz >= 128*1024) {
-		bsz /= 2;
+	if(ether->oq == nil) {
 		ether->oq = qopen(bsz, Qmsg, 0, 0);
 		ether->ni.limit = bsz;
 	}
 	if(ether->oq == nil)
-		panic("etherreset %s", name);
+		panic("etherreset %s: can't allocate output queue of %ld bytes",
+			name, bsz);
 	ether->ni.alen = Eaddrlen;
 	memmove(ether->ni.addr, ether->ea, Eaddrlen);
 	memset(ether->ni.bcast, 0xFF, Eaddrlen);
-
-	// iprint("XXX EADDR: %2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux:%2.2ux\n",
-	// ether->ea[0], ether->ea[1], ether->ea[2],ether->ea[3], ether->ea[4], ether->ea[5]);
 
 	return ether;
 }

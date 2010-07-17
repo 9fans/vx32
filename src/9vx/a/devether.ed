@@ -1,0 +1,34 @@
+/"pool\.h"/d
+/^static Ether/i
+extern int memsize;
+.
+,s!mainmem->maxsize / 8!memsize!g
+,s/MACHP(0)->ticks/MACHP(0)->tscticks/g
+/isaconfig/;/}/d
+/cistrcmp/;+1d
+/getconf/;+2d
+/intrenable/-6;+6d
+,s/(etherxx\[chan->dev\]/(\&etherxx\[chan->dev\]->ni/
+/^ethercreate/ s/Chan\*, char\*, int, ulong/Chan* ch, char* c, int i, ulong ul/
+/^etherwrite/ s/vlong/vlong v/
+/^etherbwrite/ s/ulong/ulong u/
+/activemulti(/ s/ether/\&&->ni/
+/netifread(/ s/ether/\&&->ni/
+/netifwrite(/ s/ether/\&&->ni/
+/netifinit(/ s/ether/\&&->ni/
+,s/ether->inpackets/ether->ni.inpackets/g
+,s/ether->f/ether->ni.f/g
+,s/ether->soverflows/ether->ni.soverflows/g
+,s/ether->outpackets/ether->ni.outpackets/g
+,s/ether->bcast/ether->ni.bcast/g
+,s/ether->prom/ether->ni.prom/g
+,s/ether->mbps/ether->ni.mbps/g
+,s/ether->alen/ether->ni.alen/g
+,s/ether->addr/ether->ni.addr/g
+,s/ether->limit/ether->ni.limit/g
+,s/ether->nopt/ether->isac.nopt/g
+,s/ether->opt/ether->isac.opt/g
+,s/ether->mem/ether->isac.mem/g
+,s/ether->size/ether->isac.size/g
+,s/ether->port/ether->isac.port/g
+,s/ether->irq/ether->isac.irq/g

@@ -5,7 +5,7 @@ enum {
 
 typedef struct Ether Ether;
 struct Ether {
-	ISAConf isac;
+	ISAConf	isac;			/* hardware info */
 
 	int	ctlrno;
 	int	tbdf;			/* type+busno+devno+funcno */

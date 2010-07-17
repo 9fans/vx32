@@ -81,7 +81,7 @@ void (*mntstats)(int, Chan*, uvlong, ulong);
 static void
 mntreset(void)
 {
-	mntalloc.id = 10;	/* 1-9 are reserved for devfs */
+	mntalloc.id = 1;
 	mntalloc.tagmask[0] = 1;			/* don't allow 0 as a tag */
 	mntalloc.tagmask[NMASK-1] = 0x80000000UL;	/* don't allow NOTAG */
 	fmtinstall('F', fcallfmt);
@@ -772,7 +772,7 @@ mountrpc(Mnt *m, Mntrpc *r)
 		cn = "?";
 		if(r->c != nil && r->c->path != nil)
 			cn = r->c->path->s;
-		print("mnt: proc %s %lud: mismatch from %s %s rep 0x%lux tag %d fid %d T%d R%d rp %d\n",
+		print("mnt: proc %s %lud: mismatch from %s %s rep %#p tag %d fid %d T%d R%d rp %d\n",
 			up->text, up->pid, sn, cn,
 			r, r->request.tag, r->request.fid, r->request.type,
 			r->reply.type, r->reply.tag);
@@ -1107,8 +1107,8 @@ mntfree(Mntrpc *r)
 	lock(&mntalloc.lk);
 	if(mntalloc.nrpcfree >= 10){
 		free(r->rpc);
-		free(r);
 		freetag(r->request.tag);
+		free(r);
 	}
 	else{
 		r->list = mntalloc.rpcfree;

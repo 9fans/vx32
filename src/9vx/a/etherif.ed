@@ -1,0 +1,3 @@
+/ISAConf/ s/;/	isac;/
+/Netif/ s/;/	ni;/
+/NEXT/ s/((x)+1)/((uint)(x)+1)/

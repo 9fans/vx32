@@ -22,13 +22,13 @@ files=a/*.ed
 if [ $# -gt 0 ]; then
 	files=$*
 fi
-
+hfiles=a/*.h
 for f in $files; do
 	name=`echo $f | sed 's,.*/,,;s,\.ed,,'`
 	ofile=`(ls $orig/port/$name.[ch] || ls $orig/pc/$name.[ch]) 2>/dev/null`
 	dfile=`echo $ofile | sed 's,.*/,a/,'`
 	echo -e ",p\nq" | cat $f - | ed -s $ofile | sed -r '
 /^#include/s,../port/,,
-/^#include[ 	]+<(libsec\.h|authsrv\.h|draw\.h|memdraw\.h|memlayer\.h|cursor\.h)>/s,[<>],",g
+/^#include[ 	]+<('`echo $hfiles | sed 's,a/,,g; s/\./\\./g; s/ /|/g'`')>/s,[<>],",g
 	' > $dfile
 done

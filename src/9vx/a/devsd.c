@@ -135,19 +135,6 @@ sdaddpart(SDunit* unit, char* name, uvlong start, uvlong end)
 	pp->valid = 1;
 }
 
-SDpart*
-sdfindpart(SDunit *unit, char *name)
-{
-	int i;
-
-	for(i=0; i<unit->npart; i++) {
-		if(strcmp(unit->part[i].perm.name, name) == 0){
-			return &unit->part[i];
-		}
-	}
-	return nil;
-}
-
 static void
 sddelpart(SDunit* unit, char* name)
 {
@@ -212,31 +199,6 @@ sdinitpart(SDunit* unit)
 		sdincvers(unit);
 		sdaddpart(unit, "data", 0, unit->sectors);
 		partition(unit);
-#if 0
-		/*
-		 * Use partitions passed from boot program,
-		 * e.g.
-		 *	sdC0part=dos 63 123123/plan9 123123 456456
-		 * This happens before /boot sets hostname so the
-		 * partitions will have the null-string for user.
-		 * The gen functions patch it up.
-		 */
-		snprint(buf, sizeof buf, "%spart", unit->perm.name);
-		for(p = getconf(buf); p != nil; p = q){
-			if(q = strchr(p, '/'))
-				*q++ = '\0';
-			nf = tokenize(p, f, nelem(f));
-			if(nf < 3)
-				continue;
-
-			start = strtoull(f[1], 0, 0);
-			end = strtoull(f[2], 0, 0);
-			if(!waserror()){
-				sdaddpart(unit, f[0], start, end);
-				poperror();
-			}
-		}
-#endif
 	}
 
 	return 1;
@@ -263,7 +225,7 @@ sdgetdev(int idno)
 		return nil;
 
 	qlock(&devslock);
-	if((sdev = devs[i]))
+	if(sdev = devs[i])
 		incref(&sdev->r);
 	qunlock(&devslock);
 	return sdev;
@@ -1477,7 +1439,7 @@ unconfigure(char* spec)
 		sdev->ifc->disable(sdev);
 
 	for(i = 0; i != sdev->nunit; i++){
-		if((unit = sdev->unit[i])){
+		if(unit = sdev->unit[i]){
 			free(unit->perm.name);
 			free(unit->perm.user);
 			free(unit);
@@ -1652,4 +1614,17 @@ legacytopctl(Cmdbuf *cb)
 	if(cd.on && cd.cf.type == nil)
 		error(Ebadarg);
 	sdconfig(cd.on, cd.spec, &cd.cf);
+}
+
+SDpart*
+sdfindpart(SDunit *unit, char *name)
+{
+	int i;
+
+	for(i=0; i<unit->npart; i++) {
+		if(strcmp(unit->part[i].perm.name, name) == 0){
+			return &unit->part[i];
+		}
+	}
+	return nil;
 }

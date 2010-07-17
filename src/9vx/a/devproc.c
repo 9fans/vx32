@@ -1,5 +1,5 @@
 #include	"u.h"
-#include "trace.h"
+#include	"trace.h"
 #include	"tos.h"
 #include	"lib.h"
 #include	"mem.h"
@@ -145,19 +145,6 @@ extern int unfair;
 static void
 profclock(Ureg *ur, Timer *t)
 {
-#if 0
-	Tos *tos;
-
-	if(up == 0 || up->state != Running)
-		return;
-
-	/* user profiling clock */
-	if(userureg(ur)){
-		tos = (Tos*)(USTKTOP-sizeof(Tos));
-		tos->clock += TK2MS(1);
-		segclock(ur->pc);
-	}
-#endif
 }
 
 static int
@@ -421,7 +408,7 @@ procopen(Chan *c, int omode)
 		break;
 
 	default:
-		pprint("procopen %lux\n", c->qid);
+		pprint("procopen %#lux\n", QID(c->qid));
 		error(Egreg);
 	}
 
@@ -719,7 +706,6 @@ procread(Chan *c, void *va, long n, vlong off)
 		if(offset < USTKTOP)
 			return procctlmemio(p, offset, n, va, 1);
 		error("no kernel memory access");
-
 	case Qprofile:
 		s = p->seg[TSEG];
 		if(s == 0 || s->profile == 0)

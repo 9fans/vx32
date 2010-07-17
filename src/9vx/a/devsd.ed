@@ -1,0 +1,28 @@
+/^sdaddpart/-1 s/static //
+,s/pp->perm/pp->perm.perm/g
+,s/pp->name/pp->perm.name/g
+,s/pp->user/pp->perm.user/g
+,s/unit->perm/unit->perm.perm/g
+,s/unit->name/unit->perm.name/g
+,s/unit->user/unit->perm.user/g
+,s/pp->SDperm/pp->perm/g
+/^sdgen/ s/char\*, Dirtab\*, int,/char *name, Dirtab *dt, int j,/
+/^sdinitpart/+2;/^$/d
+/sdaddpart/+1;/^	}/-1c
+		partition(unit);
+.
+$a
+
+SDpart*
+sdfindpart(SDunit *unit, char *name)
+{
+	int i;
+
+	for(i=0; i<unit->npart; i++) {
+		if(strcmp(unit->part[i].perm.name, name) == 0){
+			return &unit->part[i];
+		}
+	}
+	return nil;
+}
+.

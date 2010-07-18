@@ -31,7 +31,7 @@ g/^kbd/ s/Queue\*,/Queue *q,/
 /^}/a
 #endif
 .
-/^putstrn0/ s;^;;
+/^putstrn0/;#
 /	int m/d
 /	char \*t/d
 /	if(serialoq == nil)/i
@@ -44,7 +44,7 @@ g/^kbd/ s/Queue\*,/Queue *q,/
 /^static Lock iprintlock/i
 #if 0 // Plan 9 VX
 .
-/^_assert/ s;^;;
+/^_assert/;#
 /^}/a
 #endif
 .

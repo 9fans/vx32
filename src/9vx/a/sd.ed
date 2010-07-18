@@ -1,0 +1,12 @@
+v/typedef/ s!Lock;!Lock lk;!g
+v/typedef/ s!SDperm;!SDperm perm;!g
+/devsd.c/ s/^//
+/^$/i
+extern void sdaddpart(SDunit*, char*, uvlong, uvlong);
+extern SDpart* sdfindpart(SDunit*, char*);
+.
+$a
+
+/* part.c */
+extern void partition(SDunit*);
+.

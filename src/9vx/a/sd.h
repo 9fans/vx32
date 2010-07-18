@@ -17,7 +17,7 @@ struct SDperm {
 struct SDpart {
 	uvlong	start;
 	uvlong	end;
-	SDperm	perm;
+	SDperm perm;
 	int	valid;
 	ulong	vers;
 };
@@ -27,7 +27,7 @@ struct SDunit {
 	int	subno;
 	uchar	inquiry[255];		/* format follows SCSI spec */
 	uchar	sense[18];		/* format follows SCSI spec */
-	SDperm	perm;
+	SDperm perm;
 
 	QLock	ctl;
 	uvlong	sectors;
@@ -55,7 +55,7 @@ struct SDev {
 	char	name[8];
 	SDev*	next;
 
-	QLock	lk;			/* enable/disable */
+	QLock lk;				/* enable/disable */
 	int	enabled;
 	int	nunit;			/* Number of units */
 	QLock	unitlock;		/* `Loading' of units */

@@ -33,13 +33,13 @@ d
 /{Qprofile}/a
 	"syscall",	{Qsyscall},	0,			0400,
 .
-/^profclock/ s/^//
+/^profclock/;#
 /^{/+1,/^}/-1d
-/^procopen/ s/^//
+/^procopen/;#
 /case Qfpregs/a
 	case Qsyscall:
 .
-/^procread/ s/^//
+/^procread/;#
 /Confmem/d
 /case Qmem/i
 	case Qsyscall:

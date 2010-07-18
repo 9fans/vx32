@@ -18,7 +18,7 @@ g/^	int s;/d
 #define blankscreen(x)
 #define ishwimage(x) (0)
 .
-/^drawlookupscreen/ s;^;;
+/^drawlookupscreen/;#
 /	return 0/ s/return 0/for(;;)/
 g/Edepth/d
 /l = dimage->image;/d
@@ -27,7 +27,7 @@ g/Edepth/d
 	dimage->dscreen = nil;	/* paranoia */
 	dimage->image = nil;
 .
-/^drawattach/ s;^;;
+/^drawattach/;#
 /initscreenimage/s/(.*)/(!conf.monitor || !initscreenimage())/
 /freememimage(dimage->image);/ s/dimage->image/l/
 ,s/dunlock/drawqunlock/g

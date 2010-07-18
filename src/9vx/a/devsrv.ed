@@ -15,7 +15,7 @@ srvadd(Chan *c, Chan *c1)
 	/* c1 already incref'ed */
 .
 /^	return n/d
-/^srvwrite/
+/^srvwrite/;#
 /^	Srv/d
 /^srvwrite/-2i
 static void srvadd(Chan*, Chan*);

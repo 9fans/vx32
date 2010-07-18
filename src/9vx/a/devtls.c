@@ -8,7 +8,7 @@
 #include	"fns.h"
 #include	"error.h"
 
-#include "libsec.h"
+#include	"libsec.h"
 
 typedef struct OneWay	OneWay;
 typedef struct Secret		Secret;
@@ -819,7 +819,7 @@ if(tr->debug) pdump(unpad_len, p, "decrypted:");
 
 	switch(type) {
 	default:
-		rcvError(tr, EIllegalParameter, "invalid record message 0x%x", type);
+		rcvError(tr, EIllegalParameter, "invalid record message %#x", type);
 		break;
 	case RChangeCipherSpec:
 		if(len != 1 || p[0] != 1)
@@ -1070,7 +1070,7 @@ tlsbread(Chan *c, long n, ulong offset)
 
 		/* return at most what was asked for */
 		b = qgrab(&tr->processed, n);
-if(tr->debug) pprint("consumed processed %d\n", BLEN(b));
+if(tr->debug) pprint("consumed processed %ld\n", BLEN(b));
 if(tr->debug) pdump(BLEN(b), b->rp, "consumed:");
 		qunlock(&tr->in.io);
 		poperror();
@@ -1138,7 +1138,7 @@ tlsread(Chan *c, void *a, long n, vlong off)
 		s = buf;
 		e = buf + Statlen;
 		s = seprint(s, e, "State: %s\n", tlsstate(tr->state));
-		s = seprint(s, e, "Version: 0x%x\n", tr->version);
+		s = seprint(s, e, "Version: %#x\n", tr->version);
 		if(tr->in.sec != nil)
 			s = seprint(s, e, "EncIn: %s\nHashIn: %s\n", tr->in.sec->encalg, tr->in.sec->hashalg);
 		if(tr->in.new != nil)
@@ -1219,7 +1219,7 @@ tlsrecwrite(TlsRec *tr, int type, Block *b)
 		nexterror();
 	}
 	qlock(&out->io);
-if(tr->debug)pprint("send %d\n", BLEN(b));
+if(tr->debug)pprint("send %ld\n", BLEN(b));
 if(tr->debug)pdump(BLEN(b), b->rp, "sent:");
 
 

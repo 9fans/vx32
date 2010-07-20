@@ -1,18 +1,96 @@
+1i
+#define	WANT_M
+
+.
 ,s/lock(lkp)/lock(\&lkp->lk)/g
-,s/lkp->ref\.ref/lkp->ref/g
 ,s/s->ref/s->ref.ref/g
-/^validaddr/+3a
+/^fault/ s/^//
+/if(s == 0)/a
+iprint("%ld %s fault %#x no segment\n", up->pid, up->text, addr);
+{	Segment **s, **et, *n;
+	
+	et = &up->seg[NSEG];
+	for(s = up->seg; s < et; s++) {
+		n = *s;
+		if(n == 0)
+			continue;
+		print("segment %#lux %#lux\n", n->base, n->top);
+	}
+}
+.
+/qunlock(&s->lk)/a
+iprint("%ld %s fault %#x write in read-only\n", up->pid, up->text, addr);
+.
+/done:/ s/$/;/
++1;/^}/-1d
+/^okaddr/-1c
+void*
+.
+/^{/+1a
+	ulong addr0;
+
+	addr0 = addr;
+.
+/s = seg/ s/0/1/
+/if(s == 0/;+1 c
+			if(s == 0)
+				break;
+			if(write && (s->type&SG_RONLY)){
+				qunlock(&s->lk);
+				break;
+			}
+.
+/continue/i
+				qunlock(&s->lk);
+.
+/return/c
+			qunlock(&s->lk);
+			return up->pmmu.uzero+addr0;
+.
+/^validaddr/-1;+1 c
+void*
+uvalidaddr(ulong addr, ulong len, int write)
+.
+/okaddr/c
+	void *v;
+	
+	v = okaddr(addr, len, write);
+	if(v == nil)
+.
+/Suicide/a
 	
 	// This is a valid address, but the host kernel
 	// might not know that.  In case we're going
 	// to pass the address to the host kernel in a
 	// system call, fault in the pages.
-	volatile char *a = (char*)addr;
+	volatile char *a = v;
 	ulong i;
 	for(i=0; i<len; i+=BY2PG){
 		if(write)
-			*a = *a;
+			a[i] = a[i];
 		else
-			(void)*a;
+			(void)a[i];
 	}
+	if(len > 0){
+		if(write)
+			a[len-1] = a[len-1];
+		else
+			(void)a[len-1];
+	}
+	return v;
 .
+/^vmemchr/ s/^//
+/int m/ s/m/m_/
+/ulong a/ s/ulong /uchar */
+/a = (ulong)s/;/while/c
+	a = s;
+	while(PGROUND((ulong)a) != PGROUND((ulong)a+n-1)){
+.
+/m =/ s/m/m_/
+s/a/(ulong)a/
+/memchr/ s/m)/m_)/
+s/(void\*)a/a/
+/m;/ s/m/m_/
+/m;/ s/m/m_/
+/KZERO/ s/(.*)/(isuaddr(a))/
++1 s/validaddr(.*)/uvalidaddr(a-up->pmmu.uzero, 1, 0)/

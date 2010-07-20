@@ -10,7 +10,6 @@ v/typedef/ s!Lock;!Lock lk;!g
 	Uspace *us;
 	uchar *uzero;
 .
-g/^#pragma/d
 g/mmufree/d
 g/mmuused/d
 g/lastkmap/d

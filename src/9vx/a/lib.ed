@@ -1,4 +1,5 @@
 g/assert/d
+g/encodefmt/d
 g/memccpy/d
 g/memset/d
 g/memcmp/d

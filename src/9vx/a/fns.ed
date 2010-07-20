@@ -5,17 +5,21 @@ $a
 
 // Plan 9 VX additions
 void	gotolabel(Label*);
+int	isuaddr(void*);
 void	labelinit(Label *l, ulong pc, ulong sp);
 void	latin1putc(int, void(*)(int));
 void	makekprocdev(Dev*);
 void	newmach(void);
 void	oserror(void);
 void	oserrstr(void);
+void restoretty(void);
 int	setlabel(Label*);
+void	setsigsegv(int invx32);
 int	tailkmesg(char*, int);
 void	trap(Ureg*);
 void	uartecho(char*, int);
 void	uartinit(int);
+void	*uvalidaddr(ulong addr, ulong len, int write);
 
 #define GSHORT(p)	(((p)[1]<<8)|(p)[0])
 #define GLONG(p)	((GSHORT(p+2)<<16)|GSHORT(p))

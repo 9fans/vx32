@@ -25,3 +25,4 @@ extern ulong imgtorgba(Memimage*, ulong);
 	Fullsrc=1<<4,
 	Fullmask=1<<5,
 .
+,s/ulong/uint32/g

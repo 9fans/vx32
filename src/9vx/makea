@@ -11,9 +11,11 @@ if [ $# -gt 0 ]; then
 		shift
 	fi
 fi
-orig=$orig/sys/src/9
+port=$orig/sys/src/9/port
+pc=$orig/sys/src/9/pc
+inc=$orig/sys/include
 
-if [ ! -d $orig ]; then
+if [ ! -d $port -a -d $pc -a -d $inc ]; then
 	echo "Error: $orig is not a valid Plan9 root" 1>&2
 	exit 1
 fi
@@ -22,13 +24,14 @@ files=a/*.ed
 if [ $# -gt 0 ]; then
 	files=$*
 fi
-hfiles=a/*.h
+hfiles="a/*.h *.h"
 for f in $files; do
 	name=`echo $f | sed 's,.*/,,;s,\.ed,,'`
-	ofile=`(ls $orig/port/$name.[ch] || ls $orig/pc/$name.[ch]) 2>/dev/null`
+	ofile=`ls $port/$name.[ch] $pc/$name.[ch] $inc/$name.h 2>/dev/null | sed 1q`
 	dfile=`echo $ofile | sed 's,.*/,a/,'`
 	echo -e ",p\nq" | cat $f - | ed -s $ofile | sed -r '
 /^#include/s,../port/,,
 /^#include[ 	]+<('`echo $hfiles | sed 's,a/,,g; s/\./\\./g; s/ /|/g'`')>/s,[<>],",g
+/^#pragma/d
 	' > $dfile
 done

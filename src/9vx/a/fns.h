@@ -9,7 +9,7 @@ void	clockintr(Ureg*, void*);
 int	(*cmpswap)(long*, long, long);
 int	cmpswap486(long*, long, long);
 void	(*coherence)(void);
-void	cpuid(char*, int*, int*);
+void	cpuid(int, ulong regs[]);
 int	cpuidentify(void);
 void	cpuidprint(void);
 void	(*cycles)(uvlong*);
@@ -80,6 +80,7 @@ void	kbdinit(void);
 #define	kmapinval()
 void	lgdt(ushort[3]);
 void	lidt(ushort[3]);
+void	links(void);
 void	ltr(ulong);
 void	mach0init(void);
 void	mathinit(void);
@@ -90,6 +91,9 @@ void	memorysummary(void);
 #define mmuflushtlb(pdb) putcr3(pdb)
 void	mmuinit(void);
 ulong*	mmuwalk(ulong*, ulong, int, int);
+int	mtrr(uvlong, uvlong, char *);
+void	mtrrclock(void);
+int	mtrrprint(char *, long);
 uchar	nvramread(int);
 void	nvramwrite(int, uchar);
 void	outb(int, int);
@@ -112,6 +116,7 @@ int	pdbmap(ulong*, ulong, ulong, int);
 void	procrestore(Proc*);
 void	procsave(Proc*);
 void	procsetup(Proc*);
+void	putcr0(ulong);
 void	putcr3(ulong);
 void	putcr4(ulong);
 void*	rampage(void);
@@ -140,6 +145,7 @@ void	vectortable(void);
 void*	vmap(ulong, int);
 int	vmapsync(ulong);
 void	vunmap(void*, int);
+void	wbinvd(void);
 void	wrmsr(int, vlong);
 int	xchgw(ushort*, int);
 
@@ -151,20 +157,21 @@ int	xchgw(ushort*, int);
 
 // Plan 9 VX additions
 void	gotolabel(Label*);
+int	isuaddr(void*);
 void	labelinit(Label *l, ulong pc, ulong sp);
 void	latin1putc(int, void(*)(int));
 void	makekprocdev(Dev*);
 void	newmach(void);
 void	oserror(void);
 void	oserrstr(void);
+void restoretty(void);
 int	setlabel(Label*);
+void	setsigsegv(int invx32);
 int	tailkmesg(char*, int);
 void	trap(Ureg*);
 void	uartecho(char*, int);
 void	uartinit(int);
 void	*uvalidaddr(ulong addr, ulong len, int write);
-int	isuaddr(void*);
-void	setsigsegv(int invx32);
 
 #define GSHORT(p)	(((p)[1]<<8)|(p)[0])
 #define GLONG(p)	((GSHORT(p+2)<<16)|GSHORT(p))
@@ -173,8 +180,6 @@ void	__plock(Psleep*);
 void	__punlock(Psleep*);
 void	__pwakeup(Psleep*);
 void	__psleep(Psleep*);
-
-void restoretty(void);
 
 extern int tracelock;
 
@@ -217,4 +222,3 @@ extern int tracelock;
 #define	RUNLOCK(x)	runlock(&((x)->rwlock))
 #define	WLOCK(x)	wlock(&((x)->rwlock))
 #define	WUNLOCK(x)	wunlock(&((x)->rwlock))
-

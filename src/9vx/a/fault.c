@@ -13,7 +13,10 @@ fault(ulong addr, int read)
 	Segment *s;
 	char *sps;
 
-if(up->nlocks.ref) print("fault nlocks %ld\n", up->nlocks.ref);
+	if(up == nil)
+		panic("fault: nil up");
+	if(up->nlocks.ref)
+		print("fault: nlocks %ld\n", up->nlocks.ref);
 
 	sps = up->psstate;
 	up->psstate = "Fault";
@@ -327,6 +330,7 @@ okaddr(ulong addr, ulong len, int write)
 	ulong addr0;
 
 	addr0 = addr;
+
 	if((long)len >= 0) {
 		for(;;) {
 			s = seg(up, addr, 1);
@@ -336,6 +340,7 @@ okaddr(ulong addr, ulong len, int write)
 				qunlock(&s->lk);
 				break;
 			}
+
 			if(addr+len > s->top) {
 				len -= s->top - addr;
 				addr = s->top;
@@ -346,7 +351,7 @@ okaddr(ulong addr, ulong len, int write)
 			return up->pmmu.uzero+addr0;
 		}
 	}
-	pprint("suicide: invalid address 0x%lux/%lud in sys call pc=0x%lux\n", addr, len, userpc());
+	pprint("suicide: invalid address %#lux/%lud in sys call pc=%#lux\n", addr, len, userpc());
 	return 0;
 }
 
@@ -381,7 +386,7 @@ uvalidaddr(ulong addr, ulong len, int write)
 }
 
 /*
- * &s[0] is known to be a valid, translated address.
+ * &s[0] is known to be a valid address.
  */
 void*
 vmemchr(void *s, int c, int n)
@@ -404,7 +409,7 @@ vmemchr(void *s, int c, int n)
 	}
 
 	/* fits in one page */
-	return memchr(a, c, n);
+	return memchr((void*)a, c, n);
 }
 
 Segment*

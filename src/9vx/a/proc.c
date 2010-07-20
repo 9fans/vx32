@@ -1,11 +1,11 @@
 #define	WANT_M
-#include "u.h"
+#include	"u.h"
 #include	"lib.h"
 #include	"mem.h"
 #include	"dat.h"
 #include	"fns.h"
 #include	"error.h"
-#include "trace.h"
+#include	"trace.h"
 
 int	schedgain = 30;	/* units in seconds */
 int	nrdy;
@@ -112,11 +112,12 @@ sched(void)
 	if(traceprocs)	// Plan 9 VX
 		print("sched %p %p [%s]\n", m, up, up ? up->text : "");
 	if(m->ilockdepth)
-		panic("ilockdepth %d, last lock 0x%p at 0x%lux, sched called from 0x%lux",
-			m->ilockdepth, up?up->lastilock:nil,
-			(up && up->lastilock)?up->lastilock->pc:0,
+		panic("cpu%d: ilockdepth %d, last lock %#p at %#p, sched called from %#p",
+			m->machno,
+			m->ilockdepth,
+			up? up->lastilock: nil,
+			(up && up->lastilock)? up->lastilock->pc: 0,
 			getcallerpc(&p+2));
-
 	if(up){
 		/*
 		 * Delay the sched until the process gives up the locks
@@ -743,12 +744,12 @@ sleep(Rendez *r, int (*f)(void*), void *arg)
 	s = splhi();
 
 	if(up->nlocks.ref)
-		print("process %lud sleeps with %lud locks held, last lock 0x%p locked at pc 0x%lux, sleep called from 0x%lux\n",
+		print("process %lud sleeps with %lud locks held, last lock %#p locked at pc %#lux, sleep called from %#p\n",
 			up->pid, up->nlocks.ref, up->lastlock, up->lastlock->pc, getcallerpc(&r));
 	lock(&r->lk);
 	lock(&up->rlock);
 	if(r->p){
-		print("double sleep called from 0x%lux, %lud %lud\n", getcallerpc(&r), r->p->pid, up->pid);
+		print("double sleep called from %#p, %lud %lud\n", getcallerpc(&r), r->p->pid, up->pid);
 		dumpstack();
 	}
 
@@ -766,7 +767,7 @@ sleep(Rendez *r, int (*f)(void*), void *arg)
 		 *  never mind
 		 */
 		if(traceprocs)
-			print("cpu%d: %ld sleep: already happened\n", m->machno, up->pid);
+			print("sleep %p %p: already happened\n", m, up);
 		r->p = nil;
 		unlock(&up->rlock);
 		unlock(&r->lk);
@@ -787,7 +788,7 @@ sleep(Rendez *r, int (*f)(void*), void *arg)
 		procsave(up);
 		if(setlabel(&up->sched)) {
 			if(traceprocs)
-				print("cpu%d: %ld sleep: awake\n", m->machno, up->pid);
+				print("sleep %p %p: awake\n", m, up);
 			/*
 			 *  here when the process is awakened
 			 */
@@ -795,7 +796,7 @@ sleep(Rendez *r, int (*f)(void*), void *arg)
 			spllo();
 		} else {
 			if(traceprocs)
-				print("cpu%d: %ld sleep: sleeping\n", m->machno, up->pid);
+				print("sleep %p %p: sleeping\n", m, up);
 			/*
 			 *  here to go to sleep (i.e. stop Running)
 			 */
@@ -838,8 +839,8 @@ twakeup(Ureg *ureg, Timer *t)
 void
 tsleep(Rendez *r, int (*fn)(void*), void *arg, ulong ms)
 {
-	if(up->timer.tt){
-		print("tsleep: timer active: mode %d, tf 0x%lux\n", up->timer.tmode, up->timer.tf);
+	if (up->timer.tt){
+		print("tsleep: timer active: mode %d, tf %#p\n", up->timer.tmode, up->timer.tf);
 		timerdel(&up->timer);
 	}
 	up->timer.tns = MS2NS(ms);
@@ -855,7 +856,7 @@ tsleep(Rendez *r, int (*fn)(void*), void *arg, ulong ms)
 		nexterror();
 	}
 	sleep(r, tfn, arg);
-	if(up->timer.tt)
+	if (up->timer.tt)
 		timerdel(&up->timer);
 	up->timer.twhen = 0;
 	poperror();
@@ -1054,7 +1055,7 @@ pexit(char *exitstr, int freemem)
 	if(up->syscalltrace)
 		free(up->syscalltrace);
 	up->alarm = 0;
-	if(up->timer.tt)
+	if (up->timer.tt)
 		timerdel(&up->timer);
 	pt = proctrace;
 	if(pt)
@@ -1316,9 +1317,9 @@ procflushseg(Segment *s)
 	 *  wait for all processors to take a clock interrupt
 	 *  and flush their mmu's
 	 */
-	for(nm = 0; nm < conf.nmach && nm < 1; nm++)
+	for(nm = 0; nm < conf.nmach; nm++)
 		if(MACHP(nm) != m)
-			while(MACHP(nm)->flushmmu && MACHP(nm)->proc != nil)
+			while(MACHP(nm)->flushmmu)
 				sched();
 }
 

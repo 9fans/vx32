@@ -129,7 +129,7 @@ newpage(int clear, Segment **s, ulong va)
 	color = getpgcolor(va);
 	hw = swapalloc.highwater;
 	for(;;) {
-		if(palloc.freecount >= hw)
+		if(palloc.freecount > hw)
 			break;
 		if(up->kp && palloc.freecount > 0)
 			break;
@@ -182,7 +182,7 @@ newpage(int clear, Segment **s, ulong va)
 
 	lock(&p->lk);
 	if(p->ref != 0)
-		panic("newpage");
+		panic("newpage: p->ref %d != 0", p->ref);
 
 	uncachepage(p);
 	p->ref++;
@@ -641,7 +641,7 @@ portcountpagerefs(ulong *ref, int print)
 				if(s == nil)
 					continue;
 				if(s->ref.ref != s->mark){
-					iprint("segment %#.8lux (used by proc %lud pid %lud) has bad ref count %lud actual %lud\n",
+					iprint("segment %#p (used by proc %lud pid %lud) has bad ref count %lud actual %lud\n",
 						s, i, p->pid, s->ref, s->mark);
 				}
 			}

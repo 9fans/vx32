@@ -366,6 +366,7 @@ uvlong		us2fastticks(uvlong);
 void		userinit(void);
 ulong		userpc(void);
 long		userwrite(char*, int);
+void		validaddr(ulong, ulong, int);
 void		validname(char*, int);
 char*		validnamedup(char*, int);
 void		validstat(uchar*, int);

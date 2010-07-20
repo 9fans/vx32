@@ -1,3 +1,6 @@
+1i
+#define	WANT_M
+.
 /edf.*Admitted/,/edfrecord/d
 /edfstop/,/edf = nil/d
 ,s/(!p->edf)/(1)/
@@ -8,7 +11,7 @@ g/edfstop(up)/d
 ,s/lock(runq)/lock(\&runq->lk)/
 ,s/lock(\&procalloc)/lock(\&procalloc.lk)/
 ,s/lock(r)/lock(\&r->lk)/
-/^newproc/
+/^newproc/ s/^//
 /^	return p/i
 	vxnewproc(p);
 .
@@ -26,14 +29,13 @@ g/edfstop(up)/d
 ,s/Lock;/Lock lk;/g
 ,s/lock(\&broken)/lock(\&broken.lk)/g
 ,s/MACHP(0)->ticks/msec()/g
-,s/lock(\&procalloc)/lock(\&procalloc.lk)/g
 ,s/lock(\&palloc)/lock(\&palloc.lk)/g
 ,s/ref(p->dot)/ref(\&p->dot->ref)/g
 ,s/ref(kpgrp)/ref(\&kpgrp->ref)/g
 g/"edf.h"/d
 g/Edf/d
 ,s;\.Lock\.;.lk.;g
-/^schedinit/
+/^schedinit/ s/^//
 /	setlabel(\&m->sched)/a
 	if(traceprocs)	// Plan 9 VX
 		print("schedinit %p %p %s\n", m, up, up ? up->text : "");
@@ -95,3 +97,21 @@ g/Edf/d
 	p->nerrlab = 0;
 .
 /^	ready(p)/+1,/flushmmu/d
+/^newproc/ s/^//
+/p->procctl = 0;/c
+	if(up && up->procctl == Proc_tracesyscall)
+		p->procctl = Proc_tracesyscall;
+	else
+		p->procctl = 0;
+	p->syscalltrace = 0;
+.
+/up->alarm = 0;/i
+	if(up->syscalltrace)
+		free(up->syscalltrace);
+.
+/p = newproc();/i
+	extern int tracekdev;
+	if(tracekdev)
+		iprint("kproc %s\n", name);
+
+.

@@ -483,8 +483,6 @@ ibrk(ulong addr, int seg)
 		if(ns == 0 || ns == s)
 			continue;
 		if(newtop >= ns->base && newtop < ns->top) {
-print("grow segment %d -> %p would overlap %d [%p-%p]\n",
-	seg, newtop, i, ns->base, ns->top);
 			qunlock(&s->lk);
 			error(Esoverlap);
 		}
@@ -648,6 +646,7 @@ segattach(Proc *p, ulong attr, char *name, ulong va, ulong len)
 		error(Ebadarg);
 
 	vmemchr(name, 0, ~0);
+
 	for(sno = 0; sno < NSEG; sno++)
 		if(p->seg[sno] == nil && sno != ESEG)
 			break;

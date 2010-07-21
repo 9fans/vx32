@@ -1,1 +1,2 @@
 ,s!"/sys/src/libc/9syscall/!"!
+/Syscall/s/ulong/uint32/

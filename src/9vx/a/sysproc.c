@@ -7,7 +7,7 @@
 #include	"fns.h"
 #include	"error.h"
 
-#include "a.out.h"
+#include	"a.out.h"
 
 int	shargs(char*, int, char**);
 
@@ -644,6 +644,7 @@ sysexits(uint32 *arg)
 			}
 			poperror();
 		}
+
 	}else
 		status = nil;
 	pexit(status, 1);
@@ -1113,7 +1114,7 @@ syssemacquire(uint32 *arg)
 	evenaddr(arg[0]);
 	block = arg[1];
 	
-	if((s = seg(up, arg[0], 0)) == nil)	/* this can't happen if validaddr succeeded, can it? */
+	if((s = seg(up, arg[0], 0)) == nil)
 		error(Ebadarg);
 	if(*addr < 0)
 		error(Ebadarg);
@@ -1130,7 +1131,7 @@ syssemrelease(uint32 *arg)
 	evenaddr(arg[0]);
 	delta = arg[1];
 
-	if((s = seg(up, arg[0], 0)) == nil)	/* again, this can't happen! */
+	if((s = seg(up, arg[0], 0)) == nil)
 		error(Ebadarg);
 	if(delta < 0 || *addr < 0)
 		error(Ebadarg);

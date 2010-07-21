@@ -7,3 +7,6 @@
 ,s;lock(out);lock(\&out->lk);g
 ,s;lock(outp);lock(\&outp->lk);g
 g/swopen/d
+/if(!cpuserver)/;/else/c
+			if(!cpuserver || freebroken() == 0)
+.

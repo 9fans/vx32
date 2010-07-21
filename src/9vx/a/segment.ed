@@ -1,4 +1,3 @@
-/^addphysseg/-1,/^	return/+1d
 ,s!Lock;!Lock lk;!
 ,s!lock(s)!lock(\&s->ref.lk)!g
 ,s!lock(i)!lock(\&i->ref.lk)!g
@@ -24,3 +23,5 @@
 /^}/i
 #endif
 .
+/validaddr/d
+/^syssegflush/s/ulong/uint32/

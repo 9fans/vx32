@@ -175,7 +175,7 @@ sysfd2path(uint32 *arg)
 {
 	Chan *c;
 	char *buf;
-	
+
 	buf = uvalidaddr(arg[1], arg[2], 1);
 
 	c = fdtochan(arg[0], -1, 0, 1);
@@ -848,7 +848,7 @@ sseek(vlong *ret, uint32 *arg)
 	default:
 		error(Ebadarg);
 	}
-	*ret = off;	/* caller translated arg[0] already */
+	*ret = off;
 	c->uri = 0;
 	c->dri = 0;
 	cclose(c);
@@ -983,6 +983,7 @@ syschdir(uint32 *arg)
 	return 0;
 }
 
+	// Plan 9 VX added isk parameter.
 long
 bindmount(int ismount, int fd, int afd, char* arg0, char* arg1, ulong flag, char* spec)
 {

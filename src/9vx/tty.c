@@ -56,7 +56,11 @@ uartreader(void *v)
 	 * what gets typed ourselves.
 	 */
 	if(tcgetattr(0, &ttprevmode) < 0)
-		panic("could not read tty current mode");
+		/*
+		 * We do not panic here so that
+		 * 9vx can be run without a tty
+		 */
+		goto Read;
 	if(tcgetattr(0, &ttmode) >= 0){
 		ttmode.c_lflag &= ~(ECHO|ICANON);
 		if(tcsetattr(0, TCSANOW, &ttmode) >= 0)
@@ -64,6 +68,7 @@ uartreader(void *v)
 	}
 	signal(SIGINT, bye);
 	signal(SIGTERM, bye);
+Read:
 	while((n = read(0, buf, sizeof buf)) > 0)
 		echo(buf, n);
 }

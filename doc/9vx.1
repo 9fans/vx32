@@ -69,8 +69,7 @@ Other options are:
 .TP \n(xxu
 .BI -c
 Start as a cpu(1) server (sets
-.I init=/386/init -c
-, see init(8)
+.I service=cpu
 )
 .TP
 .BI -f
@@ -130,9 +129,17 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 .I memsize,
 .I netdev,
 .I macaddr
+.I service
 (that can also be part of a netdev line)
 and
 .I localroot.
+.SS Running 9vx as a cpu server
+To run 9vx as a cpu server the
+.I service
+environment variable must be set to
+.I cpu
+, in the 9vx.ini file or with the -c flag. It is recommended to add a cpurc
+in the /cfg/vx32/ directory, see cpurc(8). An example is included in the 9vx distribution.
 .SH BUGS
 The menu system of plan9.ini(8) is not supported in
 .I 9vx.ini

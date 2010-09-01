@@ -97,4 +97,9 @@ incompatibility between libkse (the implementation of pthreads)
 and libvx32.  FreeBSD 7 replaced libkse with a new thread library
 that is just great.
 
+COMPILATION ERRORS?
+The libpcap development libraries are needed to compile this
+version of 9vx. Alternatively, set PLAN9PCAP to nopcap in the
+Makefrag file.
+
 

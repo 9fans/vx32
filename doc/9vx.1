@@ -67,6 +67,12 @@ is not specified, the current user in the host operating system will be used.
 Other options are:
 .nr xx \w'\fL-m\f2name\ \ '
 .TP \n(xxu
+.BI -c
+Start as a cpu(1) server (sets
+.I init=/386/init -c
+, see init(8)
+)
+.TP
 .BI -f
 Do not fork at init
 .TP
@@ -74,7 +80,7 @@ Do not fork at init
 Do not start the gui
 .TP
 .BI -i
-Run rc instead of init (sets
+Run rc(1) instead of init (sets
 .I init=#Z/386/bin/rc
 )
 .TP

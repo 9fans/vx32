@@ -136,6 +136,9 @@ main(int argc, char **argv)
 	case 'a':
 		setmac(EARGF(usage()));
 		break;
+	case 'c':
+		cpuserver = 1;
+		break;
 	case 'f':
 		nofork = 1;
 		break;

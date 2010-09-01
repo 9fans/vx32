@@ -5,6 +5,7 @@ diff -e plan9/sys/src/9//boot/aux.c 9vx/sys/src/9//boot/aux.c
 diff -e plan9/sys/src/9//boot/boot.c 9vx/sys/src/9//boot/boot.c
 154a
 Init:
+	cpuflag = (strcmp(getenv("service"), "cpu") == 0);
 .
 92a
 	if(localroot){

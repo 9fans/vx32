@@ -1,0 +1,36 @@
+#!/bin/rc
+#mkbootcode
+
+if(uname >/dev/null >[2=1]){
+	echo 'run from 9vx to generate bootcode.9'
+	exit
+}
+
+if(! test -f `{basename $0}){
+	echo 'mkbootcode must be run from its own directory'
+	exit
+}
+
+cwd=`{pwd}
+bind -bc . /sys/src/9/boot
+cd /sys/src/9/boot
+
+for(f in *.ed) {
+	new=`{echo $f | sed 's/.ed$//'}
+	orig=$new.orig
+	if(! test -f $orig)
+		new=$new.c
+	if(! test -f $orig)
+		cp $new $orig
+	{
+		echo w $new
+		echo q
+		cat $f
+	} | ed $orig 2>/dev/null
+}
+
+cd ../pc
+CONF='pcf' mk bootpcf.out && cp bootpcf.out ../boot/bootcode.9
+
+cd $cwd
+unmount /sys/src/9/boot

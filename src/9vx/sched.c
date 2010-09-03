@@ -158,6 +158,8 @@ runproc(void)
 			m->machno, p->pid, p->text, kprocq.n, nrunproc);
 	unlock(&kprocq.lk);
 	punlock(&run);
+	while (p->mach)
+		sched_yield();
 	return p;
 }
 

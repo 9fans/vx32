@@ -77,7 +77,7 @@ unloadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 	return _unloadmemimage(i, r, data, ndata);
 }
 
-ulong
+uint32
 pixelbits(Memimage *m, Point p)
 {
 	return _pixelbits(m, p);

@@ -508,6 +508,21 @@ iprint(char *fmt, ...)
 	return n;
 }
 
+void 
+talktome(void)
+{
+	int i;
+	static char cmd[512];
+	while (fgets(cmd, sizeof(cmd), stdin)) {
+		if (! strcmp(cmd, "mach")) {
+			for(i = 0; i < MAXMACH; i++) {
+				fprintf(stderr, "%d ", MACHP(i)->splpc);
+			}
+			
+		}
+	}
+	fprintf(stderr, "We're done talking\n");
+}
 /*
  * Panics go to standard error.
  */
@@ -536,6 +551,7 @@ panic(char *fmt, ...)
 			microdelay(1000000);
 #else
 		fprint(2, "aborting, to dump core.\n");
+		talktome();
 		abort();
 #endif
 	}

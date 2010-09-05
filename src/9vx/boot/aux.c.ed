@@ -1,0 +1,3 @@
+/exits/-1;/exits/c
+	exits(smprint("boot: %s: %s\n", s, buf));
+.

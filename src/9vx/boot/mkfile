@@ -1,0 +1,27 @@
+SRC9=/sys/src/9
+BOOT=$SRC9/boot
+CWD=`{pwd}
+
+EDFILES=`{ls *.ed}
+SRCFILES=${EDFILES:%.ed=%}
+
+bootcode.9: files
+	cd $SRC9 ;\
+	bind -bc $CWD $SRC9/boot; \
+	cd pc; \
+	mk bootpcf.out 'CONF=pcf' && \
+		mv bootpcf.out $CWD/bootcode.9
+	unmount $CWD $SRC9/boot
+
+files:V: $SRCFILES
+
+([^/]+)\.([ch]):R: \1.\2.ed \1.\2.orig
+	{	cat $stem1.$stem2.ed; \
+		echo w $stem1.$stem2; \
+	} | ed - $stem1.$stem2.orig
+
+%.orig: $BOOT/%
+	cp $BOOT/$stem $stem.orig
+
+clean:V:
+	rm -f bootcode.9 *.[ch] *.orig

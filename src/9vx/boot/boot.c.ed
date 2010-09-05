@@ -1,0 +1,14 @@
+/^$/a
+char*	localroot;
+.
+/fd = \(\*mp->connect\)/a
+	if(localroot){
+		bind(localroot, "/", MAFTER);
+		srvcreate("boot", fd);
+		goto Init;
+	}
+.
+/cmd = getenv/i
+Init:
+	cpuflag = (strcmp(getenv("service"), "cpu") == 0);
+.

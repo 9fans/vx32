@@ -1,0 +1,31 @@
+/fatal\("open \/net\/ipifc\/clone for loopback"\)/s,[^	],// &,
+a
+			return;
+.
+/^connectlocal\(void\)/-1i
+int
+connectlocalroot(void)
+{
+	int fd;
+	char buf[1024];
+
+	snprint(buf, sizeof buf, "%s/%s/bin/rc", disk, cputype);
+	if(stat(buf, statbuf, sizeof statbuf) < 0)
+		return -1;
+	localroot = disk;
+
+	/* create working fd for /srv/boot */
+	fd = open("#~/mntloop", ORDWR);
+	if(fd < 0){
+		print("open #~/mntloop: %r\n");
+		return -1;
+	}
+	write(fd, disk, strlen(disk));
+	return fd;
+}
+
+.
+/fd = connectlocal/i
+	if((fd = connectlocalroot()) < 0)
+.
+/fd = connectlocalkfs/s,[^	],// &,

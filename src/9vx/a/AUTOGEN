@@ -102,9 +102,9 @@ autofiles="
 /sys/src/libip/parseip.c
 "
 
-plan9=/home/rsc/plan9/4e
+plan9=$HOME/plan9
 if [ $# -gt 1 ] && [ $1 == "-r" ]; then
-	orig=$1
+	plan9=$2
 	shift 2
 fi
 
@@ -118,6 +118,7 @@ esac
 for f in $autofiles
 do
 	ed=`echo $f | sed 's;.*/;;; s;\.[ch]$;;; s;$;.ed;'`
+	test -f $ed || ed=`echo $f | sed 's;.*/;;; s;$;.ed;'`
 	out=`echo $f | sed 's;.*/;;;'`
 	echo $f '->' $out
 	test -f $out && chmod +w $out

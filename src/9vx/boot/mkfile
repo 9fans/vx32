@@ -24,4 +24,4 @@ files:V: $SRCFILES
 	cp $BOOT/$stem $stem.orig
 
 clean:V:
-	rm -f bootcode.9 *.[ch] *.orig
+	rm -f bootcode.9 libboot.a8 *.[ch] *.orig

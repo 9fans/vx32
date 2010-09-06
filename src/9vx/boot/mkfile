@@ -1,5 +1,5 @@
-SRC9=/sys/src/9
-BOOT=$SRC9/boot
+ROOT=''
+SRC9=$ROOT/sys/src/9
 CWD=`{pwd}
 
 EDFILES=`{ls *.ed}
@@ -16,12 +16,12 @@ bootcode.9: files
 files:V: $SRCFILES
 
 ([^/]+)\.([ch]):R: \1.\2.ed \1.\2.orig
-	{	cat $stem1.$stem2.ed;
-		echo w $stem1.$stem2;
+	{	cat $stem1.$stem2.ed
+		echo w $stem1.$stem2
 	} | ed - $stem1.$stem2.orig
 
-%.orig: $BOOT/%
-	cp $BOOT/$stem $stem.orig
+%.orig: $SRC9/boot/%
+	cp $SRC9/boot/$stem $stem.orig
 
 clean:V:
 	rm -f bootcode.9 libboot.a8 *.[ch] *.orig

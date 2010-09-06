@@ -509,7 +509,7 @@ init0(void)
 	ksetenv("sysname", "vx32", 0);
 	inifields(&inienv);
 	if(initrc != 0)
-		inienv("init", "/386/bin/rc -i");
+		inienv("init", "/386/init -tm");
 	if(localroot)
 		inienv("nobootprompt", nobootprompt(localroot));
 	inienv("cputype", "386");

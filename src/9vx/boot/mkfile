@@ -6,18 +6,18 @@ EDFILES=`{ls *.ed}
 SRCFILES=${EDFILES:%.ed=%}
 
 bootcode.9: files
-	cd $SRC9 ;\
-	bind -bc $CWD $SRC9/boot; \
-	cd pc; \
-	mk bootpcf.out 'CONF=pcf' && \
+	bind -bc $CWD $SRC9/boot
+	cd $SRC9/pc
+	mk bootpcf.out 'CONF=pcf' &&
 		mv bootpcf.out $CWD/bootcode.9
 	unmount $CWD $SRC9/boot
+	unmount $SRC9/boot $SRC9/boot
 
 files:V: $SRCFILES
 
 ([^/]+)\.([ch]):R: \1.\2.ed \1.\2.orig
-	{	cat $stem1.$stem2.ed; \
-		echo w $stem1.$stem2; \
+	{	cat $stem1.$stem2.ed;
+		echo w $stem1.$stem2;
 	} | ed - $stem1.$stem2.orig
 
 %.orig: $BOOT/%

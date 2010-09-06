@@ -19,31 +19,44 @@ autofiles="
 /sys/include/fcall.h
 /sys/include/ip.h
 /sys/include/keyboard.h
+/sys/include/libsec.h
 /sys/include/memdraw.h
 /sys/include/memlayer.h
+/sys/include/mouse.h
 /sys/include/tos.h
 /sys/include/trace.h
 /sys/src/9/pc/dat.h
+/sys/src/9/pc/devether.c
+/sys/src/9/pc/errstr.h
+/sys/src/9/pc/etherif.h
 /sys/src/9/pc/fns.h
 /sys/src/9/pc/io.h
 /sys/src/9/pc/mem.h
-/sys/src/9/port/alarm.c
+/sys/src/9/pc/sdscsi.c
 /sys/src/9/port/allocb.c
+/sys/src/9/port/aoe.h
 /sys/src/9/port/auth.c
 /sys/src/9/port/chan.c
 /sys/src/9/port/dev.c
+/sys/src/9/port/devaoe.c
+/sys/src/9/port/devcap.c
 /sys/src/9/port/devcons.c
+/sys/src/9/port/devdraw.c
 /sys/src/9/port/devdup.c
 /sys/src/9/port/devenv.c
 /sys/src/9/port/devmnt.c
 /sys/src/9/port/devpipe.c
 /sys/src/9/port/devproc.c
 /sys/src/9/port/devroot.c
+/sys/src/9/port/devsd.c
+/sys/src/9/port/devssl.c
 /sys/src/9/port/devsrv.c
 /sys/src/9/port/devtls.c
 /sys/src/9/port/error.h
+/sys/src/9/port/fault.c
 /sys/src/9/port/latin1.c
 /sys/src/9/port/lib.h
+/sys/src/9/port/netif.c
 /sys/src/9/port/netif.h
 /sys/src/9/port/page.c
 /sys/src/9/port/parse.c
@@ -54,13 +67,22 @@ autofiles="
 /sys/src/9/port/proc.c
 /sys/src/9/port/qio.c
 /sys/src/9/port/qlock.c
+/sys/src/9/port/sd.h
+/sys/src/9/port/sdaoe.c
 /sys/src/9/port/segment.c
+/sys/src/9/port/swap.c
 /sys/src/9/port/sysfile.c
 /sys/src/9/port/sysproc.c
 /sys/src/9/port/systab.h
 /sys/src/9/port/thwack.c
 /sys/src/9/port/thwack.h
+/sys/src/libc/port/u16.c
+/sys/src/libc/port/u32.c
 /sys/src/9/port/unthwack.c
+/sys/src/boot/pc/fs.h
+/sys/src/boot/pc/dosfs.h
+/sys/src/boot/pc/kfs.h
+/sys/src/boot/pc/part.c
 /sys/src/libc/9syscall/sys.h
 /sys/src/libc/9sys/convD2M.c
 /sys/src/libc/9sys/convM2D.c
@@ -80,14 +102,18 @@ autofiles="
 /sys/src/libip/parseip.c
 "
 
+plan9=/home/rsc/plan9/4e
+if [ $# -gt 1 ] && [ $1 == "-r" ]; then
+	orig=$1
+	shift 2
+fi
+
 case "$#" in
 0)
 	;;
 *)
 	autofiles="$*"
 esac
-
-plan9=/home/rsc/plan9/4e
 
 for f in $autofiles
 do

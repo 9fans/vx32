@@ -429,6 +429,12 @@ int cpuserver = 0;
 void
 rebootcmd(int argc, char **argv)
 {
+	int i;
+	restoretty();
+	for(i = 0; i < argc; i++)
+		iprint("%s%s", argv[i], argc - i > 1 ? " " : "");
+	iprint("\n");
+	exit(0);
 	error(Egreg);
 }
 
@@ -481,6 +487,7 @@ delay(int x)
 void
 reboot(void *entry, void *code, ulong size)
 {
+	restoretty(); exit(0);
 	error(Egreg);
 }
 

@@ -1,0 +1,2 @@
+,s!//#define	NAMELEN!#define	NAMELEN!
+,s!	Dentry;!	Dentry _;!

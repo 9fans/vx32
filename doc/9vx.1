@@ -1,3 +1,9 @@
+\" # Generate html (uses p9p)
+\" # sed -n 's/\\" //p' 9vx.1 | 9 rc > 9vx.html
+\" troff -manhtml 9vx.1 | troff2html | sed '
+\" 	s/Plan 9 man page/Plan 9 VX man page/
+\" 	s,9VX,<a href="http://bytebucket.org/yiyus/vx32/wiki/">&</a>,g
+\" '
 .TH 9VX 1
 .SH NAME
 9vx, 9vx-tap \- Plan9 port to the virtual execution environment vx32
@@ -129,10 +135,10 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 .I memsize,
 .I netdev,
 .I macaddr
-.I service
-(that can also be part of a netdev line)
-and
+(that can also be part of a netdev line),
 .I localroot.
+and
+.I service
 .SS Exiting 9vx
 Reboot signals terminate 9vx execution. In particular, the reboot command will exit printing its arguments to starndard error.
 .SS Running 9vx as a cpu server

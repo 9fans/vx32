@@ -108,6 +108,11 @@ if [ $# -gt 1 ] && [ $1 == "-r" ]; then
 	shift 2
 fi
 
+if [ ! -d $plan9/sys/src ]; then
+	echo "$0 error: $plan9/sys/src is not a directory" 1>&2
+	exit 1
+fi
+
 case "$#" in
 0)
 	;;
@@ -117,6 +122,7 @@ esac
 
 for f in $autofiles
 do
+	test -f $plan9/$f  || echo "$0 error: $plan9/$f not found" 1>&2
 	ed=`echo $f | sed 's;.*/;;; s;\.[ch]$;;; s;$;.ed;'`
 	test -f $ed || ed=`echo $f | sed 's;.*/;;; s;$;.ed;'`
 	out=`echo $f | sed 's;.*/;;;'`

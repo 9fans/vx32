@@ -23,7 +23,7 @@ g/^cl/ s/(void\*)/(void *v)/
 .
 ,s/(ulong)name < KZERO/isuaddr(name)/
 /validaddr/d
-/ename = memchr(name, 0, (1<<16))/c
+/ename = vmemchr(name, 0, (1<<16))/c
 		char *p;
 		uint t;
 		p = name;

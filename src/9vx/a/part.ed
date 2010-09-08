@@ -1,0 +1,11 @@
+g/pp->name/d
+,s;sdbio(unit, part, a, unit->secsize, off);unit->dev->ifc->bio(unit, 0, 0, a, 1, (off/unit->secsize) + part->start);
+,s;sdbio(unit, &unit->part\[0\], buf, 2048, 17\*2048);unit->dev->ifc->bio(unit, 0, 0, buf, 2048/unit->secsize, (a*2048)/unit->secsize);
+,s;sdbio(unit, &unit->part\[0\], buf, 2048, a\*2048);unit->dev->ifc->bio(unit, 0, 0, buf, 2048/unit->secsize, (a*2048)/unit->secsize);
+,s;unit->name;unit->dev->name;g
+,s;getfields(\(.*\), '\(.*\)');getfields(\1, 0, "\2");g
+/^p9part/ s/$//
+/unit->npart < SDnpart/ s;&& unit->npart < SDnpart;/* & */;
+/p = getconf("partition")/;+2c
+	p = "new";
+.

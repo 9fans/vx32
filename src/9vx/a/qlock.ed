@@ -1,0 +1,8 @@
+1i
+#define	WANT_M
+.
+/^$/i
+int tracelock = 0;
+
+.
+g/^[a-z]\+(/ s/^/__/

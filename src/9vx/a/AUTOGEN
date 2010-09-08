@@ -108,6 +108,11 @@ if [ $# -gt 1 ] && [ $1 == "-r" ]; then
 	shift 2
 fi
 
+if [ ! -d $plan9/sys/src ]; then
+	echo "$0 error: $plan9/sys/src is not a directory" 1>&2
+	exit 1
+fi
+
 case "$#" in
 0)
 	;;
@@ -117,10 +122,12 @@ esac
 
 for f in $autofiles
 do
+	test -f $plan9/$f  || echo "$0 error: $plan9/$f not found" 1>&2
 	ed=`echo $f | sed 's;.*/;;; s;\.[ch]$;;; s;$;.ed;'`
 	test -f $ed || ed=`echo $f | sed 's;.*/;;; s;$;.ed;'`
 	out=`echo $f | sed 's;.*/;;;'`
-	echo $f '->' $out
+	echo -n $f '->' $out
+	test -f $ed && echo ' ('$ed')' || echo
 	test -f $out && chmod +w $out
 	(
 		echo ',s;"../port/;";g'
@@ -128,9 +135,10 @@ do
 		echo ',s;#include.*>;&FIXINCLUDEME;g'
 		echo ',s;>FIXINCLUDEME;";g'
 		echo ',s;"libc.h";"lib.h";g'
+		echo ',s;SET(\(.*\));;g'
 		echo 'g/#pragma/d'
 		test -f $ed && cat $ed
 		echo w $out
 		echo q
-	) | ed $plan9/$f 2>&1 | egrep -v '^[0-9?]+$'
+	) | ed -s $plan9/$f 2>&1 | egrep -v '^[0-9?]+$'
 done

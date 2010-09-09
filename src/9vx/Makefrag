@@ -249,6 +249,15 @@ PLAN9_DEPS = \
 
 .PHONY: 9vx/kerndate.h
 
+9vx/AUTOGEN: 9vx/a/AUTOGEN 9vx/9vx
+
+.PHONY: 9vx/AUTOGEN
+
+9vx/a/AUTOGEN:
+	cd 9vx/a/; ./AUTOGEN -r $(ROOT)
+
+.PHONY: 9vx/a/AUTOGEN
+
 CLEAN_FILES += \
 	9vx/*.d \
 	9vx/*.o \

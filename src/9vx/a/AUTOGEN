@@ -142,3 +142,5 @@ do
 		echo q
 	) | ed -s $plan9/$f 2>&1 | egrep -v '^[0-9?]+$'
 done
+
+exit 0

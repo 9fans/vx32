@@ -32,10 +32,6 @@ v/typedef/ s/RWlock;/RWlock lk;/g
 v/typedef/ s/Timer;/Timer timer;/g
 /Notsave;/ s/Notsave;/Notsave notsave;/
 ,s/PMMU;/PMMU pmmu;/g
-/PMMU/a
-	/* syscall trace */
-	char *syscalltrace;
-.
 $a
 void	printmap(void);	// Plan 9 VX
 

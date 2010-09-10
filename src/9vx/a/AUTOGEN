@@ -27,7 +27,6 @@ autofiles="
 /sys/include/trace.h
 /sys/src/9/pc/dat.h
 /sys/src/9/pc/devether.c
-/sys/src/9/pc/errstr.h
 /sys/src/9/pc/etherif.h
 /sys/src/9/pc/fns.h
 /sys/src/9/pc/io.h
@@ -130,6 +129,7 @@ do
 	test -f $ed && echo ' ('$ed')' || echo
 	test -f $out && chmod +w $out
 	(
+		echo ',s;"../ip/;"ip/;g'
 		echo ',s;"../port/;";g'
 		echo ',s;#include.*<;#include ";g'
 		echo ',s;#include.*>;&FIXINCLUDEME;g'

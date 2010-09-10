@@ -1,6 +1,7 @@
 g/bios32/d
 g/Pcidev/d
 g/mfence/d
+g/syscallprint/d
 $a
 
 // Plan 9 VX additions

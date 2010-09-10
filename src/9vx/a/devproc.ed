@@ -27,28 +27,14 @@ g/real time/d
 /if(s->flushme)/d
 d
 ,s/MACHP(0)->ticks/msec()/g
-/Qprofile,/a
-	Qsyscall,
-.
 /{Qprofile}/a
 	"syscall",	{Qsyscall},	0,			0400,
 .
 /^profclock/;#
 /^{/+1,/^}/-1d
 /^procopen/;#
-/case Qfpregs/a
-	case Qsyscall:
-.
 /^procread/;#
 /Confmem/d
-/case Qmem/i
-	case Qsyscall:
-		if(!p->syscalltrace)
-			return 0;
-		n = readstr(offset, a, n, p->syscalltrace);
-		return n;
-
-.
 /KZERO/ s/KZERO/USTKTOP/
 +2,/case .*:/-1c
 		error("no kernel memory access");

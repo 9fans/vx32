@@ -47,17 +47,15 @@ void*
 			qunlock(&s->lk);
 			return up->pmmu.uzero+addr0;
 .
-/^validaddr/-1;+1 c
+/^validaddr/-1;/^}/ c
 void*
 uvalidaddr(ulong addr, ulong len, int write)
-.
-/okaddr/c
+{
 	void *v;
 	
 	v = okaddr(addr, len, write);
 	if(v == nil)
-.
-/Suicide/a
+		pexit("Suicide", 0);
 	
 	// This is a valid address, but the host kernel
 	// might not know that.  In case we're going
@@ -78,6 +76,7 @@ uvalidaddr(ulong addr, ulong len, int write)
 			(void)a[len-1];
 	}
 	return v;
+}
 .
 /^vmemchr/ s/^//
 /int m/ s/m/m_/

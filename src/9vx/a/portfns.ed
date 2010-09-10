@@ -43,3 +43,4 @@ void	plimitproc(void*);
 void	ploadproc(void*);
 .
 g/µ/d
+/	realloc/d

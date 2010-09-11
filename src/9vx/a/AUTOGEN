@@ -70,7 +70,7 @@ autofiles="
 #/sys/src/9/port/sdaoe.c
 /sys/src/9/port/segment.c
 /sys/src/9/port/swap.c
-#/sys/src/9/port/sysfile.c
+/sys/src/9/port/sysfile.c
 /sys/src/9/port/sysproc.c
 /sys/src/9/port/systab.h
 /sys/src/9/port/thwack.c

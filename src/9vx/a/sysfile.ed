@@ -1,5 +1,6 @@
 ,s!lock(f)!lock(\&f->ref.lk)!g
 ,s!lock(c)!lock(\&c->ref.lk)!g
+,s!Chan \*c;!Chan *c = 0;!g
 ,s!ref(c)!ref(\&c->ref)!g
 ,s!^read(!doread(!
 ,s!return read(!return doread(!g
@@ -13,190 +14,83 @@
 	// Plan 9 VX replaced dodgy varargs code
 	v = *(vlong*)&arg[3];
 .
-,s/return bindmount(/return bindmount(0, /g
 g/^sys_/ s/ulong \*)/ulong *u)/
-g/^[a-z]/ s/ulong/uint32/g
-/^openmode/ s/uint32/ulong/
-/^sysfd2path/ s/^//
-/validaddr/-1;+1c
-	char *buf;
-
-	buf = uvalidaddr(arg[1], arg[2], 1);
-.
-/snprint/ s/(char\*)arg\[1\]/buf/
-/^syspipe/ s/^//
-/validaddr/-1;+1c
-	int *ufd;
-	
-	ufd = uvalidaddr(arg[0], 2*BY2WD, 1);
-.
-/((long\*)arg\[0\])/ s/((long\*)arg\[0\])/ufd/
-/((long\*)arg\[0\])/ s/((long\*)arg\[0\])/ufd/
-/^sysopen/ s/^//
-/^$/i
-	char *name;
-.
-/openmode/a
-	name = uvalidaddr(arg[0], 1, 0);
-	c = namec(name, Aopen, arg[1], 0);
-.
-/if(c)/d
-s/	//
-/validaddr/;/c = namec/d
-/^doread/ s/^//
+g/va_list/d
+/^sysfd2path/s/ulong/uint32/
+/^syspipe/s/ulong/uint32/
+/^sysdup/s/ulong/uint32/
+/^sysopen/s/ulong/uint32/
+/^sysclose/s/ulong/uint32/
+/^doread/s/ulong/uint32/
+/^sys_read/s/ulong/uint32/
+/^syspread/s/ulong/uint32/
+/^dowrite/s/ulong/uint32/
+/^sys_write/s/ulong/uint32/
+/^syspwrite/s/ulong/uint32/
+/^sseek/s/ulong/uint32/
+/ulong/s/ulong/uint32/
+/^sysseek/s/ulong/uint32/
+/^sysoseek/s/ulong/uint32/
+.,/^}/g/ulong/s/ulong/uint32/
+/^sysfstat/s/ulong/uint32/
+/^sysstat/s/ulong/uint32/
+/^syschdir/s/ulong/uint32/
+/^sysbind/s/ulong/uint32/
+/^sysmount/s/ulong/uint32/
+/^sys_mount/s/ulong/uint32/
+/^sysunmount/s/ulong/uint32/
+/^syscreate/s/ulong/uint32/
+/^sysremove/s/ulong/uint32/
+/^syswstat/s/ulong/uint32/
+/^sysfwstat/s/ulong/uint32/
+/^sys_stat/s/ulong/uint32/
+/^sys_fstat/s/ulong/uint32/
+/^sys_wstat/s/ulong/uint32/
+/^sys_fwstat/s/ulong/uint32/
+/^syspassfd/s/ulong/uint32/
+/^syspassfd/.
 /^{/a
-	int dir;
+	char *buf;
 .
-/validaddr/;/p =/c
-	p = uvalidaddr(arg[1], n, 1);
+/validaddr/s/validaddr/buf = uvalidaddr/
+/(char\*)arg\[1\]/s/(char\*)arg\[1\]/buf/
+/^syspipe/.
+/^{/a
+	int *ufd;
 .
-/QTDIR/;/c->umh/c
-	dir = c->qid.type&QTDIR;
-	if(dir && mountrockread(c, p, n, &nn)){
-		/* do nothing: mountrockread filled buffer */
-	}else{
-		if(dir && c->umh)
+/validaddr/s/validaddr/ufd = uvalidaddr/
+/((long\*)arg\[0\]/s/((long\*)arg\[0\])/ufd/
+/((long\*)arg\[0\]/s/((long\*)arg\[0\])/ufd/
+/^sysopen/.
+/^{/a
+	char *name;
 .
-/else{/;/}/c
-		else
-			nn = devtab[c->type]->read(c, p, n, off);
-	}
-	if(dir)
-.
-/}else/;/nnn/c
-	else
-		nnn = nn;
-.
-/^dowrite/ s/^//
-/^$/i
+/validaddr/s/validaddr/name = uvalidaddr/
+/(char\*)arg\[0\]/s/(char\*)arg\[0\]/name/
+/^dowrite/.
+/^{/a
 	uchar *p;
 .
-/validaddr/ s/v/p = uv/
-/m = devtab/ s/(void\*)arg\[1\]/p/
+/validaddr/s/validaddr/p = uvalidaddr/
+/(void\*)arg\[1\]/s/(void\*)arg\[1\]/name/
 /^sseek/s/(/(vlong *ret, /
-/u\[2\]/ s/ulong/uint32/
-/arg\[0\] = off/ s/\*(vlong\*)arg\[0\]/*ret/
-/^sysseek/s/^//
-/validaddr/;/sseek/c
-	sseek(uvalidaddr(arg[0], BY2V, 1), arg);
-.
-/^sysoseek/s/^//
-/^{/;/^$/s/ulong/uint32/g
-/a\[0\]/ s/=.*/= 0;/
-/sseek/ s/(.*)/(\&o.v, a)/
-/^sysfstat/ s/^//
-/^$/i
-	uchar *p;
-.
-/validaddr/ s/v/p = uv/
-/l = devtab/ s/(.*)/(c, p, l)/
-/^sysstat/ s/^//
-/^$/i
-	uchar *p;
-.
-/validaddr/ s/v/p = uv/
-/validaddr/ s/v/name = uv/
-/c = namec/ s/(char\*)arg\[0\]/name/
-/l = devtab/ s/(.*)/(c, p, l)/
-/l = dirsetname/ s/(uchar\*)arg\[1\]/p/
-/^syschdir/ s/^//
-/^$/i
-	char *name;
-.
-/validaddr/ s/v/name = uv/
-/c = namec/ s/(char\*)arg\[0\]/name/
-s/uint32/ulong/
-/^sysbind/ s/^//
-/return/ s/0, //
-s/(char\*)arg\[0\]/uvalidaddr(arg[0], 1, 0)/
-s/(char\*)arg\[1\]/uvalidaddr(arg[1], 1, 0)/
-/^sysmount/ s/^//
-/return/ s/0, //
-s/(char\*)arg\[2\]/uvalidaddr(arg[2], 1, 0)/
-s/(char\*)arg\[4\]/uvalidaddr(arg[4], 1, 0)/
-/^sys_mount/ s/^//
-/return/ s/0, //
-s/(char\*)arg\[1\]/uvalidaddr(arg[1], 1, 0)/
-s/(char\*)arg\[3\]/uvalidaddr(arg[3], 1, 0)/
-/^sysunmount/ s/^//
-/^$/i
-	char *mount, *mounted;
-.
-/validaddr/;/cmount/c
-	mount = uvalidaddr(arg[1], 1, 0);
-	cmount = namec(mount, Amount, 0, 0);
-.
-/validaddr/ s/v/mounted = uv/
-/cmounted/ s/(char\*)arg\[0\]/mounted/
-/^syscreate/ s/^//
-/^$/i
-	char *name;
-.
-/validaddr/;/c = namec/c
-	name = uvalidaddr(arg[0], 1, 0);
-	c = namec(name, Acreate, arg[1], arg[2]);
-.
-/^sysremove/ s/^//
-/^$/i
-	char *name;
-.
-/validaddr/;/c = namec/c
-	name = uvalidaddr(arg[0], 1, 0);
-	c = namec(name, Aremove, 0, 0);
-.
-/^syswstat/ s/^//
-/^$/i
-	char *name;
-	uchar *p;
-.
-/validaddr/;/return/c
-	p = uvalidaddr(arg[1], l, 0);
-	validstat(p, l);
-	name = uvalidaddr(arg[0], 1, 0);
-	c = namec(name, Aaccess, 0, 0);
-	return wstat(c, p, l);
-.
-/^sysfwstat/ s/^//
-/^$/i
-	uchar *p;
-.
-/validaddr/ s/v/p = uv/
-/validstat/ s/(uchar\*)arg\[1\]/p/
-/return/ s/(uchar\*)arg\[1\]/p/
-/^sys_stat/ s/^//
-/name/ s/;/, *elem;/
-/^$/i
-	uchar *p;
-.
-/validaddr/;/namec/c
-	p = uvalidaddr(arg[1], 116, 1);
-	name = uvalidaddr(arg[0], 1, 0);
-	c = namec(name, Aaccess, 0, 0);
-.
-/name =/;/l =/ s/name/elem/g
-/dirsetelem/ s/elem/name/
-/packoldstat/ s/(uchar\*)arg\[1\]/p/
-/^sys_fstat/ s/^//
-/^$/i
-	uchar *p;
-.
-/validaddr/ s/v/p = uv/
-/packoldstat/ s/(uchar\*)arg\[1\]/p/
+/^sysseek/.
+/validaddr/s/validaddr\(.*\);/sseek(uvalidaddr&, arg);/
+/sseek/d
 $a
 
 // Plan 9 VX additions
 long
 kbind(char *new, char *old, int flag)
 {
-	return bindmount(0, -1, -1, new, old, flag, nil);
+	return bindmount(1, 0, -1, -1, new, old, flag, nil);
 }
 
 long
-syspassfd(uint32 *u)
+syspassfd(ulong *u)
 {
 	error("passfd unimplemented");
 	return -1;
 }
 
 .
-g/va_list/d

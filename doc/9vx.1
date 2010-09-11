@@ -155,6 +155,8 @@ environment variable must be set to
 , in the 9vx.ini file or with the -c flag. It is recommended to add a cpurc
 in the /cfg/vx32/ directory, see cpurc(8). An example is included in the 9vx distribution.
 .SH BUGS
+The pcap ethernet device is not compiled by default (fails without pcap.h). To compile it, set PLAN9PCAP to etherpcap in the Makefrag file and recompile.
+.P
 The menu system of plan9.ini(8) is not supported in
 .I 9vx.ini
 files.
@@ -162,7 +164,7 @@ files.
 kfs file systems are not supported by the included boot/boot
 .P
 .I 9vx
-is not so stable as native Plan9 systems.
+is not so stable as native Plan9 systems.PLAN9PCAP
 .SH "SEE ALSO"
 .br
 Bryan Ford and Russ Cox,

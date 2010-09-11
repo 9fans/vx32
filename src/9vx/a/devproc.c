@@ -1,5 +1,5 @@
 #include	"u.h"
-#include "trace.h"
+#include	"trace.h"
 #include	"tos.h"
 #include	"lib.h"
 #include	"mem.h"
@@ -86,7 +86,6 @@ Dirtab procdir[] =
 	"wait",		{Qwait},	0,			0400,
 	"profile",	{Qprofile},	0,			0400,
 	"syscall",	{Qsyscall},	0,			0400,
-	"syscall",	{Qsyscall},	0,			0400,	
 };
 
 static
@@ -387,7 +386,7 @@ procopen(Chan *c, int omode)
 	case Qwait:
 	case Qregs:
 	case Qfpregs:
-	case Qsyscall:	
+	case Qsyscall:
 		nonone(p);
 		break;
 
@@ -696,6 +695,7 @@ procread(Chan *c, void *va, long n, vlong off)
 			n = j-offset;
 		memmove(a, &up->genbuf[offset], n);
 		return n;
+
 	case Qsyscall:
 		if(!p->syscalltrace)
 			return 0;

@@ -1,11 +1,11 @@
 #define	WANT_M
-#include "u.h"
+#include	"u.h"
 #include	"lib.h"
 #include	"mem.h"
 #include	"dat.h"
 #include	"fns.h"
 #include	"error.h"
-#include "trace.h"
+#include	"trace.h"
 
 int	schedgain = 30;	/* units in seconds */
 int	nrdy;
@@ -619,12 +619,8 @@ newproc(void)
 	if(up && up->procctl == Proc_tracesyscall)
 		p->procctl = Proc_tracesyscall;
 	else
-	if(up && up->procctl == Proc_tracesyscall)
-		p->procctl = Proc_tracesyscall;
-	else
 		p->procctl = 0;
 	p->syscalltrace = 0;
-	p->syscalltrace = 0;	
 	p->notepending = 0;
 	p->ureg = 0;
 	p->privatemem = 0;
@@ -1056,8 +1052,6 @@ pexit(char *exitstr, int freemem)
 	Chan *dot;
 	void (*pt)(Proc*, int, vlong);
 
-	if(up->syscalltrace)
-		free(up->syscalltrace);
 	if(up->syscalltrace)
 		free(up->syscalltrace);
 	up->alarm = 0;

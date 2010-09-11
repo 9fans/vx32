@@ -13,7 +13,6 @@ enum {
 
 uchar *mbrbuf, *partbuf;
 int nbuf;
-
 #define trace 0
 
 int
@@ -105,7 +104,7 @@ p9part(SDunit *unit, char *name)
 	char *field[4], *line[Npart+1];
 	uvlong start, end;
 	int i, n;
-
+	
 	p = sdfindpart(unit, name);
 	if(p == nil)
 		return;
@@ -126,7 +125,7 @@ p9part(SDunit *unit, char *name)
 		if(getfields(line[i], field, 4, 0, " ") != 4)
 			break;
 		start = strtoull(field[2], 0, 0);
-		end   = strtoull(field[3], 0, 0);
+		end = strtoull(field[3], 0, 0);
 		if(start >= end || end > unit->sectors)
 			break;
 		sdaddpart(unit, field[1], p->start+start, p->start+end);
@@ -160,18 +159,16 @@ mbrpart(SDunit *unit)
 
 	taboffset = 0;
 	dp = (Dospart*)&mbrbuf[0x1BE];
-	{
+	if(1) {
 		/* get the MBR (allowing for DMDDO) */
-		if(tsdbio(unit, &unit->part[0], mbrbuf,
-		    (vlong)taboffset * unit->secsize, 1) < 0)
+		if(tsdbio(unit, &unit->part[0], mbrbuf, (vlong)taboffset*unit->secsize, 1) < 0)
 			return -1;
 		for(i=0; i<4; i++)
 			if(dp[i].type == DMDDO) {
 				if(trace)
 					print("DMDDO partition found\n");
 				taboffset = 63;
-				if(tsdbio(unit, &unit->part[0], mbrbuf,
-				    (vlong)taboffset * unit->secsize, 1) < 0)
+				if(tsdbio(unit, &unit->part[0], mbrbuf, (vlong)taboffset*unit->secsize, 1) < 0)
 					return -1;
 				i = -1;	/* start over */
 			}
@@ -185,8 +182,7 @@ mbrpart(SDunit *unit)
 	havedos = 0;
 	firstxpart = 0;
 	for(;;) {
-		if(tsdbio(unit, &unit->part[0], mbrbuf,
-		    (vlong)taboffset * unit->secsize, 1) < 0)
+		if(tsdbio(unit, &unit->part[0], mbrbuf, (vlong)taboffset*unit->secsize, 1) < 0)
 			return -1;
 		if(trace) {
 			if(firstxpart)
@@ -255,7 +251,7 @@ part9660(SDunit *unit)
 	if(unit->secsize != 2048)
 		return -1;
 
-	if(unit->dev->ifc->bio(unit, 0, 0, buf, 2048/unit->secsize, (a*2048)/unit->secsize) < 0)
+	if(unit->dev->ifc->bio(unit, 0, 0, buf, 2048/unit->secsize, (17*2048)/unit->secsize) < 0)
 		return -1;
 
 	if(buf[0] || strcmp((char*)buf+1, "CD001\x01EL TORITO SPECIFICATION") != 0)
@@ -337,15 +333,9 @@ partition(SDunit *unit)
 		nbuf = unit->secsize;
 	}
 
-	/*
-	 * there might be no mbr (e.g. on a very large device), so look for
-	 * a bare plan 9 partition table if mbrpart fails.
-	 */
 	if((type & NEW) && mbrpart(unit) >= 0){
-		/* nothing to do */
+		/* nothing to do */;
 	}
-	else if (type & NEW)
-		p9part(unit, "data");
 	else if(type & OLD)
 		oldp9part(unit);
 }

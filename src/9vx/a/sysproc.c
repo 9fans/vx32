@@ -7,7 +7,7 @@
 #include	"fns.h"
 #include	"error.h"
 
-#include "a.out.h"
+#include	"a.out.h"
 
 int	shargs(char*, int, char**);
 

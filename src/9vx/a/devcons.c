@@ -5,7 +5,7 @@
 #include	"fns.h"
 #include	"error.h"
 
-#include "authsrv.h"
+#include	"authsrv.h"
 
 void	(*consdebug)(void) = nil;
 void	(*screenputs)(char*, int) = nil;
@@ -103,8 +103,7 @@ prflush(void)
  */
 struct {
 	Lock lk;
-//	char buf[16384];		/* normal */
-	char buf[256*1024];		/* for acpi debugging */
+	char buf[16384];
 	uint n;
 } kmesg;
 
@@ -1341,8 +1340,6 @@ writebintime(char *buf, int n)
 		if(n < sizeof(uvlong))
 			error(Ebadtimectl);
 		le2vlong(&fasthz, p);
-		if(fasthz <= 0)
-			error(Ebadtimectl);
 		todsetfreq(fasthz);
 		break;
 	}

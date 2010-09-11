@@ -1,7 +1,7 @@
 #define X86STEPPING(x)	((x) & 0x0F)
-/* incorporate extended-model bits */
+/* incorporates extended-model and -family bits */
 #define X86MODEL(x)	((((x)>>4) & 0x0F) | (((x)>>16) & 0x0F)<<4)
-#define X86FAMILY(x)	(((x)>>8) & 0x0F)
+#define X86FAMILY(x)	((((x)>>8) & 0x0F) | (((x)>>20) & 0xFF)<<4)
 
 enum {
 	VectorNMI	= 2,		/* non-maskable interrupt */
@@ -257,6 +257,12 @@ struct Pcidev
 	} ioa, mema;
 
 	int	pmrb;			/* power management register block */
+};
+
+enum {
+	/* vendor ids */
+	Vintel	= 0x8086,
+	Vmyricom= 0x14c1,
 };
 
 #define PCIWINDOW	0

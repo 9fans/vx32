@@ -27,12 +27,10 @@ struct Fs{
 	File	root;
 };
 
-/*
-extern int chatty;
-extern int dotini(Fs*);
-extern int fswalk(Fs*, char*, File*);
-extern int fsread(File*, void*, long);
-extern int fsboot(Fs*, char*, Boot*);
-*/
+// extern int chatty;
+// extern int dotini(Fs*);
+// extern int fswalk(Fs*, char*, File*);
+// extern int fsread(File*, void*, long);
+// extern int fsboot(Fs*, char*, Boot*);
 
 #define BADPTR(x) ((ulong)x < 0x80000000)

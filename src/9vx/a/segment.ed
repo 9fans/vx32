@@ -23,5 +23,5 @@
 /^}/i
 #endif
 .
-/validaddr/d
 /^syssegflush/s/ulong/uint32/
+g/validaddr/d

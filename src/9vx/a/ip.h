@@ -12,6 +12,59 @@ enum
 	IP_VER6=	0x60,
 };
 
+/*
+ *  for reading /net/ipifc
+ */
+typedef struct Ipifc Ipifc;
+typedef struct Iplifc Iplifc;
+typedef struct Ipv6rp Ipv6rp;
+
+/* local address */
+struct Iplifc
+{
+	Iplifc	*next;
+
+	/* per address on the ip interface */
+	uchar	ip[IPaddrlen];
+	uchar	mask[IPaddrlen];
+	uchar	net[IPaddrlen];		/* ip & mask */
+	ulong	preflt;			/* preferred lifetime */
+	ulong	validlt;		/* valid lifetime */
+};
+
+/* default values, one per stack */
+struct Ipv6rp
+{
+	int	mflag;
+	int	oflag;
+	int 	maxraint;
+	int	minraint;
+	int	linkmtu;
+	int	reachtime;
+	int	rxmitra;
+	int	ttl;
+	int	routerlt;	
+};
+
+/* actual interface */
+struct Ipifc
+{
+	Ipifc	*next;
+	Iplifc	*lifc;
+
+	/* per ip interface */
+	int	index;			/* number of interface in ipifc dir */
+	char	dev[64];
+	uchar	sendra6;		/* on == send router adv */
+	uchar	recvra6;		/* on == rcv router adv */
+	int	mtu;
+	ulong	pktin;
+	ulong	pktout;
+	ulong	errin;
+	ulong	errout;
+	Ipv6rp	rp;
+};
+
 #define ISIPV6MCAST(addr)	((addr)[0] == 0xff)
 #define ISIPV6LINKLOCAL(addr) ((addr)[0] == 0xfe && ((addr)[1] & 0xc0) == 0x80)
 
@@ -114,6 +167,8 @@ int	myipaddr(uchar*, char*);
 int	myetheraddr(uchar*, char*);
 int	equivip4(uchar*, uchar*);
 int	equivip6(uchar*, uchar*);
+
+Ipifc*	readipifc(char*, Ipifc*, int);
 
 void	hnputv(void*, uvlong);
 void	hnputl(void*, uint);

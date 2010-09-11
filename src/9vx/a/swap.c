@@ -12,9 +12,24 @@ static void	pageout(Proc*, Segment*);
 static void	pagepte(int, Page**);
 static void	pager(void *v);
 
-	Image 	swapimage;
+Image 	swapimage;
+
 static	Page	**iolist;
 static	int	ioptr;
+
+static	ulong	genage, genclock, gencount;
+static	uvlong	gensum;
+
+static void
+gentick(void)
+{
+	genclock++;
+	if(gencount)
+		genage = gensum / gencount;
+	else
+		genage = 0;
+	gensum = gencount = 0;
+}
 
 void
 swapinit(void)
@@ -114,15 +129,17 @@ pager(void *junk)
 
 loop:
 	up->psstate = "Idle";
+	wakeup(&palloc.r);
 	sleep(&swapalloc.r, needpages, 0);
 
 	while(needpages(junk)) {
-
 		if(swapimage.c) {
 			p++;
-			if(p >= ep)
+			if(p >= ep){
 				p = proctab(0);
-	
+				gentick();			
+			}
+
 			if(p->state == Dead || p->noswap)
 				continue;
 
@@ -157,15 +174,14 @@ loop:
 				}
 			}
 			qunlock(&p->seglock);
-		}
-		else {
-			print("out of physical memory; no swap configured\n");
-			if(!cpuserver || freebroken() == 0)
-				killbig("out of memory");
+		} else {
+			print("out of memory\n");
+			killbig("out of memory");
+			freebroken();		/* can use the memory */
 
 			/* Emulate the old system if no swap channel */
-			tsleep(&up->sleep, return0, 0, 5000);
-			wakeup(&palloc.r);
+			if(!swapimage.c)
+				tsleep(&up->sleep, return0, 0, 5000);
 		}
 	}
 	goto loop;
@@ -175,6 +191,7 @@ static void
 pageout(Proc *p, Segment *s)
 {
 	int type, i, size;
+	ulong age;
 	Pte *l;
 	Page **pg, *entry;
 
@@ -212,8 +229,17 @@ pageout(Proc *p, Segment *s)
 
 			if(entry->modref & PG_REF) {
 				entry->modref &= ~PG_REF;
-				continue;
+				entry->gen = genclock;
 			}
+
+			if(genclock < entry->gen)
+				age = ~(entry->gen - genclock);
+			else
+				age = genclock - entry->gen;
+			gensum += age;
+			gencount++;
+			if(age <= genage)
+				continue;
 
 			pagepte(type, pg);
 
@@ -321,6 +347,19 @@ pagersummary(void)
 		ioptr);
 }
 
+static int
+pageiocomp(void *a, void *b)
+{
+	Page *p1, *p2;
+
+	p1 = *(Page **)a;
+	p2 = *(Page **)b;
+	if(p1->daddr > p2->daddr)
+		return 1;
+	else
+		return -1;
+}
+
 static void
 executeio(void)
 {
@@ -331,7 +370,7 @@ executeio(void)
 	KMap *k;
 
 	c = swapimage.c;
-
+	qsort(iolist, ioptr, sizeof iolist[0], pageiocomp);
 	for(i = 0; i < ioptr; i++) {
 		if(ioptr > conf.nswppo)
 			panic("executeio: ioptr %d > %d", ioptr, conf.nswppo);

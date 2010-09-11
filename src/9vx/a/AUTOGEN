@@ -33,11 +33,11 @@ autofiles="
 /sys/src/9/pc/mem.h
 /sys/src/9/pc/sdscsi.c
 /sys/src/9/port/allocb.c
-/sys/src/9/port/aoe.h
-/sys/src/9/port/auth.c
+#/sys/src/9/port/aoe.h
+#/sys/src/9/port/auth.c
 /sys/src/9/port/chan.c
 /sys/src/9/port/dev.c
-/sys/src/9/port/devaoe.c
+#/sys/src/9/port/devaoe.c
 /sys/src/9/port/devcap.c
 /sys/src/9/port/devcons.c
 /sys/src/9/port/devdraw.c
@@ -55,8 +55,8 @@ autofiles="
 /sys/src/9/port/fault.c
 /sys/src/9/port/latin1.c
 /sys/src/9/port/lib.h
-/sys/src/9/port/netif.c
-/sys/src/9/port/netif.h
+#/sys/src/9/port/netif.c
+#/sys/src/9/port/netif.h
 /sys/src/9/port/page.c
 /sys/src/9/port/parse.c
 /sys/src/9/port/pgrp.c
@@ -67,10 +67,10 @@ autofiles="
 /sys/src/9/port/qio.c
 /sys/src/9/port/qlock.c
 /sys/src/9/port/sd.h
-/sys/src/9/port/sdaoe.c
+#/sys/src/9/port/sdaoe.c
 /sys/src/9/port/segment.c
 /sys/src/9/port/swap.c
-/sys/src/9/port/sysfile.c
+#/sys/src/9/port/sysfile.c
 /sys/src/9/port/sysproc.c
 /sys/src/9/port/systab.h
 /sys/src/9/port/thwack.c
@@ -101,15 +101,10 @@ autofiles="
 /sys/src/libip/parseip.c
 "
 
-plan9=$HOME/plan9
+plan9=/usr/local/9vx
 if [ $# -gt 1 ] && [ $1 == "-r" ]; then
-	plan9=$2
+	plan9=`ls -d $2` || exit 1
 	shift 2
-fi
-
-if [ ! -d $plan9/sys/src ]; then
-	echo "$0 error: $plan9/sys/src is not a directory" 1>&2
-	exit 1
 fi
 
 case "$#" in
@@ -119,28 +114,37 @@ case "$#" in
 	autofiles="$*"
 esac
 
+errors=0
+
 for f in $autofiles
 do
-	test -f $plan9/$f  || echo "$0 error: $plan9/$f not found" 1>&2
+	in=`echo $plan9$f | sed 's;//;/;'`
+	out=`echo $f | sed 's;.*/;;;'`
 	ed=`echo $f | sed 's;.*/;;; s;\.[ch]$;;; s;$;.ed;'`
 	test -f $ed || ed=`echo $f | sed 's;.*/;;; s;$;.ed;'`
-	out=`echo $f | sed 's;.*/;;;'`
-	echo -n $f '->' $out
-	test -f $ed && echo ' ('$ed')' || echo
-	test -f $out && chmod +w $out
-	(
-		echo ',s;"../ip/;"ip/;g'
-		echo ',s;"../port/;";g'
-		echo ',s;#include.*<;#include ";g'
-		echo ',s;#include.*>;&FIXINCLUDEME;g'
-		echo ',s;>FIXINCLUDEME;";g'
-		echo ',s;"libc.h";"lib.h";g'
-		echo ',s;SET(\(.*\));;g'
-		echo 'g/#pragma/d'
-		test -f $ed && cat $ed
-		echo w $out
-		echo q
-	) | ed -s $plan9/$f 2>&1 | egrep -v '^[0-9?]+$'
+	if test -f $in; then
+		echo -n $f '->' $out
+		test -f $ed && echo ' ('$ed')' || echo
+		test -f $out && chmod +w $out
+		(
+			echo ',s;"../ip/;"ip/;g'
+			echo ',s;"../port/;";g'
+			echo ',s;#include.*<;#include ";g'
+			echo ',s;#include.*>;&FIXINCLUDEME;g'
+			echo ',s;>FIXINCLUDEME;";g'
+			echo ',s;"libc.h";"lib.h";g'
+			echo ',s;SET(\(.*\));;g'
+			echo 'g/#pragma/d'
+			test -f $ed && cat $ed
+			echo w $out
+			echo q
+		) | ed -s $in 2>&1 | egrep -v '^[0-9?]+$'
+	else
+		echo "ERROR: $in not found" 1>&2
+		errors=`echo $errors + 1 | bc`
+	fi
 done
 
+test $errors -gt 0 && echo -n $errors error &&
+	(test $errors -gt 1 && echo s || echo)
 exit 0

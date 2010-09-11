@@ -5,7 +5,7 @@
 #include	"fns.h"
 #include	"error.h"
 
-#include	"libsec.h"
+#include "libsec.h"
 
 enum
 {

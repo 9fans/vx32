@@ -6,7 +6,7 @@ struct	Exec
 	int32	data;	 	/* size of initialized data */
 	int32	bss;	  	/* size of uninitialized data */
 	int32	syms;	 	/* size of symbol table */
-	int32	entry;	 	/* entry point32 */
+	int32	entry;	 	/* entry point */
 	int32	spsz;		/* size of pc/sp offset table */
 	int32	pcsz;		/* size of pc/line number table */
 };

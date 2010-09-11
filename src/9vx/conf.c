@@ -192,6 +192,8 @@ printconfig(char *argv0){
 	}
 	if(localroot)
 		print(" -r %s", localroot);
+	else if(!fsdev)
+		print(" -r -");
 	print(" -u %s", username);
 	for(i = 0; i < bootargc; i++)
 		print(" %s", bootargv[i]);

@@ -93,6 +93,7 @@ main(int argc, char **argv)
 	quotefmtinstall();
 
 	cpulimit = 0;
+	fsdev = 1;
 	inifile = nil;
 	memset(iniline, 0, MAXCONF);
 	memmb = 0;
@@ -190,20 +191,21 @@ main(int argc, char **argv)
 	bootargv = argv;
 	/*
 	 * bootargs have preference over -r
+	 * if localroot is -, keep it for printconfig
 	 */
-	fsdev = strcmp(localroot, "-");
-	if(fsdev){
+	if(bootargc > 0 && strcmp(localroot, "-") != 0)
+		localroot = nil;
+
+	inifields(&iniopt);
+
+	if(localroot && strcmp(localroot, "-") == 0){
+		fsdev = 0;
+		localroot = nil;
 		// remove #Z device from devtab
 		for(int i=0; devtab[i] && devtab[i] != &fsdevtab; i++)
 			if(devtab[i] == &fsdevtab)
 				devtab[i] = 0;
 	}
-
-	 // keep localroot for printconfig if !fsdevtab
-	if(bootargc > 0 && fsdev)
-		localroot = nil;
-
-	inifields(&iniopt);
 	
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";
@@ -236,8 +238,6 @@ main(int argc, char **argv)
 	siginit();
 
 	printconfig(argv0);
-	if(!fsdev)
-		localroot = nil;
 
 	if(nve == 0)
 		ipdevtab = pipdevtab;
@@ -252,8 +252,7 @@ main(int argc, char **argv)
 	if(!singlethread){
 		if(nve == 0)
 			makekprocdev(&ipdevtab);
-		if(fsdev)
-			makekprocdev(&fsdevtab);
+		makekprocdev(&fsdevtab);
 		makekprocdev(&drawdevtab);
 		makekprocdev(&audiodevtab);
 		if(nocpuload == 0)

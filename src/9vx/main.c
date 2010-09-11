@@ -82,7 +82,6 @@ nop(void)
 int
 main(int argc, char **argv)
 {
-	int fsdev;
 	int vetap;
 	char *vedev;
 	char *inifile;

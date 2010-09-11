@@ -27,8 +27,8 @@ sysfversion(uint32 *arg)
 	Chan *c;
 
 	msize = arg[1];
-	arglen = arg[3];
 	vers = uvalidaddr(arg[2], arglen, 1);
+	arglen = arg[3];
 	/* check there's a NUL in the version string */
 	if(arglen==0 || memchr(vers, 0, arglen)==0)
 		error(Ebadarg);
@@ -76,10 +76,10 @@ sysfauth(uint32 *arg)
 
 	ac = mntauth(c, aname);
 	/* at this point ac is responsible for keeping c alive */
-	cclose(c);
 	poperror();	/* c */
-	free(aname);
+	cclose(c);
 	poperror();	/* aname */
+	free(aname);
 
 	if(waserror()){
 		cclose(ac);

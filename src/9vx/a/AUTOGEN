@@ -34,7 +34,7 @@ autofiles="
 /sys/src/9/pc/sdscsi.c
 /sys/src/9/port/allocb.c
 #/sys/src/9/port/aoe.h
-#/sys/src/9/port/auth.c
+/sys/src/9/port/auth.c
 /sys/src/9/port/chan.c
 /sys/src/9/port/dev.c
 #/sys/src/9/port/devaoe.c

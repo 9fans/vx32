@@ -1,0 +1,14 @@
+,s/ulong/uint32/g
+,g/validaddr/d
+/^sysfversion/ .
+/arg\[2\]/c
+	vers = uvalidaddr(arg[2], arglen, 1);
+.
+/^sys_fsession/ .
+/arg\[1\]/c
+	*(char*)uvalidaddr(arg[1], arg[2], 1) = '\0';
+.
+/^sysfauth/ .
+/arg\[1\]/c
+	aname = validnamedup(uvalidaddr(arg[1], 1, 0), 1);
+.

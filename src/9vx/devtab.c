@@ -37,7 +37,6 @@ Dev *devtab[] = {
 	&dupdevtab,
 	&envdevtab,
 	&etherdevtab,
-	&fsdevtab,
 	&ipdevtab,
 	&mntdevtab,
 	&mntloopdevtab,
@@ -49,5 +48,7 @@ Dev *devtab[] = {
 	&srvdevtab,
 	&ssldevtab,
 	&tlsdevtab,
+	// must be the last one, can change to 0
+	&fsdevtab,
 	0
 };

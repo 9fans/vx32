@@ -16,7 +16,7 @@
 .I -p 9vx.ini
 ]
 [
-.I -r root
+.I -r localroot
 ]
 [
 .I -u user
@@ -33,7 +33,7 @@
 .I -p 9vx.ini
 ]
 [
-.I -r root
+.I -r localroot
 ]
 [
 .I -u user
@@ -57,16 +57,22 @@ Options can be passed to
 .I 9vx
 as command line arguments or in a configuration file specified with the
 .I -p
-option (see below). The host file server will be visible from inside as
-.I #Z.
+option (see below). 
 One or more
 .I bootargs
 arguments will be passed to boot/boot as explained in boot(8), with the addition that
-the local method also supports local directories. The
+the local method also supports local directories.
+The
 .I -r
 option sets
-.I nobootprompt=local!#Z/root
-to boot from a local directory containing a Plan 9 tree.
+.I nobootprompt=local!#Z/localroot
+to boot from a local directory containing a Plan 9 tree
+(the host file server can be accessed
+from inside through
+.I #Z,
+unless localroot is set to
+.L -
+).
 If an
 .I user
 is not specified, the current user in the host operating system will be used.

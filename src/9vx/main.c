@@ -82,6 +82,7 @@ nop(void)
 int
 main(int argc, char **argv)
 {
+	int fsdev;
 	int vetap;
 	char *vedev;
 	char *inifile;
@@ -190,7 +191,14 @@ main(int argc, char **argv)
 	/*
 	 * bootargs have preference over -r
 	 */
-	if(bootargc > 0)
+	fsdev = strcmp(localroot, "-");
+	if(strcmp(localroot, "-") == 0){
+		int i;
+		for(i=0; devtab[i] && devtab[i] != &fsdevtab; i++)
+			;
+		devtab[i] = 0;
+	}
+	if(bootargc > 0 || !fsdev)
 		localroot = nil;
 
 	inifields(&iniopt);
@@ -240,7 +248,8 @@ main(int argc, char **argv)
 	if(!singlethread){
 		if(nve == 0)
 			makekprocdev(&ipdevtab);
-		makekprocdev(&fsdevtab);
+		if(fsdev)
+			makekprocdev(&fsdevtab);
 		makekprocdev(&drawdevtab);
 		makekprocdev(&audiodevtab);
 		if(nocpuload == 0)

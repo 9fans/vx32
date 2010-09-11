@@ -192,7 +192,7 @@ main(int argc, char **argv)
 	 * bootargs have preference over -r
 	 */
 	fsdev = strcmp(localroot, "-");
-	if(strcmp(localroot, "-") == 0){
+	if(fsdev){
 		// remove #Z device from devtab
 		for(int i=0; devtab[i] && devtab[i] != &fsdevtab; i++)
 			if(devtab[i] == &fsdevtab)

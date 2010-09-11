@@ -193,12 +193,14 @@ main(int argc, char **argv)
 	 */
 	fsdev = strcmp(localroot, "-");
 	if(strcmp(localroot, "-") == 0){
-		int i;
-		for(i=0; devtab[i] && devtab[i] != &fsdevtab; i++)
-			;
-		devtab[i] = 0;
+		// remove #Z device from devtab
+		for(int i=0; devtab[i] && devtab[i] != &fsdevtab; i++)
+			if(devtab[i] == &fsdevtab)
+				devtab[i] = 0;
 	}
-	if(bootargc > 0 || !fsdev)
+
+	 // keep localroot for printconfig if !fsdevtab
+	if(bootargc > 0 && fsdev)
 		localroot = nil;
 
 	inifields(&iniopt);
@@ -234,6 +236,8 @@ main(int argc, char **argv)
 	siginit();
 
 	printconfig(argv0);
+	if(!fsdev)
+		localroot = nil;
 
 	if(nve == 0)
 		ipdevtab = pipdevtab;

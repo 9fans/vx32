@@ -62,6 +62,7 @@ static int singlethread;
 
 static void	bootinit(void);
 static void	siginit(void);
+static void machkeyinit(void);
 
 static char*	getuser(void);
 static char*	nobootprompt(char*);
@@ -87,6 +88,9 @@ main(int argc, char **argv)
 	char *inifile;
 
 	/* Minimal set up to make print work. */
+#ifndef TLS
+	machkeyinit();
+#endif
 	setmach(&mach0);
 	coherence = nop;
 	quotefmtinstall();
@@ -725,10 +729,6 @@ setsigsegv(int vx32)
 void
 mach0init(void)
 {
-#ifndef TLS
-	machkeyinit();
-#endif
-
 	conf.nmach = 1;
 	machinit();	/* common per-processor init */
 	active.machs = 1;

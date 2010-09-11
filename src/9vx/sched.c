@@ -159,8 +159,7 @@ runproc(void)
 	unlock(&kprocq.lk);
 	punlock(&run);
 	/*
-	 * To avoid the "double sleep" bug
-	 * Full history begins at:
+	 * To avoid the "double sleep" bug. See:
 	 * http://9fans.net/archive/2010/06/71
 	 */
 	while (p->mach)

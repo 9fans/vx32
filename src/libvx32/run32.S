@@ -111,6 +111,7 @@ EXT(vxrun_return):
 	popl	%edi
 	popl	%esi
 	popl	%ebx
+	cld
 	ret
 
 
@@ -128,6 +129,7 @@ EXT(vxrun_cleanup):
 	// (DS/ES/SS were already restored by vxrun_return.)
 	movw	VXEMU_HOST_VS(%eax),VSEG
 
+	cld
 	ret
 	
 // Don't put anything here!

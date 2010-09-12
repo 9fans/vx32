@@ -3,7 +3,7 @@ PLAN9VX=1
 PLAN9GUI=x11
 PLAN9AUDIO=unix
 PLAN9PCAP=nopcap
-PLAN9TAP=notap
+PLAN9TAP=ethertap
 endif
 
 ifeq ($(OS),darwin)
@@ -11,7 +11,7 @@ PLAN9VX=1
 PLAN9GUI=osx
 PLAN9AUDIO=none
 PLAN9PCAP=nopcap
-PLAN9TAP=notap
+PLAN9TAP=ethertap
 endif
 
 ifeq ($(OS),freebsd)

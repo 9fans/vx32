@@ -2,18 +2,24 @@ ifeq ($(OS),linux)
 PLAN9VX=1
 PLAN9GUI=x11
 PLAN9AUDIO=unix
+PLAN9PCAP=nopcap
+PLAN9TAP=notap
 endif
 
 ifeq ($(OS),darwin)
 PLAN9VX=1
 PLAN9GUI=osx
 PLAN9AUDIO=none
+PLAN9PCAP=nopcap
+PLAN9TAP=notap
 endif
 
 ifeq ($(OS),freebsd)
 PLAN9VX=1
 PLAN9GUI=x11
 PLAN9AUDIO=unix
+PLAN9PCAP=nopcap
+PLAN9TAP=notap
 endif
 
 # If you don't have/want X11
@@ -21,8 +27,8 @@ endif
 
 # Virtual ethernet devices
 #PLAN9PCAP=etherpcap
-PLAN9PCAP=nopcap
-PLAN9TAP=ethertap
+#PLAN9PCAP=nopcap
+#PLAN9TAP=ethertap
 #PLAN9TAP=notap
 
 ifeq ($(PLAN9VX),1)
@@ -205,7 +211,7 @@ PLAN9_DEPS = \
 	libvx32/libvx32.a \
 
 9vx/9vx: $(PLAN9_DEPS)
-	$(HOST_CC) -o $@ $(PLAN9_DEPS) $(PLAN9_GUI_LIBS) $(PLAN9_IP_LIBS) -lpthread
+	$(HOST_CC) -o $@ $(HOST_LDFLAGS) $(PLAN9_DEPS) $(PLAN9_GUI_LIBS) $(PLAN9_IP_LIBS) -lpthread 
 
 9vx/a/%.o: 9vx/a/%.c
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<

@@ -344,12 +344,15 @@ bootinit(void)
 	extern long factotumlen;
 	extern uchar fossilcode[];
 	extern long fossillen;
+	extern uchar kfscode[];
+	extern long kfslen;
 	extern uchar venticode[];
 	extern long ventilen;
 
 	addbootfile("boot", bootcode, bootlen);
 	addbootfile("factotum", factotumcode, factotumlen);
 	addbootfile("fossil", fossilcode, fossillen);
+	addbootfile("kfs", kfscode, kfslen);
 	addbootfile("venti", venticode, ventilen);
 }
 

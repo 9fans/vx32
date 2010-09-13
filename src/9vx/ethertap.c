@@ -16,6 +16,9 @@
 #include "etherif.h"
 #include "vether.h"
 
+#if defined(__APPLE__)
+#include <sys/socket.h>
+#endif
 #include <net/if.h>
 #include <sys/ioctl.h>
 
@@ -65,6 +68,21 @@ opentap(char *dev)
 
 	if((fd = open("/dev/tap", O_RDWR)) < 0)
 		return -1;
+	return fd;
+}
+#elif defined(__APPLE__)
+static int
+opentap(char *dev)
+{
+	int fd;
+	char *tap0 = "/dev/tap0";
+
+	if(dev == nil)
+		dev = tap0;
+	if((fd = open(dev, O_RDWR)) < 0) {
+		iprint("tap: open failed with: %d\n", errno);
+		return -1;
+	}
 	return fd;
 }
 #endif

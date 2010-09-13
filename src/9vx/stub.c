@@ -433,7 +433,8 @@ rebootcmd(int argc, char **argv)
 	restoretty();
 	for(i = 0; i < argc; i++)
 		iprint("%s%s", argv[i], argc - i > 1 ? " " : "");
-	iprint("\n");
+	if(argc > 0)
+		iprint("\n");
 	exit(0);
 	error(Egreg);
 }

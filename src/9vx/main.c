@@ -196,7 +196,7 @@ main(int argc, char **argv)
 	 * bootargs have preference over -r
 	 * if localroot is -, keep it for printconfig
 	 */
-	if(bootargc > 0 && strcmp(localroot, "-") != 0)
+	if(bootargc > 0 && localroot && strcmp(localroot, "-") != 0)
 		localroot = nil;
 
 	inifields(&iniopt);

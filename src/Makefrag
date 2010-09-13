@@ -4,7 +4,12 @@
 COMMON_CFLAGS = -g -O2 -MD -std=gnu99 -I. -fno-stack-protector $(CFLAGS)
 COMMON_LDFLAGS = -g -L. $(LDFLAGS)
 
-# Host environment compiler options
+ifeq ($(OS),darwin)
+COMMON_CFLAGS += -m32 -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE
+COMMON_LDFLAGS += -m32
+endif
+
+ # Host environment compiler options
 HOST_CC		:= $(CC) -fno-inline
 HOST_LD		:= $(LD)
 HOST_AR		:= $(AR)

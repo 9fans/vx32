@@ -28,4 +28,3 @@ connectlocalroot(void)
 /fd = connectlocal/i
 	if((fd = connectlocalroot()) < 0)
 .
-/fd = connectlocalkfs/s,[^	],// &,

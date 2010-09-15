@@ -1,1 +1,4 @@
-/rtc/ s;r/rtc;c/time;
+/if\(islocal\)/+1;/^	}/-1 c
+		print("\n");
+		return;
+.

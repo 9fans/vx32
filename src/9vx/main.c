@@ -71,7 +71,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-fgit] [-l cpulimit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-r root] [-u user] [bootargs]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-cfgit] [-l cpulimit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-r root] [-u user] [-e initcmd] [bootargs]\n");
 	exit(1);
 }
 
@@ -143,6 +143,9 @@ main(int argc, char **argv)
 		break;
 	case 'c':
 		cpuserver = 1;
+		break;
+	case 'e':
+		initcmd = EARGF(usage());
 		break;
 	case 'f':
 		nofork = 1;
@@ -528,6 +531,8 @@ init0(void)
 	inifields(&inienv);
 	if(initrc != 0)
 		inienv("init", "/386/init -tm");
+	else if(initcmd)
+		inienv("init", smprint("/386/init -t '. /rc/bin/termrc; home=/usr/$user; cd; %s; reboot'", initcmd));
 	if(localroot)
 		inienv("nobootprompt", nobootprompt(localroot));
 	inienv("cputype", "386");

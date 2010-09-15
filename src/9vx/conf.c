@@ -157,6 +157,8 @@ iniopt(char *name, char *value)
 		localroot = value;
 	else if(strcmp(name, "user") == 0 && !username)
 		username = value;
+	else if(strcmp(name, "initcmd") == 0 && !initcmd)
+		initcmd = value;
 }
 
 void
@@ -195,6 +197,8 @@ printconfig(char *argv0){
 	else if(!fsdev)
 		print(" -r -");
 	print(" -u %s", username);
+	if(initcmd)
+		print(" -e %s", initcmd);
 	for(i = 0; i < bootargc; i++)
 		print(" %s", bootargv[i]);
 	print("\n");

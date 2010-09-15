@@ -13,6 +13,7 @@ int	usetty;	/* use tty for input/output */
 int	memmb;	/* memory size in mb */
 int	bootargc;
 char**	bootargv;
+char*	initcmd;
 char*	inifile;
 char*	localroot;
 char*	username;

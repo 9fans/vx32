@@ -22,6 +22,9 @@
 .I -u user
 ]
 [
+.I -e initcmd
+]
+[
 .I bootargs
 ]
 .PP
@@ -37,6 +40,9 @@
 ]
 [
 .I -u user
+]
+[
+.I -e initcmd
 ]
 [
 .I bootargs
@@ -61,12 +67,12 @@ option (see below).
 One or more
 .I bootargs
 arguments will be passed to boot/boot as explained in boot(8), with the addition that
-the local method also supports local directories.
+the local method also supports local directories, as well as kfs and fossil disk files.
 The
 .I -r
 option sets
 .I nobootprompt=local!#Z/localroot
-to boot from a local directory containing a Plan 9 tree
+to boot from a local directory or file containing a Plan 9 tree
 (the host file server can be accessed
 from inside through
 .I #Z,
@@ -76,6 +82,11 @@ unless localroot is set to
 If an
 .I user
 is not specified, the current user in the host operating system will be used.
+The option
+.I -e
+can be used to boot a terminal and run
+.I initcmd
+instead of $home/lib/profile.
 Other options are:
 .nr xx \w'\fL-m\f2name\ \ '
 .TP \n(xxu
@@ -143,6 +154,7 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 .I macaddr
 (that can also be part of a netdev line),
 .I localroot.
+.I initcmd.
 and
 .I service
 .SS Exiting 9vx
@@ -160,8 +172,6 @@ The pcap ethernet device is not compiled by default (fails without pcap.h). To c
 The menu system of plan9.ini(8) is not supported in
 .I 9vx.ini
 files.
-.P
-kfs file systems are not supported by the included boot/boot
 .P
 .I 9vx
 is not so stable as native Plan9 systems.

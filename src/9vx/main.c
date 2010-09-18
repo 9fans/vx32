@@ -51,6 +51,10 @@ int	nocpuload;
 char*	argv0;
 char*	conffile = "9vx";
 char*	defaultroot = "local!/boot/rootfs.bz2";
+char*	defaultinit = "\
+/386/bin/bind -a /386/bin /bin; \
+/386/bin/bind -a /rc/bin /bin; \
+/386/bin/rc -i";
 Conf	conf;
 
 static Mach mach0;
@@ -527,10 +531,21 @@ init0(void)
 	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
 	inifields(&inienv);
-	if(initrc != 0)
-		inienv("init", "/386/init -tm");
-	else if(initcmd)
-		inienv("init", smprint("/386/init -t '. /rc/bin/termrc; home=/usr/$user; cd; %s; reboot'", initcmd));
+
+	if(initrc != 0){
+		if(localroot == nil && bootargc == 0){
+			inienv("nobootprompt", defaultroot);
+			inienv("initcmd", defaultinit);
+			inienv("init", "/386/bin/rc -c 'eval $initcmd'");
+		}
+		else
+			inienv("init", "/386/init -tm");
+	}
+	else if(initcmd){
+		ksetenv("initcmd", initcmd, 0);
+		inienv("init", "/386/init -t '. /rc/bin/termrc; home=/usr/$user;\
+			test -d $home && cd; rc -c $initcmd; reboot'");
+	}
 	if(localroot)
 		inienv("nobootprompt", nobootprompt(localroot));
 	inienv("cputype", "386");

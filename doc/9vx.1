@@ -101,9 +101,11 @@ Do not fork at init
 Do not start the gui
 .TP
 .BI -i
-Run rc(1) instead of init (sets
+If there is no root, boot from
+.I rootfs.bz2
+and run rc(1), else set
 .I init=/386/init -tm
-)
+(see init(8))
 .TP
 .BI -t
 Use tty for input/output

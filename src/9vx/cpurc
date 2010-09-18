@@ -1,6 +1,6 @@
 #!/bin/rc
 
-ip/ipconfig
+#ip/ipconfig
 auth/factotum
-echo 'key proto=p9sk1 dom=9vx user=glenda !password=p4ss' >/mnt/factotum/ctl
+echo 'key proto=p9sk1 dom=9vx user=glenda !password=password' >/mnt/factotum/ctl
 aux/listen1 -t tcp!*!17010 /bin/cpu -R

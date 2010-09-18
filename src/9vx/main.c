@@ -89,7 +89,6 @@ main(int argc, char **argv)
 {
 	int vetap;
 	char *vedev;
-	char *inifile;
 
 	/* Minimal set up to make print work. */
 #ifndef TLS
@@ -533,7 +532,7 @@ init0(void)
 	inifields(&inienv);
 
 	if(initrc != 0){
-		if(localroot == nil && bootargc == 0){
+		if(localroot == nil && inifile == nil && bootargc == 0){
 			ksetenv("nobootprompt", defaultroot, 0);
 			ksetenv("initcmd", defaultinit, 0);
 			ksetenv("init", "/386/bin/rc -c 'eval $initcmd", 0);

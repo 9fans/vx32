@@ -200,7 +200,7 @@ printconfig(char *argv0){
 		if(ve[i].mac != nil)
 			print(" -a %s", ve[i].mac);
 	}
-	if(allowed)
+	if(allowed && strcmp(allowed, "/") != 0)
 		print(" -z %s", allowed);
 	if(localroot)
 		print(" -r %s", localroot);

@@ -164,9 +164,12 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 (that can also be part of a netdev line),
 .I zallowed.
 .I localroot.
-.I initcmd.
+.I initcmd,
 and
-.I service
+.I service.
+New lines can be escaped surrounding
+.I value
+by simple quotes.
 .SS Exiting 9vx
 Reboot signals terminate 9vx execution. In particular, the reboot command
 will exit printing its arguments to starndard error.

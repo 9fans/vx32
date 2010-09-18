@@ -85,7 +85,7 @@ readini(char *fn)
 		*p++ = '\n';
 	*p++ = 0;
 
-	nfields += getfields(cp, &iniline[nfields], MAXCONF-nfields, 0, "\n");
+	nfields += gettokens(cp, &iniline[nfields], MAXCONF-nfields, "\n");
 
 	return 0;
 }
@@ -95,6 +95,7 @@ inifields(void (*fp)(char*, char*))
 {
 	int i;
 	char *cp;
+	char *cq;
 
 	for(i = 0; i < MAXCONF; i++){
 		if(!iniline[i])
@@ -103,6 +104,11 @@ inifields(void (*fp)(char*, char*))
 		if(cp == 0)
 			continue;
 		*cp++ = 0;
+		if(*cp == '\''){
+			cp++;
+			if((cq = strrchr(cp, '\'')) > 0)
+				*cq = 0;
+		}
 		if(cp - iniline[i] >= NAMELEN+1)
 			*(iniline[i]+NAMELEN-1) = 0;
 		(fp)(iniline[i], cp);

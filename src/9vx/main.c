@@ -534,21 +534,20 @@ init0(void)
 
 	if(initrc != 0){
 		if(localroot == nil && bootargc == 0){
-			inienv("nobootprompt", defaultroot);
-			inienv("initcmd", defaultinit);
-			inienv("init", "/386/bin/rc -c 'eval $initcmd'");
+			ksetenv("nobootprompt", defaultroot, 0);
+			ksetenv("initcmd", defaultinit, 0);
+			ksetenv("init", "/386/bin/rc -c 'eval $initcmd", 0);
 		}
 		else
-			inienv("init", "/386/init -tm");
+			ksetenv("init", "/386/init -tm", 0);
 	}
 	else if(initcmd){
 		ksetenv("initcmd", initcmd, 0);
-		inienv("init", "/386/init -t '. /rc/bin/termrc; home=/usr/$user;\
-			test -d $home && cd; rc -c $initcmd; reboot'");
+		ksetenv("init", "/386/init -t '. /rc/bin/termrc; home=/usr/$user;\
+			test -d $home && cd; rc -c $initcmd; reboot'", 0);
 	}
 	if(localroot)
-		inienv("nobootprompt", nobootprompt(localroot));
-	inienv("cputype", "386");
+		ksetenv("nobootprompt", nobootprompt(localroot), 0);
 
 	poperror();
 

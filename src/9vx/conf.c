@@ -161,8 +161,8 @@ iniopt(char *name, char *value)
 		setmac(value);
 	else if(strcmp(name, "localroot") == 0 && !localroot)
 		localroot = value;
-	else if(strcmp(name, "zallowed") == 0 && !zallowed)
-		zallowed = value;
+	else if(strcmp(name, "allowed") == 0 && !allowed)
+		allowed = value;
 	else if(strcmp(name, "user") == 0 && !username)
 		username = value;
 	else if(strcmp(name, "initcmd") == 0 && !initcmd)
@@ -200,8 +200,8 @@ printconfig(char *argv0){
 		if(ve[i].mac != nil)
 			print(" -a %s", ve[i].mac);
 	}
-	if(zallowed)
-		print(" -z %s", zallowed);
+	if(allowed)
+		print(" -z %s", allowed);
 	if(localroot)
 		print(" -r %s", localroot);
 	print(" -u %s", username);

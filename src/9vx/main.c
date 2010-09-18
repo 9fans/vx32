@@ -75,7 +75,7 @@ void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-cfgit] [-l cpulimit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-r root] [-u user] [-e initcmd] [bootargs]\n");
+	fprint(2, "usage: 9vx [-p file.ini] [-fgit] [-l cpulimit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-z allowed] [-r root] [-u user] [-e initcmd] [bootargs]\n");
 	exit(1);
 }
 
@@ -107,7 +107,7 @@ main(int argc, char **argv)
 	nofork = 0;
 	nve = 0;
 	usetty = 0;
-	zallowed = "/";
+	allowed = "/";
 	ARGBEGIN{
 	/* debugging options */
 	case '1':
@@ -188,7 +188,7 @@ main(int argc, char **argv)
 		username = EARGF(usage());
 		break;
 	case 'z':
-		zallowed = EARGF(usage());
+		allowed = EARGF(usage());
 		break;
 	default:
 		usage();

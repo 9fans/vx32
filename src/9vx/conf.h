@@ -15,7 +15,7 @@ char**	bootargv;
 char*	initcmd;
 char*	inifile;
 char*	localroot;
-char*	zallowed;
+char*	allowed;
 char*	username;
 
 int	readini(char *fn);

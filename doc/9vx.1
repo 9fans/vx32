@@ -50,9 +50,14 @@
 .SH DESCRIPTION
 Plan 9 VX (or
 .I 9vx
-for short) is a port of the Plan 9 operating system to run on top of commodity operating systems, allowing the use of both Plan 9 and the host system simultaneously. To run user programs,
+for short) is a port of the Plan 9 operating system to run on top of
+commodity operating systems, allowing the use of both Plan 9 and the
+host system simultaneously. To run user programs,
 .I 9vx
-creates an appropriate address space in a window within its own address space and invokes vx32 to simulate user mode execution. Some hardware devices are replaced by virtual versions, depending on the options given to
+creates an appropriate address space in a window within its own address
+space and invokes vx32 to simulate user mode execution. Some hardware
+devices are replaced by virtual versions, depending on the options
+given to
 .I 9vx.
 .I 9vx-tap
 is a shell script that sets up a tap device with tunctl(1), launches
@@ -66,8 +71,9 @@ as command line arguments or in a configuration file specified with the
 option (see below). 
 One or more
 .I bootargs
-arguments will be passed to boot/boot as explained in boot(8), with the addition that
-the local method also supports local directories, as well as kfs and fossil disk files.
+arguments will be passed to boot/boot as explained in boot(8), with
+the addition that the local method also supports local directories,
+as well as fossil, kfs, iso9660 and bz2 files.
 The
 .I -r
 option sets
@@ -79,10 +85,12 @@ from inside through
 unless localroot is set to
 .L -
 ).
+By default nobootprompt is set to local!/boot/rootfs.bz2, this file
+includes a very minimal system.
 If an
 .I user
-is not specified, the current user in the host operating system will be used.
-The option
+is not specified, the current user in the host operating system will
+be used.  The option
 .I -e
 can be used to boot a terminal and run
 .I initcmd
@@ -120,11 +128,14 @@ Create virtual ethernet devices. The
 .I tap
 option tells that
 .I device
-is a tap device. Else, the virtual device will use pcap(3) to intercept packets going to
+is a tap device. Else, the virtual device will use pcap(3) to intercept
+packets going to
 .I device,
 and will therefore need root privileges. If the host
 .I device
-is not valid, pcap will use the first one available. More than one virtual ethernet device can be used. In absence of virtual devices, the network stack of the host system will be used.
+is not valid, pcap will use the first one available. More than one
+virtual ethernet device can be used. In absence of virtual devices,
+the network stack of the host system will be used.
 .TP
 .BI -a " macaddress"
 Use the hardware address
@@ -158,16 +169,20 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 and
 .I service
 .SS Exiting 9vx
-Reboot signals terminate 9vx execution. In particular, the reboot command will exit printing its arguments to starndard error.
+Reboot signals terminate 9vx execution. In particular, the reboot command
+will exit printing its arguments to starndard error.
 .SS Running 9vx as a cpu server
 To run 9vx as a cpu server the
 .I service
 environment variable must be set to
 .I cpu
-, in the 9vx.ini file or with the -c flag. It is recommended to add a cpurc
-in the /cfg/vx32/ directory, see cpurc(8). An example is included in the 9vx distribution.
+, in the 9vx.ini file or with the -c flag. It is recommended to add a
+cpurc in the /cfg/vx32/ directory, see cpurc(8). An example is included
+in the 9vx distribution.
 .SH BUGS
-The pcap ethernet device is not compiled by default (fails without pcap.h). To compile it, set PLAN9PCAP to etherpcap in the Makefrag file and recompile.
+The pcap ethernet device is not compiled by default (fails without
+pcap.h). To compile it, set PLAN9PCAP to etherpcap in the Makefrag file
+and recompile.
 .P
 The menu system of plan9.ini(8) is not supported in
 .I 9vx.ini

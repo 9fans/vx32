@@ -94,11 +94,6 @@ instead of $home/lib/profile.
 Other options are:
 .nr xx \w'\fL-m\f2name\ \ '
 .TP \n(xxu
-.BI -c
-Start as a cpu(1) server (sets
-.I service=cpu
-)
-.TP
 .BI -f
 Do not fork at init
 .TP
@@ -174,13 +169,15 @@ and
 Reboot signals terminate 9vx execution. In particular, the reboot command
 will exit printing its arguments to starndard error.
 .SS Running 9vx as a cpu server
-To run 9vx as a cpu server the
+To run 9vx as a cpu server is recommended to add a
+cpurc file in /cfg/vx32/, see cpurc(8). An example is included
+with 9vx. This file will be used if the
 .I service
-environment variable must be set to
+environment variable is set to
 .I cpu
-, in the 9vx.ini file or with the -c flag. It is recommended to add a
-cpurc in the /cfg/vx32/ directory, see cpurc(8). An example is included
-in the 9vx distribution.
+in the 9vx.ini file (or if the
+.I -e cpurc
+option is given in the command line).
 .SH BUGS
 The pcap ethernet device is not compiled by default (fails without
 pcap.h). To compile it, set PLAN9PCAP to etherpcap in the Makefrag file

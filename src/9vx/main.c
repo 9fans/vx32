@@ -141,9 +141,6 @@ main(int argc, char **argv)
 	case 'a':
 		setmac(EARGF(usage()));
 		break;
-	case 'c':
-		cpuserver = 1;
-		break;
 	case 'e':
 		initcmd = EARGF(usage());
 		break;
@@ -526,10 +523,7 @@ init0(void)
 	ksetenv("terminal", buf, 0);
 	ksetenv("cputype", "386", 0);
 	ksetenv("rootdir", "/root", 0);
-	if(cpuserver)
-		ksetenv("service", "cpu", 0);
-	else
-		ksetenv("service", "terminal", 0);
+	ksetenv("service", "terminal", 0);
 	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
 	inifields(&inienv);

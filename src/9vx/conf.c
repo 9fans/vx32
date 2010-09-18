@@ -180,9 +180,9 @@ printconfig(char *argv0){
 	print(argv0);
 	if(inifile)
 		print(" -p %s", inifile);
-	if(cpuserver | nofork | nogui | initrc | usetty)
-		print(" -%s%s%s%s%s", cpuserver ? "c " : "", nofork ? "f " : "",
-			nogui ? "g" : "",initrc ? "i " : "", usetty ? "t " : "");
+	if(nofork | nogui | initrc | usetty)
+		print(" -%s%s%s%s", nofork ? "f " : "", nogui ? "g" : "",
+			initrc ? "i " : "", usetty ? "t " : "");
 	if(cpulimit != 0)
 		print(" -l %d", cpulimit);
 	if(memmb != 0)

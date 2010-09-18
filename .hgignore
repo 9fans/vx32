@@ -19,7 +19,6 @@ src/micro/h*
 src/hash/v*
 src/hash/h*
 .deps
-*.bz2
 src/vxa/bz2/*dbz2
 src/vxa/bz2/*ebz2
 src/vxlinux/vxlinux

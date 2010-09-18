@@ -96,7 +96,6 @@ main(int argc, char **argv)
 	quotefmtinstall();
 
 	cpulimit = 0;
-	fsdev = 1;
 	inifile = nil;
 	memset(iniline, 0, MAXCONF);
 	memmb = 0;
@@ -104,6 +103,7 @@ main(int argc, char **argv)
 	nofork = 0;
 	nve = 0;
 	usetty = 0;
+	zallowed = "/";
 	ARGBEGIN{
 	/* debugging options */
 	case '1':
@@ -180,11 +180,14 @@ main(int argc, char **argv)
 	case 'r':
 		localroot = EARGF(usage());
 		break;
+	case 't':
+		usetty = 1;
+		break;
 	case 'u':
 		username = EARGF(usage());
 		break;
-	case 't':
-		usetty = 1;
+	case 'z':
+		zallowed = EARGF(usage());
 		break;
 	default:
 		usage();
@@ -197,22 +200,12 @@ main(int argc, char **argv)
 	bootargv = argv;
 	/*
 	 * bootargs have preference over -r
-	 * if localroot is -, keep it for printconfig
 	 */
-	if(bootargc > 0 && localroot && strcmp(localroot, "-") != 0)
+	if(bootargc > 0)
 		localroot = nil;
 
 	inifields(&iniopt);
 
-	if(localroot && strcmp(localroot, "-") == 0){
-		fsdev = 0;
-		localroot = nil;
-		// remove #Z device from devtab
-		for(int i=0; devtab[i] && devtab[i] != &fsdevtab; i++)
-			if(devtab[i] == &fsdevtab)
-				devtab[i] = 0;
-	}
-	
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";
 	eve = strdup(username);

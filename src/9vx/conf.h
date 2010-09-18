@@ -5,7 +5,6 @@
 char	inibuf[BOOTARGSLEN];
 char	*iniline[MAXCONF];
 int	cpulimit;	/* max cpu usage */
-int	fsdev;	/* create fs device */
 int	initrc;	/* run rc instead of init */
 int	nofork;	/* do not fork at init */
 int	nogui;	/* do not start the gui */
@@ -16,6 +15,7 @@ char**	bootargv;
 char*	initcmd;
 char*	inifile;
 char*	localroot;
+char*	zallowed;
 char*	username;
 
 int	readini(char *fn);

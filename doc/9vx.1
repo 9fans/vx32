@@ -74,17 +74,13 @@ One or more
 arguments will be passed to boot/boot as explained in boot(8), with
 the addition that the local method also supports local directories,
 as well as fossil, kfs, iso9660 and bz2 files.
+The files in the host file system can be accessed from inside 9vx through
+.I #Z.
 The
 .I -r
 option sets
 .I nobootprompt=local!#Z/localroot
-to boot from a local directory or file containing a Plan 9 tree
-(the host file server can be accessed
-from inside through
-.I #Z,
-unless localroot is set to
-.L -
-).
+to boot from a local directory or file containing a Plan 9 tree.
 By default nobootprompt is set to local!/boot/rootfs.bz2, this file
 includes a very minimal system.
 If an
@@ -141,6 +137,11 @@ the network stack of the host system will be used.
 Use the hardware address
 .I macaddress
 for the last given virtual network device.
+.TP
+.BI -z " zallowed"
+Do not allow access to host files in #Z whose path does not begin with 
+.I zallowed
+(/ by default).
 .SS 9vx.ini configuration files
 Configuration parameters can also be given to
 .I 9vx
@@ -164,6 +165,7 @@ pairs in a similar fasion to plan9.ini(8). Additional options are
 .I netdev,
 .I macaddr
 (that can also be part of a netdev line),
+.I zallowed.
 .I localroot.
 .I initcmd.
 and

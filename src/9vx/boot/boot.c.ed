@@ -12,3 +12,10 @@ char*	localroot;
 Init:
 	cpuflag = (strcmp(getenv("service"), "cpu") == 0);
 .
+/if\(cmd == nil\)/ a
+		sprint(cmdbuf, "/%s/init", cputype);
+		if(stat(cmdbuf, statbuf, sizeof statbuf) < 0)
+			sprint(cmdbuf, "/%s/bin/rc", cputype);
+		else
+.
++;/;$/ s/^/	/

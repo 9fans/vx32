@@ -50,7 +50,7 @@ int	abortonfault;
 int	nocpuload;
 char*	argv0;
 char*	conffile = "9vx";
-char*	defaultroot = "local!#Z/usr/local/9vx";
+char*	defaultroot = "local!/boot/rootfs.bz2";
 Conf	conf;
 
 static Mach mach0;
@@ -336,26 +336,37 @@ bootinit(void)
 	 * even if we don't execute it to provide a file system.
 	 * Also, maybe /boot/boot needs it.
 	 *
-	 * factotum, fossil and venti are the normal Plan9 binary.
-	 * bootcode.9 is the file bootpcf.out obtained applyng
-	 * the patch in a/bootboot.ed and compiling with:
-	 *	mk 'CONF=pcf' bootpcf.out
+	 * 9660srv, bzfs, factotum, fossil and venti are
+	 * Plan9 386 executables.
+	 * bootcode.9 is the file bootpcf.out obtained running
+	 * mk in the ./boot/ directory from inside 9vx.
+	 *
+	 * TODO(yy): The boot methods should be optional
 	 */
+	extern uchar iso9660code[];
+	extern long iso9660len;
 	extern uchar bootcode[];
 	extern long bootlen;
+	extern uchar bzfscode[];
+	extern long bzfslen;
 	extern uchar factotumcode[];
 	extern long factotumlen;
 	extern uchar fossilcode[];
 	extern long fossillen;
 	extern uchar kfscode[];
 	extern long kfslen;
+	extern uchar rootfscode[];
+	extern long rootfslen;
 	extern uchar venticode[];
 	extern long ventilen;
 
+	addbootfile("9660srv", iso9660code, iso9660len);
 	addbootfile("boot", bootcode, bootlen);
+	addbootfile("bzfs", bzfscode, bzfslen);
 	addbootfile("factotum", factotumcode, factotumlen);
 	addbootfile("fossil", fossilcode, fossillen);
 	addbootfile("kfs", kfscode, kfslen);
+	addbootfile("rootfs.bz2", rootfscode, rootfslen);
 	addbootfile("venti", venticode, ventilen);
 }
 

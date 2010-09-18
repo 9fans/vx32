@@ -37,7 +37,9 @@ all: 9vx/9vx
 
 PLAN9_OBJS = \
 	$(addprefix 9vx/, \
+		9660srv.o \
 		bootcode.o \
+		bzfs.o \
 		conf.o \
 		devaudio.o \
 		devaudio-$(PLAN9AUDIO).o \
@@ -54,6 +56,7 @@ PLAN9_OBJS = \
 		load.o \
 		main.o \
 		mmu.o \
+		rootfs.o \
 		sched.o \
 		sdloop.o \
 		stub.o \
@@ -232,8 +235,14 @@ PLAN9_DEPS = \
 9vx/data2s: 9vx/data2s.c
 	$(HOST_CC) -o $@ $<
 
+9vx/9660srv.S: 9vx/data2s 9vx/9660srv.9
+	./9vx/data2s iso9660 < 9vx/9660srv.9 >$@_ && mv $@_ $@
+
 9vx/bootcode.S: 9vx/data2s 9vx/bootcode.9
 	./9vx/data2s boot < 9vx/bootcode.9 >$@_ && mv $@_ $@
+
+9vx/bzfs.S: 9vx/data2s 9vx/bzfs.9
+	./9vx/data2s bzfs < 9vx/bzfs.9 >$@_ && mv $@_ $@
 
 9vx/factotum.S: 9vx/data2s 9vx/factotum.9
 	./9vx/data2s factotum < 9vx/factotum.9 >$@_ && mv $@_ $@
@@ -243,6 +252,9 @@ PLAN9_DEPS = \
 
 9vx/kfs.S: 9vx/data2s 9vx/kfs.9
 	./9vx/data2s kfs < 9vx/kfs.9 >$@_ && mv $@_ $@
+
+9vx/rootfs.S: 9vx/data2s 9vx/rootfs.bz2
+	./9vx/data2s rootfs < 9vx/rootfs.bz2 >$@_ && mv $@_ $@
 
 9vx/venti.S: 9vx/data2s 9vx/venti.9
 	./9vx/data2s venti < 9vx/venti.9 > $@_ && mv $@_ $@
@@ -279,10 +291,13 @@ CLEAN_FILES += \
 	9vx/a/errstr.h \
 	9vx/9vx \
 	9vx/data2s \
+	9vx/9660srv.S \
 	9vx/bootcode.S \
+	9vx/bzfs.S \
 	9vx/factotum.S \
 	9vx/fossil.S \
 	9vx/kfs.S \
+	9vx/rootfs.S \
 	9vx/venti.S
 
 include 9vx/libdraw/Makefrag

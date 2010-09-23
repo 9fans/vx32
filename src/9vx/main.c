@@ -50,11 +50,7 @@ int	abortonfault;
 int	nocpuload;
 char*	argv0;
 char*	conffile = "9vx";
-char*	defaultroot = "local!/boot/rootfs.bz2";
-char*	defaultinit = "\
-/386/bin/bind -a /386/bin /bin; \
-/386/bin/bind -a /rc/bin /bin; \
-/386/bin/rc -i";
+char*	defaultboot = "local!/boot/rootfs.bz2";
 Conf	conf;
 
 static Mach mach0;
@@ -69,13 +65,12 @@ static void	siginit(void);
 static void machkeyinit(void);
 
 static char*	getuser(void);
-static char*	nobootprompt(char*);
 
 void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-fgit] [-l cpulimit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-z allowed] [-r root] [-u user] [-e initcmd] [bootargs]\n");
+	fprint(2, "usage: 9vx [-gt] [-f inifile | inifields ... ] [-i initarg] [-r localroot] [-u user]\n");
 	exit(1);
 }
 
@@ -88,7 +83,7 @@ int
 main(int argc, char **argv)
 {
 	int vetap;
-	char *vedev;
+	char *file;
 
 	/* Minimal set up to make print work. */
 #ifndef TLS
@@ -99,14 +94,13 @@ main(int argc, char **argv)
 	quotefmtinstall();
 
 	cpulimit = 0;
-	inifile = nil;
-	memset(iniline, 0, MAXCONF);
-	memmb = 0;
+	memset(inifield, 0, MAXCONF);
+	memsize = 256;
+	canopen = "/";
 	nogui = 0;
 	nofork = 0;
 	nve = 0;
 	usetty = 0;
-	allowed = "/";
 	ARGBEGIN{
 	/* debugging options */
 	case '1':
@@ -117,6 +111,9 @@ main(int argc, char **argv)
 		break;
 	case 'B':
 		abortonfault++;
+		break;
+	case 'F':
+		nofork = 1;
 		break;
 	case 'K':
 		tracekdev++;
@@ -141,70 +138,56 @@ main(int argc, char **argv)
 		break;
 	
 	/* real options */
-	case 'a':
-		setmac(EARGF(usage()));
-		break;
-	case 'e':
-		initcmd = EARGF(usage());
-		break;
-	case 'f':
-		nofork = 1;
-		break;
 	case 'g':
 		nogui = 1;
 		usetty = 1;
 		break;
+	case 't':
+		usetty = 1;
+		break;
+	default:
+		goto iniargs;
+	}ARGEND
+
+iniargs:
+	while(argc > 0 && argv[0][0] != '-'){
+		addini(strdup(argv[0]));
+		argc--; argv++;
+	}
+	/*
+	 * ARGBEGIN will do: argv++; argc--;
+	 * but argv[0] is not argv0 now
+	 */
+	argc++; argv--;
+	ARGBEGIN{
+	case 'f':
+		file = EARGF(usage());
+		if(addinifile(file) < 0)
+			panic("error reading config file %s", file);
+		break;
 	case 'i':
-		initrc = 1;
-		break;
-	case 'l':
-		cpulimit = atoi(EARGF(usage()));
-		break;
-	case 'm':
-		memmb = atoi(EARGF(usage()));
-		break;
-	case 'n':
-		vetap = 0;
-		vedev = ARGF();
-		if(vedev != nil && strcmp(vedev, "tap") == 0){
-			vetap = 1;
-			vedev = ARGF();
+		/*
+		 * Pass additional flag after -i is to init 
+		 * This is convenient for -ic and -im
+		 */
+		if(_args[0] != 0){
+			initarg = smprint("-%c", _args[0]);
+			_args++;
 		}
-		if(vedev == nil)
-			usage();
-		addve(vedev, vetap);
-		break;
-	case 'p':
-		inifile = EARGF(usage());
+		else
+			initarg = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());
 		break;
-	case 't':
-		usetty = 1;
-		break;
 	case 'u':
 		username = EARGF(usage());
-		break;
-	case 'z':
-		allowed = EARGF(usage());
 		break;
 	default:
 		usage();
 	}ARGEND
-
-	if(inifile != nil && readini(inifile) != 0)
-		panic("error reading config file %s", inifile);
-
-	bootargc = argc;
-	bootargv = argv;
-	/*
-	 * bootargs have preference over -r
-	 */
-	if(bootargc > 0)
-		localroot = nil;
-
-	inifields(&iniopt);
+	if(argc > 0)
+		goto iniargs;
 
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";
@@ -212,7 +195,7 @@ main(int argc, char **argv)
 	if(eve == nil)
 		panic("strdup eve");
 
-	mmusize(memmb);
+	mmusize(memsize);
 	mach0init();
 	mmuinit();
 	confinit();
@@ -274,18 +257,6 @@ main(int argc, char **argv)
 	active.thunderbirdsarego = 1;
 	schedinit();
 	return 0;  // Not reached
-}
-
-char*
-nobootprompt(char *root) {
-	char cwd[1024];
-
-	if(root[0] != '/'){
-		if(getcwd(cwd, sizeof cwd) == nil)
-			panic("getcwd: %r");
-		root = cleanname(smprint("%s/%s", cwd, root));
-	}
-	return smprint("local!#Z%s", root);
 }
 
 static char*
@@ -457,7 +428,7 @@ bootargs(void *base)
 	for(i = 0; i < bootargc && ac < 32; i++)
 		av[ac++] = pusharg(bootargv[i]);
 	if(i == 0)
-		av[ac++] = pusharg(defaultroot);
+		av[ac++] = pusharg(defaultboot);
 
 	/* 4 byte word align stack */
 	sp = (uchar*)((uintptr)sp & ~3);
@@ -527,26 +498,10 @@ init0(void)
 	ksetenv("cputype", "386", 0);
 	ksetenv("rootdir", "/root", 0);
 	ksetenv("service", "terminal", 0);
-	ksetenv("user", username, 0);
 	ksetenv("sysname", "vx32", 0);
-	inifields(&inienv);
-
-	if(initrc != 0){
-		if(localroot == nil && inifile == nil && bootargc == 0){
-			ksetenv("nobootprompt", defaultroot, 0);
-			ksetenv("initcmd", defaultinit, 0);
-			ksetenv("init", "/386/bin/rc -c 'eval $initcmd", 0);
-		}
-		else
-			ksetenv("init", "/386/init -tm", 0);
-	}
-	else if(initcmd){
-		ksetenv("initcmd", initcmd, 0);
-		ksetenv("init", "/386/init -t '. /rc/bin/termrc; home=/usr/$user;\
-			test -d $home && cd; rc -c $initcmd; reboot'", 0);
-	}
-	if(localroot)
-		ksetenv("nobootprompt", nobootprompt(localroot), 0);
+	ksetenv("init", "/386/init -t", 0);
+	ksetenv("user", username, 0);
+	setinienv();
 
 	poperror();
 

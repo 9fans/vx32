@@ -14,6 +14,48 @@
 
 char	filebuf[BOOTARGSLEN];
 
+static void
+addether(char *name, char *value)
+{
+	char *p;
+	int ctlrno;
+
+	ctlrno = atoi(&name[5]);
+	if(ctlrno > MaxEther)
+		return;
+	p = value;
+	while(*p){
+		while(*p == ' ' || *p == '\t')
+			p++;
+		if(*p == '\0')
+			break;
+		if(strncmp(p, "type=", 5) == 0){
+			p += 5;
+			if(strncmp(p, "tap", 3) == 0)
+				ve[ctlrno].tap = 1;
+			else if(strncmp(p, "pcap", 4) == 0)
+				ve[ctlrno].tap = 0;
+			else
+				return;
+		}
+		else if(strncmp(p, "dev=", 4) == 0){
+			p += 4;
+			ve[ctlrno].dev = p;
+			while(*p && *p != ' ' && *p != '\t')
+				p++;
+			*p++ = '\0';
+			continue;
+		}
+		else if(strncmp(p, "ea=", 3) == 0){
+			if(parseether(ve[ctlrno].ea, p+3) == -1)
+				memset(ve[ctlrno].ea, 0, 6);
+		}
+		while(*p && *p != ' ' && *p != '\t')
+			p++;
+	}
+	nve++;
+}
+
 void
 setinioptions()
 {
@@ -36,15 +78,15 @@ setinioptions()
 			memsize = atoi(value);
 		else if(strcmp(name, "canopenfiles") == 0)
 			canopen = value;
-		else if(strcmp(name, "ether") == 0)
-			//addether(name, value);
-			value = value;
+		else if(strncmp(name, "ether", 5) == 0)
+			addether(name, value);
 		else if(strcmp(name, "initarg") == 0)
 			initarg = value;
 		else if(strcmp(name, "localroot") == 0)
 			localroot = value;
 		else if(strcmp(name, "user") == 0)
 			username = value;
+		/* Restore '=' for setinienv and printconfig */
 		*(--value) = '=';
 	}
 }
@@ -108,8 +150,6 @@ addini(char *buf)
 		if(!incomment)
 			*p++ = *q;	
 	}
-	if(p > buf && p[-1] != '\n')
-		*p++ = '\n';
 	*p++ = 0;
 
 	n += gettokens(buf, &inifield[n], MAXCONF-n, "\n");
@@ -154,7 +194,9 @@ fullpath(char *root) {
 	return root;
 }
 
-/* poor man's quotestrdup to avoid needing quote.c */
+/*
+ * Poor man's quotestrdup to avoid needing quote.c
+ */
 char*
 quoted(char *in) {
 	char *out, *p;
@@ -217,6 +259,7 @@ printconfig(char *argv0){
 	print(argv0);
 	if(usetty)
 		print(" -%c", nogui ? 'g' : 't');
+	print(" \n");
 	for(i = 0; i < MAXCONF; i++){
 		if(!inifield[i])
 			break;

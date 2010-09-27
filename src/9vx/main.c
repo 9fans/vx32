@@ -82,7 +82,6 @@ nop(void)
 int
 main(int argc, char **argv)
 {
-	int vetap;
 	char *file;
 
 	/* Minimal set up to make print work. */
@@ -101,6 +100,7 @@ main(int argc, char **argv)
 	nofork = 0;
 	nve = 0;
 	usetty = 0;
+readargs:
 	ARGBEGIN{
 	/* debugging options */
 	case '1':
@@ -145,21 +145,8 @@ main(int argc, char **argv)
 	case 't':
 		usetty = 1;
 		break;
-	default:
-		goto iniargs;
-	}ARGEND
-
-iniargs:
-	while(argc > 0 && argv[0][0] != '-'){
-		addini(strdup(argv[0]));
-		argc--; argv++;
-	}
-	/*
-	 * ARGBEGIN will do: argv++; argc--;
-	 * but argv[0] is not argv0 now
-	 */
-	argc++; argv--;
-	ARGBEGIN{
+	
+	/* ini values */
 	case 'f':
 		file = EARGF(usage());
 		if(addinifile(file) < 0)
@@ -167,7 +154,7 @@ iniargs:
 		break;
 	case 'i':
 		/*
-		 * Pass additional flag after -i is to init 
+		 * Pass additional flag after -i to init 
 		 * This is convenient for -ic and -im
 		 */
 		if(_args[0] != 0){
@@ -183,11 +170,23 @@ iniargs:
 	case 'u':
 		username = EARGF(usage());
 		break;
+
 	default:
 		usage();
 	}ARGEND
-	if(argc > 0)
-		goto iniargs;
+
+	while(argc > 0){
+		if(argv[0][0] == '-'){
+			/*
+			 * ARGBEGIN will do: argv++; argc--;
+			 * to skip argv0, but argv[0] is not argv0 now
+			 */
+			argc++; argv--;
+			goto readargs;
+		}
+		addini(strdup(argv[0]));
+		argc--; argv++;
+	}
 
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";

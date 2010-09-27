@@ -26,7 +26,7 @@ endif
 #PLAN9GUI=nogui
 
 # Virtual ethernet devices
-#PLAN9PCAP=etherpcap
+PLAN9PCAP=etherpcap
 #PLAN9PCAP=nopcap
 #PLAN9TAP=ethertap
 #PLAN9TAP=notap

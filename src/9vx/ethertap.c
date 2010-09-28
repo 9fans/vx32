@@ -170,9 +170,9 @@ tappnp(Ether* e)
 	Ctlr c;
 	static int cve = 0;
 
-	while(cve < nve && ve[cve].tap == 0)
+	while(cve < MaxEther && ve[cve].tap == 0)
 		cve++;
-	if(cve == nve)
+	if(cve == MaxEther || ve[cve].dev == nil)
 		return -1;
 
 	memset(&c, 0, sizeof c);

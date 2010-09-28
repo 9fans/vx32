@@ -24,6 +24,10 @@ addether(char *name, char *value)
 	if(ctlrno > MaxEther)
 		return;
 	p = value;
+	/* default ea = 00:00:09:00:00:xx */
+	memset(ve[ctlrno].ea, 0, 6);
+	ve[ctlrno].ea[2] = 9;
+	ve[ctlrno].ea[5] = ctlrno;
 	while(*p){
 		while(*p == ' ' || *p == '\t')
 			p++;
@@ -78,7 +82,7 @@ setinioptions()
 			cpulimit = atoi(value);
 		else if(strcmp(name, "memsize") == 0)
 			memsize = atoi(value);
-		else if(strcmp(name, "canopenfiles") == 0)
+		else if(strcmp(name, "canopenpath") == 0)
 			canopen = value;
 		else if(strncmp(name, "ether", 5) == 0)
 			addether(name, value);

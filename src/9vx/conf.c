@@ -17,7 +17,7 @@ char	filebuf[BOOTARGSLEN];
 static void
 addether(char *name, char *value)
 {
-	char *p;
+	char *p, *q;
 	int ctlrno;
 
 	ctlrno = atoi(&name[5]);
@@ -40,10 +40,12 @@ addether(char *name, char *value)
 		}
 		else if(strncmp(p, "dev=", 4) == 0){
 			p += 4;
-			ve[ctlrno].dev = p;
-			while(*p && *p != ' ' && *p != '\t')
-				p++;
-			*p++ = '\0';
+			q = p;
+			while(*q && *q != ' ' && *q != '\t')
+				q++;
+			ve[ctlrno].dev = malloc(q - p + 1);
+			strncpy(ve[ctlrno].dev, p, q - p);
+			ve[ctlrno].dev[q-p] = '\0';
 			continue;
 		}
 		else if(strncmp(p, "ea=", 3) == 0){

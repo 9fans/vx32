@@ -304,7 +304,7 @@ bootinit(void)
 	 * bootcode.9 is the file bootpcf.out obtained running
 	 * mk in the ./boot/ directory from inside 9vx.
 	 *
-	 * TODO(yy): The boot methods should be optional
+	 * TODO(yy): boot methods should be optional
 	 */
 	extern uchar iso9660code[];
 	extern long iso9660len;

@@ -2,6 +2,9 @@
 
 USERID=`whoami`
 
+# Default root (can be changed with -r)
+root=${PLAN9VXROOT:=/usr/local/plan9vx}
+
 # Create the tap device with tunctl
 IFACE=`sudo tunctl -b -u $USERID`
 # or openvpn
@@ -15,7 +18,7 @@ sudo /sbin/ifconfig $IFACE 0.0.0.0 up
 sudo /usr/sbin/brctl addif br0 $IFACE
 
 # Launch 9vx (use -F to not fork)
-9vx -F "ether0=type=tap dev=$IFACE" $*
+9vx -F "ether0=type=tap dev=$IFACE" -r $root $*
 
 # Bring the tap device down and disconnect from br0
 sudo /sbin/ifconfig $IFACE down

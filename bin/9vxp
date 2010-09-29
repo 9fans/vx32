@@ -3,7 +3,7 @@
 #   Reads configuration from ~/.9vxp.ini
 
 # Default root (can be changed with -r)
-root=/usr/local/plan9/9vx.kfs
+root=${PLAN9VXROOT:=/usr/local/plan9vx}
 
 fatal() { echo $* 1>&2; exit 1; }
 abs() { f=$1

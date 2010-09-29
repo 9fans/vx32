@@ -1,0 +1,18 @@
+#!/bin/sh
+# 9vxp: run a lib/profile like file at init
+#   Reads configuration from ~/.9vxp.ini
+
+fatal() { echo $* 1>&2; exit 1; }
+abs() { f=$1
+        echo $f | grep -q '^/' || f=`pwd`/$f
+	ls $f || fatal $1 not found; }
+
+test $# -gt 0 || fatal "usage: 9vxp profile [args]"
+profile="#Z"`abs $1`; shift
+initprofile='. /rc/bin/termrc
+	home=/usr/$user; test -d $home && cd
+	. $profile || reboot exit with errors: $status
+	reboot'
+conf="~/.9vxp.ini"
+test -f $conf && conf="-f $conf" || unset conf
+exec 9vx $conf $* -i "$initprofile" "profile=$profile"

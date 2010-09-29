@@ -1,0 +1,13 @@
+#!/usr/bin/9vxp
+# acmevx: stand in 9vx complex
+
+mntgen
+ramfs
+plumber
+bind -a '#Z/tmp' /tmp
+bind '#Z/' /n/z
+prompt=('; ' ' ')
+if(test -f lib/acme.dump)
+	acme -l lib/acme.dump
+if not
+	acme

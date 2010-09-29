@@ -1,14 +1,15 @@
-#!/usr/bin/9vx -g -ic -f
+#!/usr/bin/9vx -gicf
 # 9vxc: a 9vx cpu sever
 #   If found, will exec /cfg/vx32/cpurc
 
 # configure a pcap ethernet device
 ether0=type=pcap dev=
-# root is a kfs file
+# default root is a kfs file
+# can be overwritten with -r
 localroot=/usr/local/plan9/9vx.kfs
 #nvram=#Z/usr/local/plan9/9vx.nvram
-# access to host files is limited
-canopenpath=/usr/local/plan9/9vx
-# cpu and memory are limited too
+# limit cpu usage and memory
 *cpulimit=20
 *memsize=128
+# limit access to host files
+# canopenpath=/usr/local/plan9/9vx

@@ -498,7 +498,7 @@ init0(void)
 	ksetenv("rootdir", "/root", 0);
 	ksetenv("service", "terminal", 0);
 	ksetenv("sysname", "vx32", 0);
-	ksetenv("init", "/386/init -t", 0);
+//	ksetenv("init", "/386/init -t", 0);
 	ksetenv("user", username, 0);
 	setinienv();
 

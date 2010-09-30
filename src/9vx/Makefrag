@@ -33,7 +33,23 @@ endif
 
 ifeq ($(PLAN9VX),1)
 
+PLAN9SCRIPTS = \
+	$(addprefix $(BINDIR)/, \
+		9vxc \
+		9vxp \
+		acmevx \
+		rcvx \
+		tap \
+	)
+
 all: 9vx/9vx
+install: $(BINDIR)/9vx $(PLAN9SCRIPTS)
+
+$(BINDIR)/9vx: 9vx/9vx
+	$(INSTALL) $< $@
+
+$(BINDIR)/%: ../bin/%
+	$(INSTALL) $< $@
 
 PLAN9_OBJS = \
 	$(addprefix 9vx/, \

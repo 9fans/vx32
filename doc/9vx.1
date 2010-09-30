@@ -36,11 +36,6 @@
 .I 9vx options
 ]
 .PP
-.B 9vxtap
-[
-.I 9vx options
-]
-.PP
 .B acmevx
 [
 .I 9vx options
@@ -49,6 +44,12 @@
 .B rcvx
 [
 .I rc(1) options
+]
+.PP
+.B tap
+.I cmd
+[
+.I cmd options
 ]
 .SH DESCRIPTION
 Plan 9 VX (or 9vx for short) is a port of the Plan 9 operating system to
@@ -97,7 +98,7 @@ Setup a virtual ethernet device. Parameters take the default values
 for tap and
 .I dev=
 for pcap (will look for the first one available) and
-,I addr=00:00:09:00:00:0x
+.I ea=00:00:09:00:00:0x
 in both cases. If no device is configured the
 network stack of the host system is used
 .TP
@@ -114,10 +115,10 @@ after converting localroot to an absolute path in the host.
 .B user
 Set user name, the host system user is used by default
 .PP
-Additional
+Other
 .I var=value
-pairs are used to set environment variables before control is passed to
-boot(8). Some configuration values can be set directly using flags in
+arguments are used to set environment variables before control is passed
+to boot(8). Some configuration values can be set directly using flags in
 the command line:
 .I -i
 sets
@@ -138,23 +139,29 @@ the system console. With
 the gui will not be started.
 .SS Booting 9vx
 When started, 9vx will run a modified version of boot(8) which accepts
-additional root locations for the local boot method: local
-directories, iso images and bz2 files (a compressed file system /boot/rootfs.bz2 is
-included in the 9vx executable). Fossil and kfs partitions (possibly in a local file) can be used too, as well as the tcp boot method.
+additional root locations for the local boot method: local directories,
+iso images and bz2 files (a compressed file system /boot/rootfs.bz2 is
+included in the 9vx executable). Fossil and kfs partitions (possibly in
+a local file) ca
+n be used too, as well as the tcp boot method.
 .SS Running 9vx
 Some scripts are included with 9vx as example:
 .I 9vxc
-boots a cpu sever and
+boots a cpu sever,
 .I 9vxp
 boots a terminal as if
 .I profile
-was the lib/profile file.
-.I 9vxtap
-shows how to use the tap device.
+was the lib/profile file (where
+.I profile
+can be a file or  rc(1) commands),
 .I acmevx
-uses 9vxp to run acme(1) inside 9vx.
+uses 9vxp to run acme(1) inside 9vx,
 .I rcvx
-directly runs rc(1) from the included rootfs.bz2 image.
+runs rc(1) from the included rootfs.bz2 image and
+.I tap
+adds a tap device before executing
+.I cmd
+(one of 9vx[cp]) and removes it when finished.
 .SS Exiting 9vx
 Reboot signals terminate 9vx execution. In particular, the reboot command
 will exit printing its arguments to starndard error.

@@ -1,21 +1,24 @@
 #!/bin/sh
-# 9vxp: run a lib/profile like file at init
+# 9vxp: run commands from arg or file
 #   Reads configuration from ~/.9vxp.ini
-
-# Default root (can be changed with -r)
-root=${PLAN9VXROOT:=/usr/local/plan9vx}
 
 fatal() { echo $* 1>&2; exit 1; }
 abs() { f=$1
         echo $f | grep -q '^/' || f=`pwd`/$f
 	ls $f || fatal $1 not found; }
+usage="usage: 9vxp profile [9vx options]"
 
-test $# -gt 0 || fatal "usage: 9vxp profile [args]"
-profile="#Z"`abs $1`; shift
+p=$1
+shift || fatal $usage
+test -f "$p" && p=". '#Z`abs $p`'"
+
+# Defaults
+root=${PLAN9VXROOT:=/usr/local/plan9vx}
+conf=${PLAN9VXCONF:=~/.9vxp.ini}
+
 initprofile='. /rc/bin/termrc
 	home=/usr/$user; test -d $home && cd
-	. $profile || reboot exit with errors: $status
+	'$p' || reboot exit with errors: $status
 	reboot'
-conf="~/.9vxp.ini"
 test -f $conf && conf="-f $conf" || unset conf
-exec 9vx $conf -r $root $* -i "$initprofile" "profile=$profile"
+exec 9vx -r $root $conf "$@" -i "$initprofile"

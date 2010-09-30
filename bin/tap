@@ -1,0 +1,33 @@
+#!/bin/sh
+# tap: set up/down a tap device
+
+fatal() { echo $* 1>&2; exit 1; }
+usage="usage: tap cmd [args]"
+
+cmd=$1
+shift || fatal $usage
+user=`whoami`
+
+# Create the tap device with tunctl
+iface=`sudo tunctl -b -u $user`
+# or openvpn
+#iface=tap0
+#sudo openvpn --mktun --dev $iface --user $user
+
+# Bring the tap device up
+sudo /sbin/ifconfig $iface 0.0.0.0 up
+
+# Add it to the bridge
+sudo /usr/sbin/brctl addif br0 $iface
+
+# Launch 9vx (use -F to not fork)
+$cmd "$@" -F "ether0=type=tap dev=$iface"
+
+# Bring the tap device down and disconnect from br0
+sudo /sbin/ifconfig $iface down
+sudo /usr/sbin/brctl delif br0 $iface
+
+# Remove the tap device with tunctl
+sudo tunctl -d $iface &> /dev/null
+# or openvpn
+#sudo openvpn --rmtun --dev $1

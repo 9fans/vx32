@@ -1,4 +1,4 @@
-#!/usr/bin/9vx -gicf
+#!/usr/local/bin/9vx -gicf
 # 9vxc: a 9vx cpu sever
 #   If found, will exec /cfg/vx32/cpurc
 

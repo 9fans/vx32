@@ -1,4 +1,4 @@
-#!/home/yiyus/gsoc/vx32/bin/9vxp -f
+#!//usr/local/bin/9vxp -f
 # acmevx: stand in 9vx complex
 
 mntgen

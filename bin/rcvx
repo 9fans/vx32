@@ -1,5 +1,5 @@
 #!/bin/sh
-# 9vxz: rc from the 9vx embeded image
+# rcvx: rc from the 9vx embeded image
 
 cmd="/386/bin/bind -a /386/bin /bin;
 	bind -a /rc/bin /bin;

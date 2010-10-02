@@ -11,7 +11,7 @@ vxlinux/vxlinux: vxlinux/vxlinux.o vxlinux/strsyscall.o libvx32/libvx32.a
 CLEAN_FILES += vxlinux/*.o vxlinux/vxlinux 
 
 all: vxlinux/vxlinux
-install: $(BINDIR)/vxlinux
+vxlinux/install: $(BINDIR)/vxlinux
 
 $(BINDIR)/vxlinux: vxlinux/vxlinux
 	$(INSTALL) $< $@

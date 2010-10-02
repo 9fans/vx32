@@ -43,7 +43,7 @@ PLAN9SCRIPTS = \
 	)
 
 all: 9vx/9vx
-install: $(BINDIR)/9vx $(PLAN9SCRIPTS)
+9vx/install: $(BINDIR)/9vx $(PLAN9SCRIPTS)
 
 $(BINDIR)/9vx: 9vx/9vx
 	$(INSTALL) $< $@

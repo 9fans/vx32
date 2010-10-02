@@ -322,7 +322,7 @@ CLIB_INST := $(prefix)/vx32/lib/libc.a $(prefix)/vx32/lib/libm.a $(prefix)/vx32/
 CLEAN_FILES += $(CLIB_OBJS) $(CLIB_DEPS)
 
 all: $(CLIB_DEPS)
-install: $(CLIB_INST)
+libvxc/install: $(CLIB_INST)
 
 
 # Build rules

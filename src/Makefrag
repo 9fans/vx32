@@ -48,6 +48,9 @@ INSTALL = install
 # Make sure that 'all' is the first target
 all:
 
+# Install libvx32 too
+install: 9vx/install libvxc/install vxlinux/install vxrun/install
+
 # Eliminate default suffix rules
 .SUFFIXES:
 

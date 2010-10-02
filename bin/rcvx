@@ -1,10 +1,12 @@
 #!/bin/sh
-# rcvx: rc from the 9vx embeded image
+# rcvx: rc from the 9vx embedded image
 
 cmd="/386/bin/bind -a /386/bin /bin;
 	bind -a /rc/bin /bin;
+	cd /bin;
+	echo Commands: *;
 	cd '#Z"`pwd`"';
-	prompt=\$sysname'# ';
+	prompt=\$sysname'% ';
 	rc $@;
 	echo reboot > '#c/reboot'"
 # double quotes in cmd to pass it to rc -c

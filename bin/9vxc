@@ -2,12 +2,12 @@
 # 9vxc: a 9vx cpu sever
 #   If found, will exec /cfg/vx32/cpurc
 
-# configure a pcap ethernet device
-ether0=type=pcap dev=
+# pcap ethernet device
+# ether0=type=pcap dev=
 # default root is a kfs file
 # can be overwritten with -r
 localroot=/usr/local/plan9/9vx.kfs
-#nvram=#Z/usr/local/plan9/9vx.nvram
+nvram=#Z/usr/local/plan9/9vx.nvram
 # limit cpu usage and memory
 *cpulimit=20
 *memsize=128

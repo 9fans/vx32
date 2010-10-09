@@ -12,4 +12,4 @@ cmd="/386/bin/bind -a /386/bin /bin;
 # double quotes in cmd to pass it to rc -c
 cmd=`echo $cmd | sed "s;';'';g"`
 exec 9vx -g "init=/386/bin/rc -c '$cmd'
-	nobootprompt=local!/boot/rootfs.bz2"
+	nobootprompt=local!/boot/rootfs"

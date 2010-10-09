@@ -322,7 +322,7 @@ CLEAN_FILES += \
 	9vx/bootinit.c \
 	9vx/data2s \
 	9vx/9660srv.S \
-	9vx/boot.S \
+	9vx/bootcode.S \
 	9vx/bzfs.S \
 	9vx/factotum.S \
 	9vx/fossil.S \

@@ -140,7 +140,7 @@ the gui will not be started.
 .SS Booting 9vx
 When started, 9vx will run a modified version of boot(8) which accepts
 additional root locations for the local boot method: local directories,
-iso images and bz2 files (a compressed file system /boot/rootfs.bz2 is
+iso images and bz2 files (a compressed file system /boot/rootfs is
 included in the 9vx executable). Fossil and kfs partitions (possibly in
 a local file) can be used too, as well as the tcp boot method.
 .SS Running 9vx
@@ -156,7 +156,7 @@ can be a file or  rc(1) commands),
 .I acmevx
 uses 9vxp to run acme(1) inside 9vx,
 .I rcvx
-runs rc(1) from the included rootfs.bz2 image and
+runs rc(1) from the included rootfs bz2 image and
 .I tap
 adds a tap device before executing
 .I cmd

@@ -50,7 +50,7 @@ int	abortonfault;
 int	nocpuload;
 char*	argv0;
 char*	conffile = "9vx";
-char*	defaultboot = "local!/boot/rootfs.bz2";
+char*	defaultboot = "local!/boot/rootfs";
 Conf	conf;
 
 static Mach mach0;
@@ -60,7 +60,6 @@ extern int tracekdev;
 extern int nuspace;
 static int singlethread;
 
-static void	bootinit(void);
 static void	siginit(void);
 static void machkeyinit(void);
 
@@ -288,49 +287,6 @@ confinit(void)
 	conf.nswap = 0;
 	conf.nswppo = 0;
 	conf.ialloc = 1<<20;
-}
-
-static void
-bootinit(void)
-{
-	/*
-	 * libauth refuses to use anything but /boot/factotum
-	 * to ask for keys, so we have to embed a factotum binary,
-	 * even if we don't execute it to provide a file system.
-	 * Also, maybe /boot/boot needs it.
-	 *
-	 * 9660srv, bzfs, factotum, fossil and venti are
-	 * Plan9 386 executables.
-	 * bootcode.9 is the file bootpcf.out obtained running
-	 * mk in the ./boot/ directory from inside 9vx.
-	 *
-	 * TODO(yy): boot methods should be optional
-	 */
-	extern uchar iso9660code[];
-	extern long iso9660len;
-	extern uchar bootcode[];
-	extern long bootlen;
-	extern uchar bzfscode[];
-	extern long bzfslen;
-	extern uchar factotumcode[];
-	extern long factotumlen;
-	extern uchar fossilcode[];
-	extern long fossillen;
-	extern uchar kfscode[];
-	extern long kfslen;
-	extern uchar rootfscode[];
-	extern long rootfslen;
-	extern uchar venticode[];
-	extern long ventilen;
-
-	addbootfile("9660srv", iso9660code, iso9660len);
-	addbootfile("boot", bootcode, bootlen);
-	addbootfile("bzfs", bzfscode, bzfslen);
-	addbootfile("factotum", factotumcode, factotumlen);
-	addbootfile("fossil", fossilcode, fossillen);
-	addbootfile("kfs", kfscode, kfslen);
-	addbootfile("rootfs.bz2", rootfscode, rootfslen);
-	addbootfile("venti", venticode, ventilen);
 }
 
 static uchar *sp;	/* user stack of init proc */

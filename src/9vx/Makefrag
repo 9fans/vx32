@@ -22,6 +22,20 @@ PLAN9PCAP=nopcap
 PLAN9TAP=notap
 endif
 
+# Boot files
+# Do not remove:
+# - bootcode, needed to boot
+# - factotum, used by libauth
+PLAN9BOOT=\
+	9660srv \
+	bootcode \
+	bzfs \
+	factotum \
+	fossil \
+	kfs \
+	rootfs \
+	venti \
+
 # If you don't have/want X11
 #PLAN9GUI=nogui
 
@@ -51,11 +65,14 @@ $(BINDIR)/9vx: 9vx/9vx
 $(BINDIR)/%: ../bin/%
 	$(INSTALL) $< $@
 
+9vx/bootinit.c: 9vx/mkbootinitc
+	9vx/mkbootinitc $(PLAN9BOOT) >$@
+
+PLAN9_BOOT_OBJS = $(patsubst %,9vx/%.o,$(PLAN9BOOT))
+
 PLAN9_OBJS = \
 	$(addprefix 9vx/, \
-		9660srv.o \
-		bootcode.o \
-		bzfs.o \
+		bootinit.o \
 		conf.o \
 		devaudio.o \
 		devaudio-$(PLAN9AUDIO).o \
@@ -64,15 +81,11 @@ PLAN9_OBJS = \
 		devmouse.o \
 		devram.o \
 		devtab.o \
-		factotum.o \
-		fossil.o \
-		kfs.o \
 		kprocdev.o \
 		label.o \
 		load.o \
 		main.o \
 		mmu.o \
-		rootfs.o \
 		sched.o \
 		sdloop.o \
 		stub.o \
@@ -80,7 +93,6 @@ PLAN9_OBJS = \
 		time.o \
 		trap.o \
 		tty.o \
-		venti.o \
 		vx32.o \
 	)
 
@@ -222,6 +234,7 @@ PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
 PLAN9_DEPS = \
 	$(PLAN9_OBJS) \
 	$(PLAN9_A_OBJS) \
+	$(PLAN9_BOOT_OBJS) \
 	$(PLAN9_IP_OBJS) \
 	$(PLAN9_GUI_OBJS) \
 	9vx/libsec/libsec.a \
@@ -252,7 +265,7 @@ PLAN9_DEPS = \
 	$(HOST_CC) -o $@ $<
 
 9vx/9660srv.S: 9vx/data2s 9vx/9660srv.9
-	./9vx/data2s iso9660 < 9vx/9660srv.9 >$@_ && mv $@_ $@
+	./9vx/data2s _9660srv < 9vx/9660srv.9 >$@_ && mv $@_ $@
 
 9vx/bootcode.S: 9vx/data2s 9vx/bootcode.9
 	./9vx/data2s boot < 9vx/bootcode.9 >$@_ && mv $@_ $@
@@ -306,9 +319,10 @@ CLEAN_FILES += \
 	9vx/kerndate.h \
 	9vx/a/errstr.h \
 	9vx/9vx \
+	9vx/bootinit.c \
 	9vx/data2s \
 	9vx/9660srv.S \
-	9vx/bootcode.S \
+	9vx/boot.S \
 	9vx/bzfs.S \
 	9vx/factotum.S \
 	9vx/fossil.S \

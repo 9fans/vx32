@@ -32,6 +32,7 @@ src/9vx/boot/rootfs.bz2
 src/9vx/bootcode.S
 src/9vx/9660srv.S
 src/9vx/bzfs.S
+src/9vx/bootinit.c
 src/9vx/fossil.S
 src/9vx/kfs.S
 src/9vx/rootfs.S

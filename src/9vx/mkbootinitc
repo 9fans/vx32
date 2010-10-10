@@ -15,8 +15,9 @@ bootinit(void)
 echo $* | awk '
 {
 	for(i = 1; i <= NF; i++){
-		a[i] = ($i ~ "bootcode") ? "boot" : $i
-		b[i] = ($i ~ /^[0-9]/) ? "_"$i : a[i]
+		a[i] = $i
+		# C var names cannot start with a digit
+		b[i] = ($i ~ /^[0-9]/) ? "_"$i : $i
 		print "	extern uchar "b[i]"code[];"
 		print "	extern long "b[i]"len;"
 	}

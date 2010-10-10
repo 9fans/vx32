@@ -36,6 +36,9 @@ PLAN9BOOT=\
 	rootfs \
 	venti \
 
+# Default argument to boot
+PLAN9BOOTARG=local!/boot/rootfs
+
 # If you don't have/want X11
 #PLAN9GUI=nogui
 
@@ -64,9 +67,6 @@ $(BINDIR)/9vx: 9vx/9vx
 
 $(BINDIR)/%: ../bin/%
 	$(INSTALL) $< $@
-
-9vx/bootinit.c: 9vx/mkbootinitc
-	9vx/mkbootinitc $(PLAN9BOOT) >$@
 
 PLAN9_BOOT_OBJS = $(patsubst %,9vx/%.o,$(PLAN9BOOT))
 
@@ -256,10 +256,13 @@ PLAN9_DEPS = \
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
 
 9vx/%.o: 9vx/%.c
-	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+	$(HOST_CC) $(HOST_CFLAGS) -D "BOOTARG=\"$(PLAN9BOOTARG)\"" -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
 
 9vx/%.o: 9vx/%.S
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+
+9vx/bootinit.c: 9vx/mkbootinitc
+	9vx/mkbootinitc $(PLAN9BOOT) >$@
 
 9vx/data2s: 9vx/data2s.c
 	$(HOST_CC) -o $@ $<

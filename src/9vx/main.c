@@ -50,7 +50,6 @@ int	abortonfault;
 int	nocpuload;
 char*	argv0;
 char*	conffile = "9vx";
-char*	defaultboot = "local!/boot/rootfs";
 Conf	conf;
 
 static Mach mach0;
@@ -383,7 +382,7 @@ bootargs(void *base)
 	for(i = 0; i < bootargc && ac < 32; i++)
 		av[ac++] = pusharg(bootargv[i]);
 	if(i == 0)
-		av[ac++] = pusharg(defaultboot);
+		av[ac++] = pusharg(BOOTARG);
 
 	/* 4 byte word align stack */
 	sp = (uchar*)((uintptr)sp & ~3);

@@ -68,7 +68,7 @@ $(BINDIR)/9vx: 9vx/9vx
 $(BINDIR)/%: ../bin/%
 	$(INSTALL) $< $@
 
-PLAN9_BOOT_OBJS = $(patsubst %,9vx/%.o,$(PLAN9BOOT))
+PLAN9_BOOT_OBJS = $(PLAN9BOOT:%=9vx/%.o)
 
 PLAN9_OBJS = \
 	$(addprefix 9vx/, \
@@ -268,10 +268,10 @@ PLAN9_DEPS = \
 	$(HOST_CC) -o $@ $<
 
 # We need the sed command to have a correct variable name for 9660srv
-9vx/%.S: 9vx/data2s 9vx/%.9
+9vx/%.S: 9vx/%.9 9vx/data2s
 	./9vx/data2s `echo $* | sed 's/^[0-9]/_&/'` < $< >$@_ && mv $@_ $@
 
-9vx/%.S: 9vx/data2s 9vx/%.bz2
+9vx/%.S: 9vx/%.bz2 9vx/data2s
 	./9vx/data2s `echo $* | sed 's/^[0-9]/_&/'` < $< >$@_ && mv $@_ $@
 
 9vx/a/errstr.h: 9vx/a/error.h

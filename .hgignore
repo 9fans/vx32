@@ -29,7 +29,7 @@ src/9vx/boot/libboot.a8
 src/9vx/boot/bootcode.9
 src/9vx/boot/bootfs/*
 src/9vx/boot/rootfs.bz2
-src/9vx/bootcode.S
+src/9vx/boot.S
 src/9vx/9660srv.S
 src/9vx/bzfs.S
 src/9vx/bootinit.c

@@ -16,6 +16,7 @@
 #include "etherif.h"
 #include "vether.h"
 
+#include <sys/socket.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 
@@ -65,6 +66,24 @@ opentap(char *dev)
 
 	if((fd = open("/dev/tap", O_RDWR)) < 0)
 		return -1;
+	return fd;
+}
+#elif defined(__DARWIN_UNIX03)
+static int
+opentap(char *dev)
+{
+	int fd;
+	struct stat s;
+
+	iprint("tundev: %s\n", dev);
+	if((fd = open("/dev/tap0", O_RDWR)) < 0)
+		return -1;
+	/* 
+	 *  miserable hack to get the interface up, 
+	 *  feel free to add the ioctls if you're feeling energetic. 
+	 */
+	system("ifconfig tap0 0.0.0.0 up");
+
 	return fd;
 }
 #endif

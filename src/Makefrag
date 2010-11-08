@@ -5,7 +5,10 @@ COMMON_CFLAGS = -g -O2 -MD -std=gnu99 -I. -fno-stack-protector $(CFLAGS)
 COMMON_LDFLAGS = -g -L. $(LDFLAGS)
 
 # Host environment compiler options
-HOST_CC		:= $(CC) -fno-inline -D_XOPEN_SOURCE -arch i386 -m32
+HOST_CC		:= $(CC) -fno-inline
+ifeq ($(OS),darwin)
+	HOST_CC		:= $(HOST_CC)  -D_XOPEN_SOURCE -arch i386 -m32
+endif
 HOST_LD		:= $(LD) -arch i386
 HOST_AR		:= $(AR)
 HOST_LDFLAGS	:= $(COMMON_LDFLAGS)

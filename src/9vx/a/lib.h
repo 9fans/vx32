@@ -22,6 +22,7 @@ extern	char*	cleanname(char*);
 extern	ulong	getcallerpc(void*);
 
 extern	int	getfields(char*, char**, int, int, char*);
+extern	int	gettokens(char *, char **, int , char *);
 extern	int	tokenize(char*, char**, int);
 extern	int	dec64(uchar*, int, char*, int);
 

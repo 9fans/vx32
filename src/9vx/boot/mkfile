@@ -5,11 +5,11 @@ CWD=`{pwd}
 EDFILES=`{ls *.ed}
 SRCFILES=${EDFILES:%.ed=%}
 
-bootcode.9: files
+boot.9: files
 	bind -bc $CWD $SRC9/boot
 	cd $SRC9/pc
 	mk bootpcf.out 'CONF=pcf' &&
-		mv bootpcf.out $CWD/bootcode.9
+		mv bootpcf.out $CWD/boot.9
 	unmount $CWD $SRC9/boot
 	unmount $SRC9/boot $SRC9/boot
 
@@ -24,4 +24,4 @@ files:V: $SRCFILES
 	cp $SRC9/boot/$stem $stem.orig
 
 clean:V:
-	rm -f bootcode.9 libboot.a8 *.[ch] *.orig
+	rm -f boot.9 libboot.a8 *.[ch] *.orig

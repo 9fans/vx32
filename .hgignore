@@ -19,7 +19,6 @@ src/micro/h*
 src/hash/v*
 src/hash/h*
 .deps
-*.bz2
 src/vxa/bz2/*dbz2
 src/vxa/bz2/*ebz2
 src/vxlinux/vxlinux
@@ -28,8 +27,15 @@ src/9vx/boot/*.[ch]
 src/9vx/boot/*.orig
 src/9vx/boot/libboot.a8
 src/9vx/boot/bootcode.9
-src/9vx/bootcode.S
+src/9vx/boot/bootfs/*
+src/9vx/boot/rootfs.bz2
+src/9vx/boot.S
+src/9vx/9660srv.S
+src/9vx/bzfs.S
+src/9vx/bootinit.c
 src/9vx/fossil.S
+src/9vx/kfs.S
+src/9vx/rootfs.S
 src/9vx/venti.S
 src/9vx/data2s
 src/9vx/a/errstr.h

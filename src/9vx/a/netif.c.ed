@@ -1,0 +1,4 @@
+/^netifgen/ s;char\*,;char* dummy,;
+s;int,;int dummy,;
+,s/qlock/QLOCK/g
+,s/qunlock/QUNLOCK/g

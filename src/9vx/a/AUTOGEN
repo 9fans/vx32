@@ -55,8 +55,8 @@ autofiles="
 /sys/src/9/port/fault.c
 /sys/src/9/port/latin1.c
 /sys/src/9/port/lib.h
-#/sys/src/9/port/netif.c
-#/sys/src/9/port/netif.h
+/sys/src/9/port/netif.c
+/sys/src/9/port/netif.h
 /sys/src/9/port/page.c
 /sys/src/9/port/parse.c
 /sys/src/9/port/pgrp.c
@@ -120,8 +120,8 @@ for f in $autofiles
 do
 	in=`echo $plan9$f | sed 's;//;/;'`
 	out=`echo $f | sed 's;.*/;;;'`
-	ed=`echo $f | sed 's;.*/;;; s;\.[ch]$;;; s;$;.ed;'`
-	test -f $ed || ed=`echo $f | sed 's;.*/;;; s;$;.ed;'`
+	ed=`echo $f | sed 's;.*/;;; s;$;.ed;'`
+	test -f $ed || ed=`echo $ed | sed 's;\.[ch]\.ed$;.ed;'`
 	if test -f $in; then
 		echo -n $f '->' $out
 		test -f $ed && echo ' ('$ed')' || echo

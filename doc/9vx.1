@@ -6,165 +6,178 @@
 \" '
 .TH 9VX 1
 .SH NAME
-9vx, 9vx-tap \- Plan9 port to the virtual execution environment vx32
+9vx \- Plan9 port to the virtual execution environment vx32
 .SH SYNOPSIS
 .B 9vx
 [
-.I option ...
+.I -gt
 ]
 [
-.I -p 9vx.ini
+.I -f inifile | var=value ...
+]
+[
+.I -i initarg
 ]
 [
 .I -r localroot
 ]
 [
 .I -u user
-]
-[
-.I bootargs
 ]
 .PP
-.B 9vx-tap
+.B 9vxc
 [
-.I option ...
+.I 9vx options
 ]
+.PP
+.B 9vxp
+.I profile
 [
-.I -p 9vx.ini
+.I 9vx options
 ]
+.PP
+.B acmevx
 [
-.I -r localroot
+.I 9vx options
 ]
+.PP
+.B rcvx
 [
-.I -u user
+.I rc(1) options
 ]
+.PP
+.B tap
+.I cmd
 [
-.I bootargs
+.I cmd options
 ]
 .SH DESCRIPTION
-Plan 9 VX (or
-.I 9vx
-for short) is a port of the Plan 9 operating system to run on top of commodity operating systems, allowing the use of both Plan 9 and the host system simultaneously. To run user programs,
-.I 9vx
-creates an appropriate address space in a window within its own address space and invokes vx32 to simulate user mode execution. Some hardware devices are replaced by virtual versions, depending on the options given to
-.I 9vx.
-.I 9vx-tap
-is a shell script that sets up a tap device with tunctl(1), launches
-.I 9vx,
-and removes the tap device when finished.
+Plan 9 VX (or 9vx for short) is a port of the Plan 9 operating system to
+run on top of commodity operating systems, allowing the use of both Plan
+9 and the host system simultaneously. To run user programs, 9vx creates
+an appropriate address space in a window within its own address space
+and invokes vx32 to simulate user mode execution.
 .PP
-Options can be passed to
-.I 9vx
-as command line arguments or in a configuration file specified with the
-.I -p
-option (see below). 
-One or more
-.I bootargs
-arguments will be passed to boot/boot as explained in boot(8), with the addition that
-the local method also supports local directories.
-The
-.I -r
-option sets
+9vx configuration is determined by assignments of the form
+.I var=value
+read from its argument list or from one or more
+files specified as 
+.I –f inifile
+(a file name
+.L -
+means the standard input). The rules are the same than for plan9.ini(8)
+files, with the addition that values between quotes in rc(1) style
+can span multiple lines.
+.PP
+The following variables are understood by 9vx:
+.PD
+.TP
+.B cpulimit
+Maximum cpu usage in percentage. A value of 0 (default) means that
+there is no limit
+.TP
+.B memsize
+Memory size in Mb (256 by default)
+.TP
+.B canopenpath
+The host files whose path begins with
+.I canopenpath
+can be opened from
+.I #Z
+(
+.I /
+by default)
+.TP
+.B etherx
+Setup a virtual ethernet device. Parameters take the default values
+.I type=tap
+(it can also be
+.I pcap
+),
+.I dev=/dev/tap0
+for tap and
+.I dev=
+for pcap (will look for the first one available) and
+.I ea=00:00:09:00:00:0x
+in both cases. If no device is configured the
+network stack of the host system is used
+.TP
+.B initarg
+Set
+.I init=/386/init -t initarg
+quoting initarg as needed
+.TP
+.B localroot
+Set
 .I nobootprompt=local!#Z/localroot
-to boot from a local directory containing a Plan 9 tree
-(the host file server can be accessed
-from inside through
-.I #Z,
-unless localroot is set to
-.L -
-).
-If an
-.I user
-is not specified, the current user in the host operating system will be used.
-Other options are:
-.nr xx \w'\fL-m\f2name\ \ '
-.TP \n(xxu
-.BI -c
-Start as a cpu(1) server (sets
-.I service=cpu
-)
+after converting localroot to an absolute path in the host.
 .TP
-.BI -f
-Do not fork at init
-.TP
-.BI -g
-Do not start the gui
-.TP
-.BI -i
-Run rc(1) instead of init (sets
-.I init=/386/init -tm
-)
-.TP
-.BI -t
-Use tty for input/output
-.TP
-.BI -l " cpulimit"
-Maximum cpu usage (in percentage)
-.TP
-.BI -m " memsize"
-Memory size
-.TP
-.BI -n " [ tap ] device"
-Create virtual ethernet devices. The
-.I tap
-option tells that
-.I device
-is a tap device. Else, the virtual device will use pcap(3) to intercept packets going to
-.I device,
-and will therefore need root privileges. If the host
-.I device
-is not valid, pcap will use the first one available. More than one virtual ethernet device can be used. In absence of virtual devices, the network stack of the host system will be used.
-.TP
-.BI -a " macaddress"
-Use the hardware address
-.I macaddress
-for the last given virtual network device.
-.SS 9vx.ini configuration files
-Configuration parameters can also be given to
-.I 9vx
-in a configuration file specified with the
-.I -p
-command line option.
-A file name
-.L -
-means the standard input.
-A
-.I 9vx.ini
-file contains a list of
-.I parameter=value
-pairs in a similar fasion to plan9.ini(8). Additional options are
-.I nofork,
-.I nogui,
-.I initrc,
-.I usetty,
-.I cpulimit,
-.I memsize,
-.I netdev,
-.I macaddr
-(that can also be part of a netdev line),
-.I localroot.
+.B user
+Set user name, the host system user is used by default
+.PP
+Other
+.I var=value
+arguments are used to set environment variables before control is passed
+to boot(8). Some configuration values can be set directly using flags in
+the command line:
+.I -i
+sets
+.I initargs
+,
+.I -r
+sets
+.I localroot
 and
-.I service
+.I -u
+sets
+.I user.
+If
+.I -t
+is given the current tty or the standard input/output will be used as
+the system console. With
+.I -g
+the gui will not be started.
+.SS Booting 9vx
+When started, 9vx will run a modified version of boot(8) which accepts
+additional root locations for the local boot method: local directories,
+iso images and bz2 files (a compressed file system /boot/rootfs is
+included in the 9vx executable). Fossil and kfs partitions (possibly in
+a local file) can be used too, as well as the tcp boot method.
+.SS Running 9vx
+Some scripts are included with 9vx as example:
+.I 9vxc
+boots a cpu sever,
+.I 9vxp
+boots a terminal as if
+.I profile
+was the lib/profile file (where
+.I profile
+can be a file or  rc(1) commands),
+.I acmevx
+uses 9vxp to run acme(1) inside 9vx,
+.I rcvx
+runs rc(1) from the included rootfs bz2 image and
+.I tap
+adds a tap device before executing
+.I cmd
+(one of 9vx[cp]) and removes it when finished.
 .SS Exiting 9vx
-Reboot signals terminate 9vx execution. In particular, the reboot command will exit printing its arguments to starndard error.
-.SS Running 9vx as a cpu server
-To run 9vx as a cpu server the
-.I service
-environment variable must be set to
-.I cpu
-, in the 9vx.ini file or with the -c flag. It is recommended to add a cpurc
-in the /cfg/vx32/ directory, see cpurc(8). An example is included in the 9vx distribution.
+Reboot signals terminate 9vx execution. In particular, the reboot command
+will exit printing its arguments to starndard error.
 .SH BUGS
-The pcap ethernet device is not compiled by default (fails without pcap.h). To compile it, set PLAN9PCAP to etherpcap in the Makefrag file and recompile.
+The pcap ethernet device is not compiled by default (fails without
+pcap.h). To compile it, set PLAN9PCAP to etherpcap in the Makefrag file
+and recompile.
 .P
 The menu system of plan9.ini(8) is not supported in
 .I 9vx.ini
 files.
 .P
-kfs file systems are not supported by the included boot/boot
+Debugging flags are not documented (
+.I -1ABFKLMPSUX
+)
 .P
-.I 9vx
-is not so stable as native Plan9 systems.
+9vx is not so stable as native Plan9 systems.
 .SH "SEE ALSO"
 .br
 Bryan Ford and Russ Cox,

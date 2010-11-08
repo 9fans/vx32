@@ -1,3 +1,31 @@
+/^connectlocalkfs/+/^$/i
+	char buf[512];
+	char *argv0;
+	char *cmd = "/boot/bzfs";
+.
+/stat/;/^$/ d
+/dirfstat/ i
+	/* can do the check in 9vx -- kfs is kfs */
+	memset(buf, 0, sizeof buf);
+	pread(fd, buf, 512, 0);
+	if(memcmp(buf+256, "kfs wren device\n", 16) == 0)
+		cmd = "/boot/kfs";
+	else{
+		/* if an iso image, use 9660srv */
+		pread(fd, buf, 512, 17*0x800);
+		if(memcmp(buf, "\0CD001", 6) == 0)
+			cmd = "/boot/9660srv";
+	}
+	/* argv0 is basename(cmd) */
+	argv0 = strrchr(cmd, '/') + 1;
+	if(stat(cmd, statbuf, sizeof statbuf) < 0)
+		return -1;
+
+.
+/print\("kfs\.\.\."\)/ s/"kfs\.\.\."/"%s...", argv0/
+/"kfs"/ s/"kfs"/argv0/
+/exec/ s;"/boot/kfs";cmd;g
+g/fatal\(.*kfs.*\)/ s/ (for )?kfs//
 /fatal\("open \/net\/ipifc\/clone for loopback"\)/s,[^	],// &,
 a
 			return;
@@ -28,4 +56,3 @@ connectlocalroot(void)
 /fd = connectlocal/i
 	if((fd = connectlocalroot()) < 0)
 .
-/fd = connectlocalkfs/s,[^	],// &,

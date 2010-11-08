@@ -1,0 +1,24 @@
+#!/bin/sh
+# 9vxp: run commands from arg or file
+#   Reads configuration from ~/.9vxp.ini
+
+fatal() { echo $* 1>&2; exit 1; }
+abs() { f=$1
+        echo $f | grep -q '^/' || f=`pwd`/$f
+	ls $f || fatal $1 not found; }
+usage="usage: 9vxp profile [9vx options]"
+
+p=$1
+shift || fatal $usage
+test -f "$p" && p=". '#Z`abs $p`'"
+
+# Defaults
+root=${PLAN9VXROOT:=/usr/local/plan9vx}
+conf=${PLAN9VXCONF:=~/.9vxp.ini}
+
+initprofile='. /rc/bin/termrc
+	home=/usr/$user; test -d $home && cd
+	'$p' || reboot exit with errors: $status
+	reboot'
+test -f $conf && conf="-f $conf" || unset conf
+exec 9vx -r $root $conf "$@" -i "$initprofile"

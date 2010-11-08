@@ -33,6 +33,7 @@ enum
 	FsChar = 'Z',
 };
 
+extern char *canopen;
 extern Path *addelem(Path*, char*, Chan*);
 static char *uidtoname(int);
 static char *gidtoname(int);
@@ -355,12 +356,15 @@ fsopen(Chan *c, int mode)
 	if(Trace)
 		print("fsopen %s %#x\n", ufd->path->s, mode);
 
+	/* protect files whose path does not begin with allowed */
+	if(strncmp(ufd->path->s, canopen, strlen(canopen)) != 0)
+		error(Eperm);
+
 	if(mode & ~(OTRUNC|ORCLOSE|3))
 		error(Ebadarg);
 
 	if((c->qid.type & QTDIR) && mode != OREAD)
 		error(Eperm);
-
 	
 	if((c->qid.type&QTDIR) && mode != OREAD)
 		error(Eperm);

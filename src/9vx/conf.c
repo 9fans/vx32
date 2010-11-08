@@ -12,36 +12,103 @@
 #include	"etherif.h"
 #include 	"vether.h"
 
-/*
- *  read configuration file
- */
-int
-readini(char *fn)
+char	filebuf[BOOTARGSLEN];
+
+static void
+addether(char *name, char *value)
 {
-	int blankline, incomment, inspace, n, fd;
-	static int nfields = 0;
-	static char *buf = inibuf;
-	char *cp, *p, *q;
+	char *p, *q;
+	int ctlrno;
 
-	if(strcmp(fn, "-") == 0)
-		fd = fileno(stdin);
-	else if((fd = open(fn, OREAD)) < 0)
-		return -1;
+	ctlrno = atoi(&name[5]);
+	if(ctlrno > MaxEther)
+		return;
+	p = value;
+	/* default ea = 00:00:09:00:00:xx */
+	memset(ve[ctlrno].ea, 0, 6);
+	ve[ctlrno].ea[2] = 9;
+	ve[ctlrno].ea[5] = ctlrno;
+	while(*p){
+		while(*p == ' ' || *p == '\t')
+			p++;
+		if(*p == '\0')
+			break;
+		if(strncmp(p, "type=", 5) == 0){
+			p += 5;
+			if(strncmp(p, "tap", 3) == 0)
+				ve[ctlrno].tap = 1;
+			else if(strncmp(p, "pcap", 4) == 0)
+				ve[ctlrno].tap = 0;
+			else
+				return;
+		}
+		else if(strncmp(p, "dev=", 4) == 0){
+			p += 4;
+			q = p;
+			while(*q && *q != ' ' && *q != '\t')
+				q++;
+			ve[ctlrno].dev = malloc(q - p + 1);
+			strncpy(ve[ctlrno].dev, p, q - p);
+			ve[ctlrno].dev[q-p] = '\0';
+			continue;
+		}
+		else if(strncmp(p, "ea=", 3) == 0){
+			if(parseether(ve[ctlrno].ea, p+3) == -1)
+				memset(ve[ctlrno].ea, 0, 6);
+		}
+		while(*p && *p != ' ' && *p != '\t')
+			p++;
+	}
+	nve++;
+}
 
-	cp = buf;
-	*buf = 0;
-	while((n = read(fd, buf, BOOTARGSLEN-1)) > 0)
-		if(n<0)
-			return -1;
-		else
-			buf += n;
-	close(fd);
-	*buf = 0;
+void
+setinioptions()
+{
+	static int i;
+	char *name, *value;
+
+	for(; i < MAXCONF; i++){
+		if(!inifield[i])
+			break;
+		name = inifield[i];
+		if(*name == '*')
+			name++;
+		value = strchr(inifield[i], '=');
+		if(value == 0)
+			continue;
+		*value++ = 0;
+		if(strcmp(name, "cpulimit") == 0)
+			cpulimit = atoi(value);
+		else if(strcmp(name, "memsize") == 0)
+			memsize = atoi(value);
+		else if(strcmp(name, "canopenpath") == 0)
+			canopen = value;
+		else if(strncmp(name, "ether", 5) == 0)
+			addether(name, value);
+		else if(strcmp(name, "initarg") == 0)
+			initarg = value;
+		else if(strcmp(name, "localroot") == 0)
+			localroot = value;
+		else if(strcmp(name, "user") == 0)
+			username = value;
+		/* Restore '=' for setinienv and printconfig */
+		*(--value) = '=';
+	}
+}
+
+void
+addini(char *buf)
+{
+	static int n = 0;
+	int blankline, incomment, inspace, inquote;
+	char *p, *q;
 
 	/*
 	 * Strip out '\r', change '\t' -> ' '.
 	 * Change runs of spaces into single spaces.
 	 * Strip out trailing spaces, blank lines.
+         * The text between single quotes is not touched.
 	 *
 	 * We do this before we make the copy so that if we 
 	 * need to change the copy, it is already fairly clean.
@@ -49,10 +116,18 @@ readini(char *fn)
 	 * padded with lots of trailing spaces, as is the case 
 	 * for those created during a distribution install.
 	 */
-	p = cp;
+	p = buf;
 	blankline = 1;
-	incomment = inspace = 0;
-	for(q = cp; *q; q++){
+	incomment = inquote =inspace = 0;
+	for(q = buf; *q; q++){
+		if(inquote){
+			if(*q == '\'')
+				inquote = 0;
+			*p++ = *q;
+			continue;
+		}
+		if(!incomment && *q == '\'')
+			inquote = 1;
 		if(*q == '\r')
 			continue;
 		if(*q == '\t')
@@ -81,89 +156,103 @@ readini(char *fn)
 		if(!incomment)
 			*p++ = *q;	
 	}
-	if(p > cp && p[-1] != '\n')
-		*p++ = '\n';
 	*p++ = 0;
 
-	nfields += getfields(cp, &iniline[nfields], MAXCONF-nfields, 0, "\n");
+	n += gettokens(buf, &inifield[n], MAXCONF-n, "\n");
+	setinioptions();
+}
 
-	return 0;
+int
+addinifile(char *file)
+{
+	static char *fb = filebuf;
+	char *buf;
+	int n, fd;
+
+	if(strcmp(file, "-") == 0)
+		fd = fileno(stdin);
+	else if((fd = open(file, OREAD)) < 0)
+		return -1;
+
+	buf = fb;
+	*buf = 0;
+	while((n = read(fd, buf, BOOTARGSLEN-1)) > 0)
+		if(n<0)
+			return -1;
+		else
+			buf += n;
+	close(fd);
+	*buf = 0;
+	addini(fb);
+	fb = buf;
+	return n;
+}
+
+char*
+fullpath(char *root) {
+	char cwd[1024];
+
+	if(root[0] != '/'){
+		if(getcwd(cwd, sizeof cwd) == nil)
+			panic("getcwd: %r");
+		root = cleanname(smprint("%s/%s", cwd, root));
+	}
+	return root;
+}
+
+/*
+ * Poor man's quotestrdup to avoid needing quote.c
+ */
+char*
+quoted(char *in) {
+	char *out, *p;
+	int i, n;
+
+	n = 0;
+	for(i = 0; i < strlen(in); i++)
+		if(in[i] == '\'')
+			n++;
+	out = malloc(strlen(in) + n + 2);
+	p = out;
+	if(*in != '\'')
+	*p++ = '\'';
+	for(i = 0; i < strlen(in); i++){
+		if(in[i] == '\'')
+			*p++ = in[i];
+		*p++ = in[i];
+	}
+	*p++ = '\'';
+	*p = 0;
+	return out;
 }
 
 void
-inifields(void (*fp)(char*, char*))
+setinienv()
 {
 	int i;
-	char *cp;
+	char *name, *value;
 
 	for(i = 0; i < MAXCONF; i++){
-		if(!iniline[i])
+		if(!inifield[i])
 			break;
-		cp = strchr(iniline[i], '=');
-		if(cp == 0)
+		name = inifield[i];
+		value = strchr(inifield[i], '=');
+		if(*name == '*' || value == 0 || value[0] == 0)
 			continue;
-		*cp++ = 0;
-		if(cp - iniline[i] >= NAMELEN+1)
-			*(iniline[i]+NAMELEN-1) = 0;
-		(fp)(iniline[i], cp);
-		*(cp-1) = '=';
-	}
-}
-
-void
-iniopt(char *name, char *value)
-{
-	char *cp, *vedev;
-	int vetap;
-
-	if(*name == '*')
-		name++;
-	if(strcmp(name, "nofork") == 0)
-		nofork = 1;
-	else if(strcmp(name, "nogui") == 0){
-		nogui = 1;
-		usetty = 1;
-	}
-	else if(strcmp(name, "initrc") == 0)
-		initrc = 1;
-	else if(strcmp(name, "usetty") == 0)
-		usetty = 1;
-	else if(strcmp(name, "cpulimit") == 0)
-		cpulimit = atoi(value);
-	else if(strcmp(name, "memsize") == 0)
-		memmb = atoi(value);
-	else if(strcmp(name, "netdev") == 0){
-		if(strncmp(value, "tap", 3) == 0) {
-			vetap = 1;
-			value += 4;
-		}
-		vedev = value;
-		cp = vedev;
-		if((value = strchr(vedev, ' ')) != 0){
-			cp = strchr(value+1, '=');
-			*value=0;
-			*cp=0;
-		}
-		addve(*vedev == 0 ? nil : vedev, vetap);
-		if(cp != vedev){
-			iniopt(value+1, cp+1);
-			*value=' ';
-			*cp='=';
-		}
-	}
-	else if(strcmp(name, "macaddr") == 0)
-		setmac(value);
-	else if(strcmp(name, "localroot") == 0 && !localroot)
-		localroot = value;
-	else if(strcmp(name, "user") == 0 && !username)
-		username = value;
-}
-
-void
-inienv(char *name, char *value)
-{
-	if(*name != '*')
+		*value++ = 0;
 		ksetenv(name, value, 0);
+	}
+	if(initarg){
+		if(*initarg != '\'')
+			initarg = quoted(initarg);
+		value = smprint("/386/init -t %s", initarg);
+		ksetenv("init", value, 0);
+	}
+	if(localroot){
+		value = smprint("local!#Z%s", fullpath(localroot));
+		ksetenv("nobootprompt", value, 0);
+	}
+	ksetenv("user", username, 0);
 }
 
 /*
@@ -174,28 +263,17 @@ printconfig(char *argv0){
 	int i;
 
 	print(argv0);
-	if(inifile)
-		print(" -p %s", inifile);
-	if(cpuserver | nofork | nogui | initrc | usetty)
-		print(" -%s%s%s%s%s", cpuserver ? "c " : "", nofork ? "f " : "",
-			nogui ? "g" : "",initrc ? "i " : "", usetty ? "t " : "");
-	if(cpulimit != 0)
-		print(" -l %d", cpulimit);
-	if(memmb != 0)
-		print(" -m %d", memmb);
-	for(i=0; i<nve; i++){
-		print(" -n %s", ve[i].tap ? "tap ": "");
-		if(ve[i].dev != nil)
-			print(" %s", ve[i].dev);
-		if(ve[i].mac != nil)
-			print(" -a %s", ve[i].mac);
+	if(usetty)
+		print(" -%c", nogui ? 'g' : 't');
+	print(" \n");
+	for(i = 0; i < MAXCONF; i++){
+		if(!inifield[i])
+			break;
+		print("\t%s\n", inifield[i]);
 	}
+	if(initarg)
+		print("\tinit=/386/init -t %s\n", initarg);
 	if(localroot)
-		print(" -r %s", localroot);
-	else if(!fsdev)
-		print(" -r -");
-	print(" -u %s", username);
-	for(i = 0; i < bootargc; i++)
-		print(" %s", bootargv[i]);
-	print("\n");
+		print("\tnobootprompt=#Z%s\n", localroot);
+	print("\tuser=%s\n", username);
 }

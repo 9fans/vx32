@@ -156,6 +156,7 @@ int	xchgw(ushort*, int);
 #define	dcflush(a, b)
 
 // Plan 9 VX additions
+void	bootinit(void);
 void	gotolabel(Label*);
 int	isuaddr(void*);
 void	labelinit(Label *l, ulong pc, ulong sp);

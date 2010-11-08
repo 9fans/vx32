@@ -50,7 +50,6 @@ int	abortonfault;
 int	nocpuload;
 char*	argv0;
 char*	conffile = "9vx";
-char*	defaultroot = "local!#Z/usr/local/9vx";
 Conf	conf;
 
 static Mach mach0;
@@ -60,18 +59,16 @@ extern int tracekdev;
 extern int nuspace;
 static int singlethread;
 
-static void	bootinit(void);
 static void	siginit(void);
 static void machkeyinit(void);
 
 static char*	getuser(void);
-static char*	nobootprompt(char*);
 
 void
 usage(void)
 {
 	// TODO(yy): add debug and other options by ron
-	fprint(2, "usage: 9vx [-p file.ini] [-fgit] [-l cpulimit] [-m memsize] [-n [tap] netdev] [-a macaddr] [-r root] [-u user] [bootargs]\n");
+	fprint(2, "usage: 9vx [-gt] [-f inifile | inifields ... ] [-i initarg] [-r localroot] [-u user]\n");
 	exit(1);
 }
 
@@ -83,9 +80,7 @@ nop(void)
 int
 main(int argc, char **argv)
 {
-	int vetap;
-	char *vedev;
-	char *inifile;
+	char *file;
 
 	/* Minimal set up to make print work. */
 #ifndef TLS
@@ -96,14 +91,14 @@ main(int argc, char **argv)
 	quotefmtinstall();
 
 	cpulimit = 0;
-	fsdev = 1;
-	inifile = nil;
-	memset(iniline, 0, MAXCONF);
-	memmb = 0;
+	memset(inifield, 0, MAXCONF);
+	memsize = 256;
+	canopen = "/";
 	nogui = 0;
 	nofork = 0;
 	nve = 0;
 	usetty = 0;
+readargs:
 	ARGBEGIN{
 	/* debugging options */
 	case '1':
@@ -114,6 +109,9 @@ main(int argc, char **argv)
 		break;
 	case 'B':
 		abortonfault++;
+		break;
+	case 'F':
+		nofork = 1;
 		break;
 	case 'K':
 		tracekdev++;
@@ -138,41 +136,31 @@ main(int argc, char **argv)
 		break;
 	
 	/* real options */
-	case 'a':
-		setmac(EARGF(usage()));
-		break;
-	case 'c':
-		cpuserver = 1;
-		break;
-	case 'f':
-		nofork = 1;
-		break;
 	case 'g':
 		nogui = 1;
 		usetty = 1;
 		break;
+	case 't':
+		usetty = 1;
+		break;
+	
+	/* ini values */
+	case 'f':
+		file = EARGF(usage());
+		if(addinifile(file) < 0)
+			panic("error reading config file %s", file);
+		break;
 	case 'i':
-		initrc = 1;
-		break;
-	case 'l':
-		cpulimit = atoi(EARGF(usage()));
-		break;
-	case 'm':
-		memmb = atoi(EARGF(usage()));
-		break;
-	case 'n':
-		vetap = 0;
-		vedev = ARGF();
-		if(vedev != nil && strcmp(vedev, "tap") == 0){
-			vetap = 1;
-			vedev = ARGF();
+		/*
+		 * Pass additional flag after -i to init 
+		 * This is convenient for -ic and -im
+		 */
+		if(_args[0] != 0){
+			initarg = smprint("-%c", _args[0]);
+			_args++;
 		}
-		if(vedev == nil)
-			usage();
-		addve(vedev, vetap);
-		break;
-	case 'p':
-		inifile = EARGF(usage());
+		else
+			initarg = EARGF(usage());
 		break;
 	case 'r':
 		localroot = EARGF(usage());
@@ -180,43 +168,31 @@ main(int argc, char **argv)
 	case 'u':
 		username = EARGF(usage());
 		break;
-	case 't':
-		usetty = 1;
-		break;
+
 	default:
 		usage();
 	}ARGEND
 
-	if(inifile != nil && readini(inifile) != 0)
-		panic("error reading config file %s", inifile);
-
-	bootargc = argc;
-	bootargv = argv;
-	/*
-	 * bootargs have preference over -r
-	 * if localroot is -, keep it for printconfig
-	 */
-	if(bootargc > 0 && localroot && strcmp(localroot, "-") != 0)
-		localroot = nil;
-
-	inifields(&iniopt);
-
-	if(localroot && strcmp(localroot, "-") == 0){
-		fsdev = 0;
-		localroot = nil;
-		// remove #Z device from devtab
-		for(int i=0; devtab[i] && devtab[i] != &fsdevtab; i++)
-			if(devtab[i] == &fsdevtab)
-				devtab[i] = 0;
+	while(argc > 0){
+		if(argv[0][0] == '-'){
+			/*
+			 * ARGBEGIN will do: argv++; argc--;
+			 * to skip argv0, but argv[0] is not argv0 now
+			 */
+			argc++; argv--;
+			goto readargs;
+		}
+		addini(strdup(argv[0]));
+		argc--; argv++;
 	}
-	
+
 	if(username == nil && (username = getuser()) == nil)
 		username = "tor";
 	eve = strdup(username);
 	if(eve == nil)
 		panic("strdup eve");
 
-	mmusize(memmb);
+	mmusize(memsize);
 	mach0init();
 	mmuinit();
 	confinit();
@@ -280,18 +256,6 @@ main(int argc, char **argv)
 	return 0;  // Not reached
 }
 
-char*
-nobootprompt(char *root) {
-	char cwd[1024];
-
-	if(root[0] != '/'){
-		if(getcwd(cwd, sizeof cwd) == nil)
-			panic("getcwd: %r");
-		root = cleanname(smprint("%s/%s", cwd, root));
-	}
-	return smprint("local!#Z%s", root);
-}
-
 static char*
 getuser(void)
 {
@@ -322,35 +286,6 @@ confinit(void)
 	conf.nswap = 0;
 	conf.nswppo = 0;
 	conf.ialloc = 1<<20;
-}
-
-static void
-bootinit(void)
-{
-	/*
-	 * libauth refuses to use anything but /boot/factotum
-	 * to ask for keys, so we have to embed a factotum binary,
-	 * even if we don't execute it to provide a file system.
-	 * Also, maybe /boot/boot needs it.
-	 *
-	 * factotum, fossil and venti are the normal Plan9 binary.
-	 * bootcode.9 is the file bootpcf.out obtained applyng
-	 * the patch in a/bootboot.ed and compiling with:
-	 *	mk 'CONF=pcf' bootpcf.out
-	 */
-	extern uchar bootcode[];
-	extern long bootlen;
-	extern uchar factotumcode[];
-	extern long factotumlen;
-	extern uchar fossilcode[];
-	extern long fossillen;
-	extern uchar venticode[];
-	extern long ventilen;
-
-	addbootfile("boot", bootcode, bootlen);
-	addbootfile("factotum", factotumcode, factotumlen);
-	addbootfile("fossil", fossilcode, fossillen);
-	addbootfile("venti", venticode, ventilen);
 }
 
 static uchar *sp;	/* user stack of init proc */
@@ -447,7 +382,7 @@ bootargs(void *base)
 	for(i = 0; i < bootargc && ac < 32; i++)
 		av[ac++] = pusharg(bootargv[i]);
 	if(i == 0)
-		av[ac++] = pusharg(defaultroot);
+		av[ac++] = pusharg(BOOTARG);
 
 	/* 4 byte word align stack */
 	sp = (uchar*)((uintptr)sp & ~3);
@@ -516,18 +451,11 @@ init0(void)
 	ksetenv("terminal", buf, 0);
 	ksetenv("cputype", "386", 0);
 	ksetenv("rootdir", "/root", 0);
-	if(cpuserver)
-		ksetenv("service", "cpu", 0);
-	else
-		ksetenv("service", "terminal", 0);
-	ksetenv("user", username, 0);
+	ksetenv("service", "terminal", 0);
 	ksetenv("sysname", "vx32", 0);
-	inifields(&inienv);
-	if(initrc != 0)
-		inienv("init", "/386/init -tm");
-	if(localroot)
-		inienv("nobootprompt", nobootprompt(localroot));
-	inienv("cputype", "386");
+//	ksetenv("init", "/386/init -t", 0);
+	ksetenv("user", username, 0);
+	setinienv();
 
 	poperror();
 

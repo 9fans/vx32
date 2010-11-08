@@ -22,6 +22,23 @@ PLAN9PCAP=nopcap
 PLAN9TAP=notap
 endif
 
+# Boot files
+# Do not remove:
+# - boot, needed to boot
+# - factotum, used by libauth
+PLAN9BOOT=\
+	9660srv \
+	boot \
+	bzfs \
+	factotum \
+	fossil \
+	kfs \
+	rootfs \
+	venti \
+
+# Default argument to boot
+PLAN9BOOTARG=local!/boot/rootfs
+
 # If you don't have/want X11
 #PLAN9GUI=nogui
 
@@ -33,11 +50,29 @@ endif
 
 ifeq ($(PLAN9VX),1)
 
+PLAN9SCRIPTS = \
+	$(addprefix $(BINDIR)/, \
+		9vxc \
+		9vxp \
+		acmevx \
+		rcvx \
+		tap \
+	)
+
 all: 9vx/9vx
+9vx/install: $(BINDIR)/9vx $(PLAN9SCRIPTS)
+
+$(BINDIR)/9vx: 9vx/9vx
+	$(INSTALL) $< $@
+
+$(BINDIR)/%: ../bin/%
+	$(INSTALL) $< $@
+
+PLAN9_BOOT_OBJS = $(PLAN9BOOT:%=9vx/%.o)
 
 PLAN9_OBJS = \
 	$(addprefix 9vx/, \
-		bootcode.o \
+		bootinit.o \
 		conf.o \
 		devaudio.o \
 		devaudio-$(PLAN9AUDIO).o \
@@ -46,8 +81,6 @@ PLAN9_OBJS = \
 		devmouse.o \
 		devram.o \
 		devtab.o \
-		factotum.o \
-		fossil.o \
 		kprocdev.o \
 		label.o \
 		load.o \
@@ -60,7 +93,6 @@ PLAN9_OBJS = \
 		time.o \
 		trap.o \
 		tty.o \
-		venti.o \
 		vx32.o \
 	)
 
@@ -202,6 +234,7 @@ PLAN9_GUI_LIBS = $(PLAN9_$(PLAN9GUI)_LIBS)
 PLAN9_DEPS = \
 	$(PLAN9_OBJS) \
 	$(PLAN9_A_OBJS) \
+	$(PLAN9_BOOT_OBJS) \
 	$(PLAN9_IP_OBJS) \
 	$(PLAN9_GUI_OBJS) \
 	9vx/libsec/libsec.a \
@@ -223,25 +256,23 @@ PLAN9_DEPS = \
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
 
 9vx/%.o: 9vx/%.c
-	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
+	$(HOST_CC) $(HOST_CFLAGS) -D "BOOTARG=\"$(PLAN9BOOTARG)\"" -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
 
 9vx/%.o: 9vx/%.S
 	$(HOST_CC) $(HOST_CFLAGS) -I. -I9vx -I9vx/a -Wall -Wno-missing-braces -c -o $@ $<
 
+9vx/bootinit.c: 9vx/mkbootinitc
+	9vx/mkbootinitc $(PLAN9BOOT) >$@
+
 9vx/data2s: 9vx/data2s.c
 	$(HOST_CC) -o $@ $<
 
-9vx/bootcode.S: 9vx/data2s 9vx/bootcode.9
-	./9vx/data2s boot < 9vx/bootcode.9 >$@_ && mv $@_ $@
+# We need the sed command to have a correct variable name for 9660srv
+9vx/%.S: 9vx/%.9 9vx/data2s
+	./9vx/data2s `echo $* | sed 's/^[0-9]/_&/'` < $< >$@_ && mv $@_ $@
 
-9vx/factotum.S: 9vx/data2s 9vx/factotum.9
-	./9vx/data2s factotum < 9vx/factotum.9 >$@_ && mv $@_ $@
-
-9vx/fossil.S: 9vx/data2s 9vx/fossil.9
-	./9vx/data2s fossil < 9vx/fossil.9 >$@_ && mv $@_ $@
-
-9vx/venti.S: 9vx/data2s 9vx/venti.9
-	./9vx/data2s venti < 9vx/venti.9 > $@_ && mv $@_ $@
+9vx/%.S: 9vx/%.bz2 9vx/data2s
+	./9vx/data2s `echo $* | sed 's/^[0-9]/_&/'` < $< >$@_ && mv $@_ $@
 
 9vx/a/errstr.h: 9vx/a/error.h
 	sed 's/extern //; s!;.*/\* ! = "!; s! \*\/!";!' 9vx/a/error.h >9vx/a/errstr.h
@@ -274,10 +305,15 @@ CLEAN_FILES += \
 	9vx/kerndate.h \
 	9vx/a/errstr.h \
 	9vx/9vx \
+	9vx/bootinit.c \
 	9vx/data2s \
-	9vx/bootcode.S \
+	9vx/9660srv.S \
+	9vx/boot.S \
+	9vx/bzfs.S \
 	9vx/factotum.S \
 	9vx/fossil.S \
+	9vx/kfs.S \
+	9vx/rootfs.S \
 	9vx/venti.S
 
 include 9vx/libdraw/Makefrag

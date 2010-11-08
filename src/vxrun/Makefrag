@@ -19,7 +19,7 @@ vxrun/fib: vxrun/fib.o libvxc/libc.a
 CLEAN_FILES += vxrun/*.o vxrun/vxrun vxrun/hello
 
 all: vxrun/hello vxrun/vxrun
-install: $(BINDIR)/vxrun
+vxrun/install: $(BINDIR)/vxrun
 
 $(BINDIR)/vxrun: vxrun/vxrun
 	$(INSTALL) $< $@

@@ -25,6 +25,7 @@ struct Timers
 	Timer	*head;
 };
 
+static vlong start;
 static Timers timers;
 static void kicktimerproc(void);
 
@@ -369,6 +370,7 @@ seconds(void)
 void
 todinit(void)
 {
+	start = todget(nil);
 }
 
 void
@@ -400,7 +402,7 @@ todget(vlong *ticksp)
 	gettimeofday(&tv, NULL);
 	t = tv.tv_sec*1000000000LL + tv.tv_usec*1000LL;
 	if(ticksp)
-		*ticksp = t;
+		*ticksp = t - start;
 	return t;
 }
 

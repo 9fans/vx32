@@ -1,0 +1,4 @@
+/if\(islocal\)/+1;/^	}/-1 c
+		print("\n");
+		return;
+.

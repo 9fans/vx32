@@ -97,7 +97,7 @@ PLAN9_OBJS = \
 	)
 
 ifeq ($(OS),darwin)
-PLAN9_OBJS := $(PLAN9_OBJS) 9vx/osx/signal.o
+PLAN9_OBJS := $(PLAN9_OBJS) 9vx/osx/signal.o 9vx/osx/cmpswap.o
 endif
 
 PLAN9_A_OBJS = \

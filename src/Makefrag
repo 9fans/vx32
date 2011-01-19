@@ -5,14 +5,14 @@ COMMON_CFLAGS = -g -O2 -MD -std=gnu99 -I. -fno-stack-protector $(CFLAGS)
 COMMON_LDFLAGS = -g -L. $(LDFLAGS)
 
 ifeq ($(OS),darwin)
-COMMON_CFLAGS += -m32 -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -DARCH=i386
-COMMON_LDFLAGS += -m32
+	COMMON_CFLAGS += -m32 -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -DARCH=i386
+	COMMON_LDFLAGS += -m32
 endif
 
  # Host environment compiler options
 HOST_CC		:= $(CC) -fno-inline
 ifeq ($(OS),darwin)
-	HOST_CC		:= $(HOST_CC)  -D_XOPEN_SOURCE -arch i386 -m32
+	HOST_CC		:= $(HOST_CC)  -D_XOPEN_SOURCE -arch i386 -m32  -DARCH=i386
 endif
 HOST_LD		:= $(LD) -arch i386
 HOST_AR		:= $(AR)
@@ -48,8 +48,10 @@ endif
 
 INSTALL = install
 
+# there's only one thing we really care about. 9vx
+9vx/9vx:
 # Make sure that 'all' is the first target
-all:
+all: 
 
 # Install libvx32 too
 install: 9vx/install libvxc/install vxlinux/install vxrun/install

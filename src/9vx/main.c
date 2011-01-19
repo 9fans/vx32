@@ -88,6 +88,7 @@ main(int argc, char **argv)
 #endif
 	setmach(&mach0);
 	coherence = nop;
+	cmpswap = oscmpswap;
 	quotefmtinstall();
 
 	cpulimit = 0;

@@ -100,6 +100,10 @@ ifeq ($(OS),darwin)
 PLAN9_OBJS := $(PLAN9_OBJS) 9vx/osx/signal.o 9vx/osx/cmpswap.o
 endif
 
+ifeq ($(OS),linux)
+PLAN9_OBJS := $(PLAN9_OBJS) 9vx/gccmagic/cmpswap.o
+endif
+
 PLAN9_A_OBJS = \
 	$(addprefix 9vx/a/, \
 		allocb.o \

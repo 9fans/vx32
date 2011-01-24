@@ -10,7 +10,7 @@ ifeq ($(OS),darwin)
 endif
 
  # Host environment compiler options
-HOST_CC		:= $(CC) -fno-inline -arch i386 -m32  -DARCH=i386
+HOST_CC		:= $(CC) -fno-inline -m32  -DARCH=i386
 ifeq ($(OS),darwin)
 	HOST_CC		:= $(HOST_CC)  -D_XOPEN_SOURCE
 endif

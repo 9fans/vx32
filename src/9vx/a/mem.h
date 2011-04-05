@@ -32,7 +32,7 @@
  */
 #define	UZERO		0			/* base of user address space */
 #define	UTZERO		(UZERO+BY2PG)		/* first address in user text */
-#define	USTKTOP		(0x10000000)		/* byte just beyond user stack */
+#define	USTKTOP		(0x40000000)		/* byte just beyond user stack */
 #define	USTKSIZE	(16*1024*1024)		/* size of user stack */
 #define	TSTKTOP		(USTKTOP-USTKSIZE)	/* end of new stack in sysexec */
 #define	TSTKSIZ 	100

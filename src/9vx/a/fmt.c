@@ -2747,13 +2747,11 @@ sprint(char *buf, char *fmt, ...)
 	uint len;
 	va_list args;
 
-	len = 1<<30;  /* big number, but sprint is deprecated anyway */
-	/*
-	 * on PowerPC, the stack is near the top of memory, so
-	 * we must be sure not to overflow a 32-bit pointer.
+	/* This used to be 1<<30, which fails badly on some systems. 
+	 * we discussed thin on 9fans but no proper conclusion 
+	 * was reached. that said, I'm dropping to it 64k
 	 */
-	if(buf+len < buf)
-		len = -(uintptr)buf-1;
+	len = 1<<16;  
 
 	va_start(args, fmt);
 	n = vsnprint(buf, len, fmt, args);

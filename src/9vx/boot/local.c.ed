@@ -56,3 +56,4 @@ connectlocalroot(void)
 /fd = connectlocal/i
 	if((fd = connectlocalroot()) < 0)
 .
+/mountusbparts/d

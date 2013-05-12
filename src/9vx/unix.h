@@ -54,7 +54,7 @@ typedef long long vlong;
 typedef ulong uintptr;
 typedef signed char schar;
 
-typedef unsigned short Rune;
+typedef unsigned int Rune;
 
 typedef unsigned int uint32;
 typedef unsigned long long uint64;

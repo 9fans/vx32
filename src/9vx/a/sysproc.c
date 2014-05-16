@@ -1137,3 +1137,16 @@ syssemrelease(uint32 *arg)
 		error(Ebadarg);
 	return semrelease(s, addr, arg[1]);
 }
+
+long
+sysnsec(uint32 *arg)
+{
+	long *addr;
+
+	addr = uvalidaddr(arg[0], sizeof(vlong), 1);
+	evenaddr(arg[0]);
+
+	addr = todget(nil);
+
+	return 0;
+}

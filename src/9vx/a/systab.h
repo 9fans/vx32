@@ -52,6 +52,7 @@ Syscall sysmount;
 Syscall sysawait;
 Syscall syspread;
 Syscall syspwrite;
+Syscall sysnsec;
 Syscall	sysdeath;
 
 Syscall *systab[]={
@@ -105,6 +106,7 @@ Syscall *systab[]={
 	[AWAIT]		sysawait,
 	[PREAD]		syspread,
 	[PWRITE]	syspwrite,
+	[NSEC]		sysnsec,
 };
 
 char *sysctab[]={
@@ -158,6 +160,7 @@ char *sysctab[]={
 	[AWAIT]		"Await",
 	[PREAD]		"Pread",
 	[PWRITE]	"Pwrite",
+	[NSEC]		"Nsec",
 };
 
 int nsyscall = (sizeof systab/sizeof systab[0]);

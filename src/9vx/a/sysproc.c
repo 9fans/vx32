@@ -1146,7 +1146,7 @@ sysnsec(uint32 *arg)
 	addr = uvalidaddr(arg[0], sizeof(vlong), 1);
 	evenaddr(arg[0]);
 
-	addr = todget(nil);
+	*(vlong*)addr = todget(nil);
 
 	return 0;
 }

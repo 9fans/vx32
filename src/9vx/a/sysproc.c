@@ -1103,6 +1103,50 @@ semacquire(Segment *s, long *addr, int block)
 	return 1;
 }
 
+/* Acquire semaphore or time-out */
+static int
+tsemacquire(Segment *s, long *addr, ulong ms)
+{
+	int acquired, timedout;
+	ulong t, elms;
+	Sema phore;
+
+	if(canacquire(addr))
+		return 1;
+	if(ms == 0)
+		return 0;
+	acquired = timedout = 0;
+	semqueue(s, addr, &phore);
+	for(;;){
+		phore.waiting = 1;
+		coherence();
+		if(canacquire(addr)){
+			acquired = 1;
+			break;
+		}
+		if(waserror())
+			break;
+		t = msec();
+		tsleep(&phore.rendez, semawoke, &phore, ms);
+		elms = msec() - t;
+		poperror();
+		if(elms >= ms){
+			timedout = 1;
+			break;
+		}
+		ms -= elms;
+	}
+	semdequeue(s, &phore);
+	coherence();	/* not strictly necessary due to lock in semdequeue */
+	if(!phore.waiting)
+		semwakeup(s, addr, 1);
+	if(timedout)
+		return 0;
+	if(!acquired)
+		nexterror();
+	return 1;
+}
+
 long
 syssemacquire(uint32 *arg)
 {
@@ -1119,6 +1163,24 @@ syssemacquire(uint32 *arg)
 	if(*addr < 0)
 		error(Ebadarg);
 	return semacquire(s, addr, block);
+}
+
+long
+systsemacquire(uint32 *arg)
+{
+	long *addr;
+	ulong ms;
+	Segment *s;
+
+	addr = uvalidaddr(arg[0], sizeof(long), 1);
+	evenaddr(arg[0]);
+	ms = arg[1];
+
+	if((s = seg(up, arg[0], 0)) == nil)
+		error(Ebadarg);
+	if(*addr < 0)
+		error(Ebadarg);
+	return tsemacquire(s, addr, ms);
 }
 
 long

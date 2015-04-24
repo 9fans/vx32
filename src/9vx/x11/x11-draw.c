@@ -24,6 +24,8 @@ _xallocmemimage(Rectangle r, uint32 chan, int pixmap)
 	XImage *xi;
 
 	m = _allocmemimage(r, chan);
+	if (m == nil)
+		return nil;
 	if(chan != GREY1 && chan != _x.chan)
 		return m;
 	if(_x.display == 0)

@@ -429,6 +429,7 @@ static void
 init0(void)
 {
 	char buf[2*KNAMELEN];
+	char sys[HOST_NAME_MAX];
 
 	up->nerrlab = 0;
 	if(waserror())
@@ -453,7 +454,10 @@ init0(void)
 	ksetenv("cputype", "386", 0);
 	ksetenv("rootdir", "/root", 0);
 	ksetenv("service", "terminal", 0);
-	ksetenv("sysname", "vx32", 0);
+	if(gethostname(sys, sizeof(sys)) < 0)
+		sprint(sys, "vx32");
+	sys[sizeof(sys) - 1] = '\0';
+	ksetenv("sysname", sys, 0);
 //	ksetenv("init", "/386/init -t", 0);
 	ksetenv("user", username, 0);
 	setinienv();

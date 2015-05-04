@@ -92,6 +92,13 @@ ipgen(Chan *c, char *nname, Dirtab *d, int nd, int s, Dir *dp)
 	q.type = 0;
 	switch(TYPE(c->qid)) {
 	case Qtopdir:
+		if(s == DEVDOTDOT){
+			q.path = QID(0, 0, Qtopdir);
+			q.type = QTDIR;
+			snprint(up->genbuf, sizeof up->genbuf, "#I%lud", c->dev);
+			devdir(c, q, up->genbuf, 0, "network", DMDIR|0555, dp);
+			return 1;
+		}
 	case Qcs:
 	case Qdns:
 		if(s >= 2+np)
@@ -112,6 +119,13 @@ ipgen(Chan *c, char *nname, Dirtab *d, int nd, int s, Dir *dp)
 		}
 		return 1;
 	case Qprotodir:
+		if(s == DEVDOTDOT){
+			q.path = QID(0, 0, Qtopdir);
+			q.type = QTDIR;
+			snprint(up->genbuf, sizeof up->genbuf, "#I%lud", c->dev);
+			devdir(c, q, up->genbuf, 0, "network", DMDIR|0555, dp);
+			return 1;
+		}
 	case Qclonus:
 		if(s < proto[PROTO(c->qid)].nc) {
 			cv = proto[PROTO(c->qid)].conv[s];
@@ -133,6 +147,13 @@ ipgen(Chan *c, char *nname, Dirtab *d, int nd, int s, Dir *dp)
 		devdir(c, q, p, 0, "network", 0555, dp);
 		return 1;
 	case Qconvdir:
+		if(s == DEVDOTDOT){
+			s = PROTO(c->qid);
+			q.path = QID(s, 0, Qprotodir);
+			q.type = QTDIR;
+			devdir(c, q, proto[s].name, 0, "network", DMDIR|0555, dp);
+			return 1;
+		}
 	case Qdata:
 	case Qctl:
 	case Qstatus:

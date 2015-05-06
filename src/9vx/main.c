@@ -421,6 +421,9 @@ showexec(ulong sp)
 	iprint("argv[%d]=%p\n", i, argv[i]);
 }
 
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 255
+#endif
 
 /*
  * First process starts executing, with up set, here.

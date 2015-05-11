@@ -322,7 +322,7 @@ tlsgen(Chan *c, char *_, Dirtab *__, int ___, int s, Dir *dp)
 			nm = eve;
 		if((name = trnames[s]) == nil){
 			name = trnames[s] = smalloc(16);
-			sprint(name, "%d", s);
+			snprint(name, 16, "%d", s);
 		}
 		devdir(c, q, name, 0, nm, 0555, dp);
 		unlock(&tdlock);
@@ -730,7 +730,7 @@ tlsrecread(TlsRec *tr)
 {
 	OneWay *volatile in;
 	Block *volatile b;
-	uchar *p, seq[8], header[RecHdrLen], hmac[MD5dlen];
+	uchar *p, seq[8], header[RecHdrLen], hmac[MaxMacLen];
 	int volatile nconsumed;
 	int len, type, ver, unpad_len;
 
@@ -1321,7 +1321,7 @@ tlsbwrite(Chan *c, Block *b, ulong offset)
 
 	tr = tlsdevs[CONV(c->qid)];
 	if(tr == nil)
-		panic("tlsbread");
+		panic("tlsbwrite");
 
 	ty = TYPE(c->qid);
 	switch(ty) {

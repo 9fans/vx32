@@ -857,6 +857,7 @@ static int xscan(struct vxproc *p)
 		case 0x17:				// MOVHPS Mq,Vps
 		case 0x2b:				// MOVNTPS
 		case 0xc3:				// MOVNTI Md,Gd
+		case 0xc7:				// CMPXCHG8B Mq
 			if (EA_MOD(*inp) == 3)	// Mem-only
 				goto invalid;
 			inp = xscan_rm(inp);

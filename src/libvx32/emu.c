@@ -811,8 +811,11 @@ static int xscan(struct vxproc *p)
 			goto gentrap;
 
 		// No additional operand
+		case 0x31:					// RDTSC
+		case 0x77:					// EMMS
 		case 0xc8: case 0xc9: case 0xca: case 0xcb:	// BSWAP
 		case 0xcc: case 0xcd: case 0xce: case 0xcf:
+		case 0xa2:					// CPUID
 			goto notrans;
 
 		// General EA operands
@@ -830,6 +833,7 @@ static int xscan(struct vxproc *p)
 		case 0x54: case 0x55: case 0x56: case 0x57:	// ANDPS etc.
 		case 0x58: case 0x59: case 0x5a: case 0x5b:	// ADDPS etc.
 		case 0x5c: case 0x5d: case 0x5e: case 0x5f:	// SUBPS etc.
+		case 0x6f: case 0x7f:				// MOVDQA
 		case 0xa3:					// BT Ev,Gv
 		case 0xab:					// BTS Ev,Gv
 		case 0xaf:					// IMUL Gv,Ev
@@ -986,6 +990,7 @@ static int xscan(struct vxproc *p)
 			if (EA_MOD(*inp) != 3)
 				goto invalid; // Reg-only
 		case 0x70:				// PSHUFD Vdq,Wdq,Ib
+		case 0x38:				// PSHUFB
 		case 0xc2:				// CMPPD Vps,Wps,Ib
 		case 0xc4:				// PINSRW Vdq,Ew,Ib
 		case 0xc6:				// SHUFPD Vps,Wps,Ib

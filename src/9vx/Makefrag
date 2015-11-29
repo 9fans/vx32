@@ -313,6 +313,8 @@ CLEAN_FILES += \
 	9vx/*.o \
 	9vx/a/*.d \
 	9vx/a/*.o \
+	9vx/a/ip/*.d \
+	9vx/a/ip/*.o \
 	9vx/x11/*.d \
 	9vx/x11/*.o \
 	9vx/kerndate.h \

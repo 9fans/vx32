@@ -776,31 +776,35 @@ uname2user(char *name)
 {
 	int i;
 	User *u;
-	struct passwd *p;
+	struct passwd pwd, *result;
+	char buf[512];
 
 	for(i=0; i<nelem(utab); i++)
 		for(u=utab[i]; u; u=u->next)
 			if(strcmp(u->name, name) == 0)
 				return u;
 
-	if((p = getpwnam(name)) == nil)
+	getpwnam_r(name, &pwd, buf, sizeof(buf), &result);
+	if(result == NULL)
 		return nil;
-	return adduser(p);
+	return adduser(result);
 }
 
 static User*
 uid2user(int id)
 {
 	User *u;
-	struct passwd *p;
+	struct passwd pwd, *result;
+	char buf[512];
 
 	for(u=utab[id%nelem(utab)]; u; u=u->next)
 		if(u->id == id)
 			return u;
 
-	if((p = getpwuid(id)) == nil)
+	getpwuid_r(id, &pwd, buf, sizeof(buf), &result);
+	if(result == NULL)
 		return nil;
-	return adduser(p);
+	return adduser(result);
 }
 
 static User*
@@ -808,31 +812,35 @@ gname2user(char *name)
 {
 	int i;
 	User *u;
-	struct group *g;
+	struct group grp, *result;
+	char buf[512];
 
 	for(i=0; i<nelem(gtab); i++)
 		for(u=gtab[i]; u; u=u->next)
 			if(strcmp(u->name, name) == 0)
 				return u;
 
-	if((g = getgrnam(name)) == nil)
+	getgrnam_r(name, &grp, buf, sizeof(buf), &result);
+	if(result == NULL)
 		return nil;
-	return addgroup(g);
+	return addgroup(result);
 }
 
 static User*
 gid2user(int id)
 {
 	User *u;
-	struct group *g;
+	struct group grp, *result;
+	char buf[512];
 
 	for(u=gtab[id%nelem(gtab)]; u; u=u->next)
 		if(u->id == id)
 			return u;
 
-	if((g = getgrgid(id)) == nil)
+	getgrgid_r(id, &grp, buf, sizeof(buf), &result);
+	if(result == NULL)
 		return nil;
-	return addgroup(g);
+	return addgroup(result);
 }
 
 static char*

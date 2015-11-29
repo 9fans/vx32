@@ -260,12 +260,13 @@ readargs:
 static char*
 getuser(void)
 {
-	struct passwd *pw;
+	struct passwd pwd, *result;
+	char buf[512];
 
-	pw = getpwuid(getuid());
-	if(pw == nil)
+	getpwuid_r(getuid(), &pwd, buf, sizeof(buf), &result);
+	if(result == NULL)
 		return nil;
-	return strdup(pw->pw_name);
+	return strdup(result->pw_name);
 }
 
 /*

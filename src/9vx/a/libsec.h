@@ -142,8 +142,11 @@ typedef struct DigestState DigestState;
 struct DigestState
 {
 	uvlong	len;
-	uint32	state[5];
-	uchar	buf[128];
+	union {
+		uint32	state[8];
+		uint64	bstate[8];
+	};
+	uchar	buf[256];
 	int	blen;
 	char	malloced;
 	char	seeded;
@@ -372,6 +375,7 @@ typedef struct TLSconn{
 	uchar	*sessionKey;
 	int	sessionKeylen;
 	char	*sessionConst;
+	char	*serverName;
 } TLSconn;
 
 /* tlshand.c */

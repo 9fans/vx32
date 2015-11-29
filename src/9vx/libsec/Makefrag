@@ -11,6 +11,10 @@ LIBSEC_OBJS = \
 		rc4.o \
 		sha1.o \
 		sha1block.o \
+		sha2_64.o \
+		sha2_128.o \
+		sha2block64.o \
+		sha2block128.o \
 	)
 
 9vx/libsec/%.o: 9vx/libsec/%.c

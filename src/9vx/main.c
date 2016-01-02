@@ -229,29 +229,13 @@ readargs:
 		links();
 
 	chandevreset();
-	if(!singlethread){
-		if(nve == 0)
-			makekprocdev(&ipdevtab);
-		makekprocdev(&fsdevtab);
-		makekprocdev(&drawdevtab);
-		makekprocdev(&audiodevtab);
-		if(nocpuload == 0)
-			kproc("pload", &ploadproc, nil);
-		if(cpulimit > 0 && cpulimit < 100)
-			kproc("plimit", &plimitproc, &cpulimit);
-	}
 	bootinit();
 	pageinit();
 #ifdef __APPLE__
-	if(conf.monitor)
-		screeninit();
 	extern void machsiginit(void);
 	machsiginit();
 #endif
 	userinit();
-	terminit(!usetty);
-	uartinit(usetty);
-	timersinit();
 	active.thunderbirdsarego = 1;
 	schedinit();
 	return 0;  // Not reached
@@ -449,6 +433,25 @@ init0(void)
 	pathclose(up->slash->path);
 	up->slash->path = newpath("/");
 	up->dot = cclone(up->slash);
+
+	if(!singlethread){
+		if(nve == 0)
+			makekprocdev(&ipdevtab);
+		makekprocdev(&fsdevtab);
+		makekprocdev(&drawdevtab);
+		makekprocdev(&audiodevtab);
+		if(nocpuload == 0)
+			kproc("pload", &ploadproc, nil);
+		if(cpulimit > 0 && cpulimit < 100)
+			kproc("plimit", &plimitproc, &cpulimit);
+	}
+#ifdef __APPLE__
+	if(conf.monitor)
+		screeninit();
+#endif
+	terminit(!usetty);
+	uartinit(usetty);
+	timersinit();
 
 	chandevinit();
 

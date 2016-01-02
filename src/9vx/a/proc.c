@@ -1357,6 +1357,9 @@ kproc(char *name, void (*func)(void *), void *arg)
 	p->kp = 1;
 	p->noswap = 1;
 
+	if(up == nil)
+		iprint("kproc: %s (%d) called with up == nil\n", name, p->pid);
+
 	if(up){
 		p->fpsave = up->fpsave;
 		p->scallnr = up->scallnr;

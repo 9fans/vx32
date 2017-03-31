@@ -1,0 +1,6 @@
+language: c
+sudo: required
+before_script:
+  - sudo apt-get update
+  - sudo apt-get install gcc-multilib libx11-dev:i386
+script: cd src && make

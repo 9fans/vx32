@@ -1,6 +1,29 @@
 language: c
-sudo: required
-before_script:
-  - sudo apt-get update
-  - sudo apt-get install gcc-multilib libx11-dev:i386
-script: cd src && make
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "XCborih01/5PA2yWJMPvJnnFCpi1t5ZNc2P7PJgklxcHE1Ds0UH1hOBH6IVTpOWZ/sftiAMHKNyc5nYBItFIERY8aR1IyLxxVKkgNoXG8YReqkFEDyABaep0ZX8WgQSJhPfQJdZzE8xpA8mplv9On7RbBbvxJJy/+puziVVGDv97hc/w64Yk7UqQTRuB4XjXtB4PZpSKKp0/ibF424syt//PmSNfcu7DtVrSXE4YIVlnqdhtVD2L/Yv+mIQNmFj0nPQJAaiV8kEcxIjc2+amAq+pwmoKpjVOyJZuVcPIiHo20lyZJ49rXOMAYPtELHdt4kyFct21z1M1RRZdgYXuqKt9luxkVmjdsmZNBtInAZthZhoiKFI4gIxr4PgeuwyDcmbaJF2wjCO8xiMsowm6yONniLrVb2ADgcwmA6cn1nE3bmjUKu/RDghWWPcsnG68hLKd8PK/TEBhYL/ywIh0KmYjaye1mlGmm4Yv62XY2CxbATAcxrrEsLLASx5tLNHes2qgtHsoxPQ4lvQ9sZ3aKy+3mtmU9bsvZAm2Ywo39gc6T2OJAzbcPtZ4qCBmd6IN6yy8tYdAI2QUh46W9oqfRi+GCwyq2RUCelq/v4gZygUqbJhW1WW/CCA+UNYJEoYV7VmToN7uSU6l85OTWMkQvQxwa2cfrVJY1q5FlOsVKX8="
+
+before_install:
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - cd src
+
+addons:
+  apt:
+    packages:
+    - gcc-multilib
+    - libx11-dev:i386
+  coverity_scan:
+    project:
+      name: "0intro/vx32"
+      description: "Build submitted via Travis CI"
+    notification_email: 0intro@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: master
+
+script:
+  - make clean
+  - make

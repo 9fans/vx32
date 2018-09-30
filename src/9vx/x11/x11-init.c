@@ -89,7 +89,6 @@ _xattach(char *label, char *winsize)
 	if(_x.display == nil){
 		disp = getenv("DISPLAY");
 		werrstr("XOpenDisplay %s: %r", disp ? disp : ":0");
-		free(disp);
 		return nil;
 	}
 	_x.fd = ConnectionNumber(_x.display);

@@ -1,0 +1,23 @@
+name: Coverity Scan
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  coverity:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Dependencies
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get clean && sudo apt-get update
+        sudo apt-get -y install libc6-dev-i386 libx11-dev:i386
+
+    - uses: vapier/coverity-scan-action@v1
+      with:
+        email: ${{ secrets.COVERITY_SCAN_EMAIL }}
+        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        working-directory: ./src

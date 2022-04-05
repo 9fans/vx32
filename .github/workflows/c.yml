@@ -1,0 +1,29 @@
+name: C
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Dependencies
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get clean && sudo apt-get update
+        sudo apt-get -y install libc6-dev-i386 libx11-dev:i386
+
+    - name: make clean
+      working-directory: ./src
+      run: make clean
+
+    - name: make
+      working-directory: ./src
+      run: make

@@ -12,6 +12,7 @@ typedef struct Dirtab	Dirtab;
 typedef struct Edf	Edf;
 typedef struct Egrp	Egrp;
 typedef struct Evalue	Evalue;
+typedef struct Execvals	Execvals;
 typedef struct Fgrp	Fgrp;
 typedef struct DevConf	DevConf;
 typedef struct Image	Image;
@@ -48,10 +49,46 @@ typedef struct Uart	Uart;
 typedef struct Waitq	Waitq;
 typedef struct Walkqid	Walkqid;
 typedef struct Watchdog	Watchdog;
+typedef struct Watermark	Watermark;
 typedef int    Devgen(Chan*, char*, Dirtab*, int, int, Dir*);
 
 
 #include "fcall.h"
+
+#define HOWMANY(x, y)	(((x)+((y)-1))/(y))
+#define ROUNDUP(x, y)	(HOWMANY((x), (y))*(y))	/* ceiling */
+#define ROUNDDN(x, y)	(((x)/(y))*(y))		/* floor */
+#define	ROUND(s, sz)	(((s)+(sz-1))&~(sz-1))
+#define	PGROUND(s)	ROUNDUP(s, BY2PG)
+#define MIN(a, b)	((a) < (b)? (a): (b))
+#define MAX(a, b)	((a) > (b)? (a): (b))
+
+/*
+ * For multi-bit fields use FIELD(v, o, w) where 'v' is the value
+ * of the bit-field of width 'w' with LSb at bit offset 'o'.
+ */
+#define FIELD(v, o, w)	(((v) & ((1<<(w))-1))<<(o))
+
+#define FCLR(d, o, w)	((d) & ~(((1<<(w))-1)<<(o)))
+#define FEXT(d, o, w)	(((d)>>(o)) & ((1<<(w))-1))
+#define FINS(d, o, w, v) (FCLR((d), (o), (w))|FIELD((v), (o), (w)))
+#define F
+
+#define FMASK(o, w)	(((1<<(w))-1)<<(o))
+
+/* let each port override any of these */
+#ifndef KMESGSIZE
+#define KMESGSIZE (16*1024)
+#endif
+#ifndef PCICONSSIZE
+#define PCICONSSIZE (16*1024)
+#endif
+#ifndef STAGESIZE
+#define STAGESIZE 64
+#endif
+#ifndef MAXBY2PG
+#define MAXBY2PG BY2PG		/* rounding for UTZERO in executables */
+#endif
 
 struct Ref
 {
@@ -71,6 +108,7 @@ struct QLock
 	Proc	*head;		/* next process waiting for object */
 	Proc	*tail;		/* last process waiting for object */
 	int	locked;		/* flag */
+	uintptr	qpc;		/* pc of the holder */
 };
 
 struct RWlock
@@ -139,6 +177,7 @@ struct Block
 	void	(*free)(Block*);
 	ushort	flag;
 	ushort	checksum;		/* IP checksum of complete packet (minus media header) */
+	ulong	magic;
 };
 
 #define BLEN(s)	((s)->wp - (s)->rp)
@@ -213,6 +252,9 @@ struct Dev
 	int	(*wstat)(Chan*, uchar*, int);
 	void	(*power)(int);	/* power mgt: power(1) => on, power (0) => off */
 	int	(*config)(int, char*, DevConf*);	/* returns nil on error */
+
+	/* not initialised */
+	int	attached;				/* debugging */
 };
 
 struct Dirtab
@@ -673,7 +715,7 @@ struct Proc
 
 	QLock	debug;		/* to access debugging elements of User */
 	Proc	*pdbg;		/* the debugging process */
-	ulong	procmode;	/* proc device file mode */
+	ulong	procmode;	/* proc device default file mode */
 	ulong	privatemem;	/* proc does not let anyone read mem */
 	int	hang;		/* hang at next exec for debug */
 	int	procctl;	/* Control for /proc debugging */
@@ -766,6 +808,12 @@ enum
 	READSTR =	4000,		/* temporary buffer size for device reads */
 };
 
+struct Execvals {
+	uvlong	entry;
+	ulong	textsize;
+	ulong	datasize;
+};
+
 extern	Conf	conf;
 extern	char*	conffile;
 extern	int	cpuserver;
@@ -779,11 +827,15 @@ extern	Queue*	kprintoq;
 extern 	Ref	noteidalloc;
 extern	int	nsyscall;
 extern	Palloc	palloc;
+	int	(*parseboothdr)(Chan *, ulong, Execvals *);
 extern	Queue*	serialoq;
 extern	char*	statename[];
 extern	Image	swapimage;
 extern	char*	sysname;
 extern	uint	qiomaxatomic;
+
+	Watchdog*watchdog;
+	int	watchdogon;
 
 enum
 {
@@ -859,7 +911,7 @@ struct PhysUart
 };
 
 enum {
-	Stagesize=	2048
+	Stagesize=	STAGESIZE
 };
 
 /*
@@ -924,6 +976,8 @@ struct Uart
 
 extern	Uart*	consuart;
 
+void (*lprint)(char *, int);
+
 /*
  *  performance timers, all units in perfticks
  */
@@ -946,6 +1000,15 @@ struct Watchdog
 	void	(*stat)(char*, char*);	/* watchdog statistics */
 };
 
+struct Watermark
+{
+	int	highwater;
+	int	curr;
+	int	max;
+	int	hitmax;		/* count: how many times hit max? */
+	char	*name;
+};
+
 
 /* queue state bits,  Qmsg, Qcoalesce, and Qkick can be set in qopen */
 enum
@@ -955,7 +1018,7 @@ enum
 	Qmsg		= (1<<1),	/* message stream */
 	Qclosed		= (1<<2),	/* queue has been closed/hungup */
 	Qflow		= (1<<3),	/* producer flow controlled */
-	Qcoalesce	= (1<<4),	/* coallesce packets on read */
+	Qcoalesce	= (1<<4),	/* coalesce packets on read */
 	Qkick		= (1<<5),	/* always call the kick routine after qwrite */
 };
 

@@ -185,14 +185,24 @@ kstrdup(char **p, char *s)
 	free(prev);
 }
 
+static int debugstart = 1;
+
 void
 chandevreset(void)
 {
 	int i;
 
 	todinit();	/* avoid later reentry causing infinite recursion */
-	for(i=0; devtab[i] != nil; i++)
+	debugstart = getconf("*debugstart") != nil;
+	if(debugstart)
+		iprint("reset:");
+	for(i=0; devtab[i] != nil; i++) {
+		if(debugstart)
+			iprint(" %s", devtab[i]->name);
 		devtab[i]->reset();
+	}
+	if(debugstart)
+		iprint("\n");
 }
 
 void
@@ -200,8 +210,15 @@ chandevinit(void)
 {
 	int i;
 
-	for(i=0; devtab[i] != nil; i++)
+	if(debugstart)
+		iprint("init:");
+	for(i=0; devtab[i] != nil; i++) {
+		if(debugstart)
+			iprint(" %s", devtab[i]->name);
 		devtab[i]->init();
+	}
+	if(debugstart)
+		iprint("\n");
 }
 
 void
@@ -1013,7 +1030,8 @@ walk(Chan **cp, char **names, int nnames, int nomount, int *nerror)
 				 * mh->mount->to == c, so start at mh->mount->next
 				 */
 				rlock(&mh->lock);
-				for(f = mh->mount->next; f; f = f->next)
+				f = mh->mount;
+				for(f = (f? f->next: f); f; f = f->next)
 					if((wq = ewalk(f->to, nil, names+nhave, ntry)) != nil)
 						break;
 				runlock(&mh->lock);
@@ -1263,7 +1281,7 @@ namelenerror(char *aname, int len, char *err)
 			if(name <= aname)
 				panic("bad math in namelenerror");
 			/* walk out of current UTF sequence */
-			for(i=0; (*name&0xC0)==0x80 && i<3; i++)
+			for(i=0; (*name&0xC0)==0x80 && i<UTFmax; i++)
 				name++;
 		}
 		snprint(up->genbuf, sizeof up->genbuf, "...%.*s",
@@ -1362,7 +1380,11 @@ namec(char *aname, int amode, int omode, ulong perm)
 		t = devno(r, 1);
 		if(t == -1)
 			error(Ebadsharp);
+		if(debugstart && !devtab[t]->attached)
+			print("#%C...", devtab[t]->dc);
 		c = devtab[t]->attach(up->genbuf+n);
+		if(debugstart && c != nil)
+			devtab[t]->attached = 1;
 		break;
 
 	default:
@@ -1689,7 +1711,7 @@ validname0(char *aname, int slashok, int dup, ulong pc)
 	name = aname;
 	if(isuaddr(name)){
 		if(!dup)
-			print("warning: validname called from %lux with user pointer", pc);
+			print("warning: validname called from %#p with user pointer", pc);
 		char *p;
 		uint t;
 		p = name;

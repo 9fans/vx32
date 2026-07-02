@@ -31,7 +31,7 @@ autofiles="
 /sys/src/9/pc/fns.h
 /sys/src/9/pc/io.h
 /sys/src/9/pc/mem.h
-/sys/src/9/pc/sdscsi.c
+/sys/src/9/port/sdscsi.c
 /sys/src/9/port/allocb.c
 #/sys/src/9/port/aoe.h
 /sys/src/9/port/auth.c
@@ -78,10 +78,10 @@ autofiles="
 /sys/src/libc/port/u16.c
 /sys/src/libc/port/u32.c
 /sys/src/9/port/unthwack.c
-/sys/src/boot/pc/fs.h
+#/sys/src/boot/pc/fs.h
 /sys/src/boot/pc/dosfs.h
-/sys/src/boot/pc/kfs.h
-/sys/src/boot/pc/part.c
+#/sys/src/boot/pc/kfs.h
+#/sys/src/boot/pc/part.c
 /sys/src/libc/9syscall/sys.h
 /sys/src/libc/9sys/convD2M.c
 /sys/src/libc/9sys/convM2D.c

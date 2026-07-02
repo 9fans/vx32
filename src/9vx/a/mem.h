@@ -11,13 +11,18 @@
 #define	BY2V		8			/* bytes per double word */
 #define	BY2PG		4096			/* bytes per page */
 #define	WD2PG		(BY2PG/BY2WD)		/* words per page */
-#define	BY2XPG		(4096*1024)	/* bytes per big page */
+#define	BY2XPG		(4096*1024)		/* bytes per big page */
 #define	PGSHIFT		12			/* log(BY2PG) */
-#define	ROUND(s, sz)	(((s)+((sz)-1))&~((sz)-1))
-#define	PGROUND(s)	ROUND(s, BY2PG)
+#define CACHELINESZ	32			/* pentium & later */
 #define	BLOCKALIGN	8
+#define FPalign		16			/* required for FXSAVE */
 
-#define	MAXMACH		128			/* max # cpus system can run */
+/*
+ * In 128-bit mode, the MAXMACH limit is 32 without
+ * changing the way active.machs is defined and used
+ * (unfortunately, it is also used in the port code).
+ */
+#define	MAXMACH		32			/* max # cpus system can run */
 #define	KSTACK		(1024*1024)			/* Size of kernel stack */
 
 /*

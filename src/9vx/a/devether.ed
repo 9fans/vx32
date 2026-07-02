@@ -15,7 +15,7 @@ extern int memsize;
 /activemulti(/ s/ether/\&&->ni/
 /netifread(/ s/ether/\&&->ni/
 /netifwrite(/ s/ether/\&&->ni/
-/netifinit(/ s/ether/\&&->ni/
+/netifinit(ether/ s/ether/\&&->ni/
 ,s/ether->inpackets/ether->ni.inpackets/g
 ,s/ether->f/ether->ni.f/g
 ,s/ether->soverflows/ether->ni.soverflows/g
@@ -26,6 +26,9 @@ extern int memsize;
 ,s/ether->alen/ether->ni.alen/g
 ,s/ether->addr/ether->ni.addr/g
 ,s/ether->limit/ether->ni.limit/g
+,s/ether->minmtu/ether->ni.minmtu/g
+,s/ether->maxmtu/ether->ni.maxmtu/g
+,s/ether->mtu/ether->ni.mtu/g
 ,s/ether->nopt/ether->isac.nopt/g
 ,s/ether->opt/ether->isac.opt/g
 ,s/ether->mem/ether->isac.mem/g

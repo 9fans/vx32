@@ -103,7 +103,7 @@ prflush(void)
  */
 struct {
 	Lock lk;
-	char buf[16384];
+	char buf[KMESGSIZE];
 	uint n;
 } kmesg;
 
@@ -612,6 +612,7 @@ enum{
 	Qtime,
 	Quser,
 	Qzero,
+	Qconfig,
 };
 
 enum
@@ -636,13 +637,14 @@ static Dirtab consdir[]={
 	"pid",		{Qpid},		NUMSIZE,	0444,
 	"ppid",		{Qppid},	NUMSIZE,	0444,
 	"random",	{Qrandom},	0,		0444,
-	"reboot",	{Qreboot},	0,		0664,
+	"reboot",	{Qreboot},	0,		0660,
 	"swap",		{Qswap},	0,		0664,
 	"sysname",	{Qsysname},	0,		0664,
 	"sysstat",	{Qsysstat},	0,		0666,
 	"time",		{Qtime},	NUMSIZE+3*VLNUMSIZE,	0664,
 	"user",		{Quser},	0,		0666,
 	"zero",		{Qzero},	0,		0444,
+	"config",	{Qconfig},	0,		0444,
 };
 
 int
@@ -767,6 +769,7 @@ consread(Chan *c, void *buf, long n, vlong off)
 	char tmp[256];		/* must be >= 18*NUMSIZE (Qswap) */
 	int i, k, id, send;
 	vlong offset = off;
+	extern char configfile[];
 
 	if(n <= 0)
 		return n;
@@ -883,6 +886,9 @@ consread(Chan *c, void *buf, long n, vlong off)
 	case Qnull:
 		return 0;
 
+	case Qconfig:
+		return readstr((ulong)offset, buf, n, configfile);
+
 	case Qsysstat:
 		b = smalloc(conf.nmach*(NUMSIZE*11+1) + 1);	/* +1 for NUL */
 		bp = b;
@@ -942,9 +948,10 @@ consread(Chan *c, void *buf, long n, vlong off)
 		b = malloc(READSTR);
 		if(b == nil)
 			error(Enomem);
-		n = 0;
+		k = 0;
 		for(i = 0; devtab[i] != nil; i++)
-			n += snprint(b+n, READSTR-n, "#%C %s\n", devtab[i]->dc,  devtab[i]->name);
+			k += snprint(b+k, READSTR-k, "#%C %s\n",
+				devtab[i]->dc, devtab[i]->name);
 		if(waserror()){
 			free(b);
 			nexterror();
@@ -1046,6 +1053,10 @@ conswrite(Chan *c, void *va, long n, vlong off)
 		return userwrite(a, n);
 
 	case Qnull:
+		break;
+
+	case Qconfig:
+		error(Eperm);
 		break;
 
 	case Qreboot:

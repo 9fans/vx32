@@ -28,6 +28,7 @@ g/edfstop(up)/d
 ,s/lock(p->rgrp)/lock(\&p->rgrp->ref.lk)/
 ,s/Lock;/Lock lk;/g
 ,s/lock(\&broken)/lock(\&broken.lk)/g
+,s/lock(\&active)/lock(\&active.lk)/g
 ,s/MACHP(0)->ticks/msec()/g
 ,s/lock(\&palloc)/lock(\&palloc.lk)/g
 ,s/ref(p->dot)/ref(\&p->dot->ref)/g

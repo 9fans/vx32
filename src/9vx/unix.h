@@ -62,6 +62,11 @@ typedef unsigned long long uint64;
 typedef int int32;
 typedef long long int64;
 
+typedef unsigned char u8int;
+typedef unsigned short u16int;
+typedef unsigned int u32int;
+typedef unsigned long long u64int;
+
 #define USED(x) ((void)(x))
 
 void plimit(pid_t, int);

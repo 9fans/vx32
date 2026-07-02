@@ -143,6 +143,7 @@ enum {
 	/* mass storage */
 	Pciscscsi	= 0,		/* SCSI */
 	Pciscide	= 1,		/* IDE (ATA) */
+	Pciscsata	= 6,		/* SATA */
 
 	/* network */
 	Pciscether	= 0,		/* Ethernet */

@@ -13,6 +13,7 @@
 #include 	"vether.h"
 
 char	filebuf[BOOTARGSLEN];
+char	*configfile = "";
 
 static void
 addether(char *name, char *value)
@@ -95,6 +96,26 @@ setinioptions()
 		/* Restore '=' for setinienv and printconfig */
 		*(--value) = '=';
 	}
+}
+
+char*
+getconf(char *name)
+{
+	int i, n;
+	char *field, *eq;
+
+	n = strlen(name);
+	for(i = 0; i < MAXCONF; i++){
+		field = inifield[i];
+		if(field == nil)
+			break;
+		eq = strchr(field, '=');
+		if(eq == nil)
+			continue;
+		if(eq - field == n && strncmp(field, name, n) == 0)
+			return eq + 1;
+	}
+	return nil;
 }
 
 void

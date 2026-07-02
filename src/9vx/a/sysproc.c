@@ -140,7 +140,7 @@ sysrfork(uint32 *arg)
 		incref(&p->pgrp->ref);
 	}
 	if(flag & RFNOMNT)
-		up->pgrp->noattach = 1;
+		p->pgrp->noattach = 1;
 
 	if(flag & RFREND)
 		p->rgrp = newrgrp();
@@ -180,7 +180,8 @@ sysrfork(uint32 *arg)
 	if((flag&RFNOTEG) == 0)
 		p->noteid = up->noteid;
 
-	p->fpstate = up->fpstate;
+	/* don't penalize the child, it hasn't done FP in a note handler. */
+	p->fpstate = up->fpstate & ~FPillegal;
 	pid = p->pid;
 	memset(p->time, 0, sizeof(p->time));
 	p->time[TReal] = msec();
@@ -205,8 +206,8 @@ sysrfork(uint32 *arg)
 	return pid;
 }
 
-static uint32
-l2be(uint32 l)
+ulong
+l2be(long l)
 {
 	uchar *cp;
 
@@ -662,7 +663,7 @@ sys_wait(uint32 *arg)
 		return pwait(nil);
 
 	ow = uvalidaddr(arg[0], sizeof(OWaitmsg), 1);
-	evenaddr(arg[0]);
+	validalign(arg[0], BY2WD);			/* who cares? */
 	pid = pwait(&w);
 	if(pid >= 0){
 		readnum(0, ow->pid, NUMSIZE, w.pid, NUMSIZE);
@@ -1155,7 +1156,7 @@ syssemacquire(uint32 *arg)
 	Segment *s;
 
 	addr = uvalidaddr(arg[0], sizeof(long), 1);
-	evenaddr(arg[0]);
+	validalign(arg[0], sizeof(long));
 	block = arg[1];
 	
 	if((s = seg(up, arg[0], 0)) == nil)
@@ -1173,7 +1174,7 @@ systsemacquire(uint32 *arg)
 	Segment *s;
 
 	addr = uvalidaddr(arg[0], sizeof(long), 1);
-	evenaddr(arg[0]);
+	validalign(arg[0], sizeof(long));
 	ms = arg[1];
 
 	if((s = seg(up, arg[0], 0)) == nil)
@@ -1190,14 +1191,15 @@ syssemrelease(uint32 *arg)
 	Segment *s;
 
 	addr = uvalidaddr(arg[0], sizeof(long), 1);
-	evenaddr(arg[0]);
+	validalign(arg[0], sizeof(long));
 	delta = arg[1];
 
 	if((s = seg(up, arg[0], 0)) == nil)
 		error(Ebadarg);
+	/* delta == 0 is a no-op, not a release */
 	if(delta < 0 || *addr < 0)
 		error(Ebadarg);
-	return semrelease(s, addr, arg[1]);
+	return semrelease(s, addr, delta);
 }
 
 long

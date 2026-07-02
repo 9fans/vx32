@@ -32,6 +32,7 @@ __qlock(QLock *q)
 	rwstats.qlock++;
 	if(!q->locked) {
 		q->locked = 1;
+		q->qpc = getcallerpc(&q);
 		unlock(&q->use);
 		return;
 	}
@@ -49,6 +50,7 @@ __qlock(QLock *q)
 	up->qpc = getcallerpc(&q);
 	unlock(&q->use);
 	sched();
+	q->qpc = getcallerpc(&q);
 }
 
 int
@@ -61,6 +63,7 @@ __canqlock(QLock *q)
 		return 0;
 	}
 	q->locked = 1;
+	q->qpc = getcallerpc(&q);
 	unlock(&q->use);
 	return 1;
 }
@@ -84,6 +87,7 @@ __qunlock(QLock *q)
 		return;
 	}
 	q->locked = 0;
+	q->qpc = 0;
 	unlock(&q->use);
 }
 

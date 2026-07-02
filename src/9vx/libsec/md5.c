@@ -27,14 +27,14 @@
  *	documentation and/or software.
  */
 
-static void encode(uchar*, uint32*, ulong);
+static void encode(uchar*, u32int*, ulong);
 
-extern void _md5block(uchar*, ulong, uint32*);
+extern void _md5block(uchar*, ulong, u32int*);
 
 MD5state*
 md5(uchar *p, ulong len, uchar *digest, MD5state *s)
 {
-	uint32 x[16];
+	u32int x[16];
 	uchar buf[128];
 	int i;
 	uchar *e;
@@ -128,13 +128,13 @@ md5(uchar *p, ulong len, uchar *digest, MD5state *s)
 }
 
 /*
- *	encodes input (uint32) into output (uchar). Assumes len is
+ *	encodes input (u32int) into output (uchar). Assumes len is
  *	a multiple of 4.
  */
 static void
-encode(uchar *output, uint32 *input, ulong len)
+encode(uchar *output, u32int *input, ulong len)
 {
-	uint32 x;
+	u32int x;
 	uchar *e;
 
 	for(e = output + len; output < e;) {

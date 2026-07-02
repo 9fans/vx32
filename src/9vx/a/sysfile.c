@@ -31,8 +31,7 @@ growfd(Fgrp *f, int fd)	/* fd is always >= 0 */
 	if(fd >= f->nfd+DELTAFD)
 		return -1;	/* out of range */
 	/*
-	 * Unbounded allocation is unwise; besides, there are only 16 bits
-	 * of fid in 9P
+	 * Unbounded allocation is unwise
 	 */
 	if(f->nfd >= 5000){
     Exhausted:
@@ -192,9 +191,9 @@ syspipe(uint32 *arg)
 	Dev *d;
 	static char *datastr[] = {"data", "data1"};
 	int *ufd;
-	
-	ufd = uvalidaddr(arg[0], 2*BY2WD, 1);
-	evenaddr(arg[0]);
+
+	ufd = uvalidaddr(arg[0], sizeof(fd), 1);
+	validalign(arg[0], sizeof(int));
 	d = devtab[devno('|', 0)];
 	c[0] = namec("#|", Atodir, 0, 0);
 	c[1] = 0;
@@ -858,7 +857,8 @@ sseek(vlong *ret, uint32 *arg)
 long
 sysseek(uint32 *arg)
 {
-	sseek(uvalidaddr(arg[0], BY2V, 1), arg);
+	validalign(arg[0], sizeof(vlong));
+	sseek(uvalidaddr(arg[0], sizeof(vlong), 1), arg);
 	return 0;
 }
 

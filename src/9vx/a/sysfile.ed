@@ -59,8 +59,8 @@ g/va_list/d
 	int *ufd;
 .
 /validaddr/s/validaddr/ufd = uvalidaddr/
-/((long\*)arg\[0\]/s/((long\*)arg\[0\])/ufd/
-/((long\*)arg\[0\]/s/((long\*)arg\[0\])/ufd/
+/((int\*)arg\[0\]/s/((int\*)arg\[0\])/ufd/
+/((int\*)arg\[0\]/s/((int\*)arg\[0\])/ufd/
 /^sysopen/.
 /^{/a
 	char *name;

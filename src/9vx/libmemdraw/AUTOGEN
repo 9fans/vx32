@@ -25,14 +25,18 @@ autofiles="
 /sys/src/libmemdraw/unload.c
 "
 
+plan9=/home/rsc/plan9/4e
+if [ $# -gt 1 ] && [ $1 == "-r" ]; then
+	plan9=`ls -d $2` || exit 1
+	shift 2
+fi
+
 case "$#" in
 0)
 	;;
 *)
 	autofiles="$*"
 esac
-
-plan9=/home/rsc/plan9/4e
 
 for f in $autofiles
 do

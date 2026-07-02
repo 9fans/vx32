@@ -146,6 +146,8 @@ envcreate(Chan *c, char *name, int omode, ulong perm)
 
 	if(c->qid.type != QTDIR)
 		error(Eperm);
+	if(strlen(name) >= sizeof up->genbuf)
+		error("name too long");			/* protect envgen */
 
 	omode = openmode(omode);
 	eg = envgrp(c);

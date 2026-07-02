@@ -21,6 +21,7 @@ void	dmaend(int);
 int	dmainit(int, int);
 long	dmasetup(int, void*, long, int);
 #define	evenaddr(x)				/* x86 doesn't care */
+#define	validalign(x, y)			/* host doesn't care */
 void	fpclear(void);
 void	fpenv(FPsave*);
 void	fpinit(void);

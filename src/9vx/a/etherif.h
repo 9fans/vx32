@@ -9,8 +9,6 @@ struct Ether {
 
 	int	ctlrno;
 	int	tbdf;			/* type+busno+devno+funcno */
-	int	minmtu;
-	int 	maxmtu;
 	uchar	ea[Eaddrlen];
 
 	void	(*attach)(Ether*);	/* filled in by reset routine */
@@ -35,5 +33,3 @@ extern int parseether(uchar*, char*);
 
 #define NEXT(x, l)	(((uint)(x)+1)%(l))
 #define PREV(x, l)	(((x) == 0) ? (l)-1: (x)-1)
-#define	HOWMANY(x, y)	(((x)+((y)-1))/(y))
-#define ROUNDUP(x, y)	(HOWMANY((x), (y))*(y))

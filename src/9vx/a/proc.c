@@ -424,7 +424,7 @@ _ready(Proc *p)
 		return;
 	}
 
-	if(up != p)
+	if(up != p && (p->wired == nil || p->wired == m))
 		m->readied = p;	/* group scheduling */
 
 	updatecpu(p);
@@ -510,6 +510,7 @@ _runproc(void)
 
 	/* cooperative scheduling until the clock ticks */
 	if((p=m->readied) && p->mach==0 && p->state==Ready
+	&& (p->wired == nil || p->wired == m)
 	&& runq[Nrq-1].head == nil && runq[Nrq-2].head == nil){
 		skipscheds++;
 		rq = &runq[p->priority];
@@ -581,6 +582,24 @@ canpage(Proc *p)
 	return ok;
 }
 
+void
+noprocpanic(char *msg)
+{
+	/*
+	 * setting exiting will make hzclock() on each processor call exit(0).
+	 * clearing our bit in machs avoids calling exit(0) from hzclock()
+	 * on this processor.
+	 */
+	lock(&active.lk);
+	active.machs &= ~(1<<m->machno);
+	active.exiting = 1;
+	unlock(&active.lk);
+
+	procdump();
+	delay(1000);
+	panic(msg);
+}
+
 Proc*
 newproc(void)
 {
@@ -588,13 +607,19 @@ newproc(void)
 	Proc *p;
 
 	lock(&procalloc.lk);
-	for(;;) {
-		if((p = procalloc.free))
-			break;
+	while(((p = procalloc.free)) == nil) {
+		unlock(&procalloc.lk);
 
 		snprint(msg, sizeof msg, "no procs; %s forking",
 			up? up->text: "kernel");
-		unlock(&procalloc.lk);
+		/*
+		 * the situation is unlikely to heal itself.
+		 * dump the proc table and restart by default.
+		 * *noprocspersist in plan9.ini will yield the old
+		 * behaviour of trying forever.
+		 */
+		if(getconf("*noprocspersist") == nil)
+			noprocpanic(msg);
 		resrcwait(msg);
 		lock(&procalloc.lk);
 	}
@@ -856,7 +881,7 @@ tsleep(Rendez *r, int (*fn)(void*), void *arg, ulong ms)
 		nexterror();
 	}
 	sleep(r, tfn, arg);
-	if (up->timer.tt)
+	if(up->timer.tt)
 		timerdel(&up->timer);
 	up->timer.twhen = 0;
 	poperror();
@@ -1465,7 +1490,7 @@ exhausted(char *resource)
 {
 	char buf[ERRMAX];
 
-	sprint(buf, "no free %s", resource);
+	snprint(buf, sizeof buf, "no free %s", resource);
 	iprint("%s\n", buf);
 	error(buf);
 }

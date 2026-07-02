@@ -107,7 +107,7 @@ netifgen(Chan *c, char *dummy, Dirtab *vp, int dummy1, int i, Dir *dp)
 			}
 			q.type = QTDIR;
 			q.path = NETQID(i, N3rdqid);
-			sprint(up->genbuf, "%d", i);
+			snprint(up->genbuf, sizeof up->genbuf, "%d", i);
 			DD(c, q, up->genbuf, 0, eve, DMDIR|0555, dp);
 			break;
 		}
@@ -267,6 +267,8 @@ netifread(Netif *nif, Chan *c, void *a, long n, ulong offset)
 		return n;
 	case Naddrqid:
 		p = malloc(READSTR);
+		if(p == nil)
+			error(Enomem);
 		j = 0;
 		for(i = 0; i < nif->alen; i++)
 			j += snprint(p+j, READSTR-j, "%2.2ux", nif->addr[i]);
